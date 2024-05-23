@@ -78,6 +78,7 @@ public class Game extends JFrame {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 char tile = dungeon.getTile(x, y);
+
                 if (tile == '#') {
                     g.setColor(Color.BLACK);
                 } else if (tile == '.') {
@@ -89,7 +90,7 @@ public class Game extends JFrame {
                 }
                 g.fillRect(x * TILE_SIZE + getInsets().left, y * TILE_SIZE + getInsets().top, TILE_SIZE, TILE_SIZE);
                 g.setColor(Color.GRAY);
-                g.drawRect(x * TILE_SIZE + getInsets().left, y * TILE_SIZE + getInsets().top, TILE_SIZE, TILE_SIZE);
+                //g.drawRect(x * TILE_SIZE + getInsets().left, y * TILE_SIZE + getInsets().top, TILE_SIZE, TILE_SIZE);
             }
         }
     }
