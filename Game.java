@@ -10,9 +10,10 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 public class Game extends JFrame {
-    private static final int TILE_SIZE = 64;
+    private static final int TILE_SIZE = 60;
     private static final int WIDTH = 15;
     private static final int HEIGHT = 15;
+    private static final int Y_OFFSET = 70;
     private Dungeon dungeon;
     private Player player;
     private BufferedImage offScreenBuffer;
@@ -26,10 +27,9 @@ public class Game extends JFrame {
         preloadImages();
         initializeGame();
         showLevelAnnouncement();
-        setTitle("Dungeon Crawler - Level " + level);
+        setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
-        setSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
 
         addKeyListener(new KeyAdapter() {
             @Override
@@ -67,14 +67,23 @@ public class Game extends JFrame {
                 if (playerPos[0] == dungeon.exitX && playerPos[1] == dungeon.exitY) {
                     initializeGame();
                     level++;
-                    setTitle("Dungeon Crawler - Level " + level);
                     showLevelAnnouncement();
                     repaint();
                 }
             }
         });
 
-        setLocationRelativeTo(null);
+        pack(); // pack the frame first to calculate its preferred size
+
+        // Set the size of the frame with additional padding for margins
+        int frameWidth = WIDTH * TILE_SIZE; // 20 pixels padding on each side
+        int frameHeight = HEIGHT * TILE_SIZE + Y_OFFSET; // 20 pixels padding on top and bottom
+        setSize(frameWidth, frameHeight);
+
+        // Center the frame on the screen
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
+
         setVisible(true);
     }
 
@@ -112,6 +121,15 @@ public class Game extends JFrame {
 
         Graphics bufferGraphics = offScreenBuffer.getGraphics();
 
+        // Draw top area
+        bufferGraphics.setColor(new Color(50, 50, 50));
+        bufferGraphics.fillRect(0, 0, getWidth(), Y_OFFSET);
+
+        bufferGraphics.setColor(Color.WHITE);
+        bufferGraphics.setFont(new Font("Times", Font.BOLD, 20));
+        bufferGraphics.drawString("Level: " + level, 15, Y_OFFSET - 16); // Adjust position as needed
+
+        // Draw tiles
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 char tile = dungeon.getTile(x, y);
@@ -123,7 +141,7 @@ public class Game extends JFrame {
                     default -> null;
                 };
                 if (imageToDraw != null) {
-                    bufferGraphics.drawImage(imageToDraw, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
+                    bufferGraphics.drawImage(imageToDraw, x * TILE_SIZE, Y_OFFSET - 8 + y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
                 }
             }
         }
