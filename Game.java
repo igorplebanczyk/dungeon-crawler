@@ -4,6 +4,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import javax.imageio.ImageIO;
 
@@ -16,15 +18,12 @@ public class Game extends JFrame {
     private BufferedImage offScreenBuffer;
 
     public int level = 1;
-    private Image playerImage;
-    private Image wallImage;
-    private Image floorImage;
-    private Image exitImage;
+    private Map<String, Image> imageCache;
     private String message;
     private Timer messageTimer;
 
     public Game() {
-        loadImages();
+        preloadImages();
         initializeGame();
         showLevelAnnouncement();
         setTitle("Dungeon Crawler - Level " + level);
@@ -79,12 +78,18 @@ public class Game extends JFrame {
         setVisible(true);
     }
 
-    private void loadImages() {
+    private void preloadImages() {
+        imageCache = new HashMap<>();
+        loadAndCacheImage("/images/geralt.png");
+        loadAndCacheImage("/images/wall.png");
+        loadAndCacheImage("/images/floor.png");
+        loadAndCacheImage("/images/ciri.png");
+    }
+
+    private void loadAndCacheImage(String path) {
         try {
-            playerImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/geralt.png")));
-            wallImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/wall.png")));
-            floorImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/floor.png")));
-            exitImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/ciri.png")));
+            Image image = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
+            imageCache.put(path, image);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -101,42 +106,30 @@ public class Game extends JFrame {
     public void paint(Graphics g) {
         super.paint(g);
 
-        // Create off-screen buffer if it's null or the size has changed
         if (offScreenBuffer == null || offScreenBuffer.getWidth() != getWidth() || offScreenBuffer.getHeight() != getHeight()) {
             offScreenBuffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
         }
 
         Graphics bufferGraphics = offScreenBuffer.getGraphics();
 
-        // Draw to the off-screen buffer
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 char tile = dungeon.getTile(x, y);
-                Image imageToDraw = null;
-                switch (tile) {
-                    case '#':
-                        imageToDraw = wallImage;
-                        break;
-                    case '.':
-                        imageToDraw = floorImage;
-                        break;
-                    case 'P':
-                        imageToDraw = playerImage;
-                        break;
-                    case 'E':
-                        imageToDraw = exitImage;
-                        break;
-                }
+                Image imageToDraw = switch (tile) {
+                    case '#' -> getImageFromCache("/images/wall.png");
+                    case '.' -> getImageFromCache("/images/floor.png");
+                    case 'P' -> getImageFromCache("/images/geralt.png");
+                    case 'E' -> getImageFromCache("/images/ciri.png");
+                    default -> null;
+                };
                 if (imageToDraw != null) {
                     bufferGraphics.drawImage(imageToDraw, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
                 }
             }
         }
 
-        // Draw the off-screen buffer to the screen
         g.drawImage(offScreenBuffer, 0, 0, this);
 
-        // Draw the message
         if (message != null) {
             g.setColor(Color.WHITE);
             g.setFont(new Font("Times ", Font.BOLD, 56));
@@ -147,6 +140,10 @@ public class Game extends JFrame {
             int y = (getHeight() - messageHeight) / 2 + fm.getAscent();
             g.drawString(message, x, y);
         }
+    }
+
+    private Image getImageFromCache(String path) {
+        return imageCache.get(path);
     }
 
     private void showLevelAnnouncement() {
