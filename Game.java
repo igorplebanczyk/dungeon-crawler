@@ -10,35 +10,45 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 public class Game extends JFrame {
+    // Variables to store game parameters
     private final String characterImage;
     private final int TILE_SIZE ;
     private final int WIDTH;
     private final int HEIGHT;
     private final int Y_OFFSET;
 
+    // Game objects
     private Dungeon dungeon;
     private Player player;
     private BufferedImage offScreenBuffer;
 
+    // Game state variables
     public int level = 1;
     private Map<String, Image> imageCache;
     private String message;
     private Timer messageTimer;
 
     public Game(String characterImage, int TILE_SIZE, int WIDTH, int HEIGHT, int Y_OFFSET) {
+        // Initialize game parameters
         this.characterImage = characterImage;
         this.TILE_SIZE = TILE_SIZE;
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;
         this.Y_OFFSET = Y_OFFSET;
 
+        // Preload images
         preloadImages();
+
+        // Initialize game and display level announcement
         initializeGame();
         showLevelAnnouncement();
+
+        // Set up JFrame properties
         setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
+        // Add key listener for player movement
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -60,9 +70,11 @@ public class Game extends JFrame {
                         break;
                 }
 
+                // Update player position based on key input
                 int newX = player.getX() + dx;
                 int newY = player.getY() + dy;
 
+                // Check for valid movement and update player position
                 if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
                         (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E')) {
                     dungeon.setTile(player.getX(), player.getY(), '.');
@@ -71,6 +83,7 @@ public class Game extends JFrame {
                     repaint();
                 }
 
+                // Check for reaching the exit and advance to the next level
                 int[] playerPos = player.getPosition();
                 if (playerPos[0] == dungeon.exitX && playerPos[1] == dungeon.exitY) {
                     initializeGame();
@@ -95,6 +108,7 @@ public class Game extends JFrame {
         setVisible(true);
     }
 
+    // Preload images into image cache
     private void preloadImages() {
         imageCache = new HashMap<>();
         loadAndCacheImage(characterImage); // Load the provided character image
@@ -103,21 +117,17 @@ public class Game extends JFrame {
         loadAndCacheImage("/images/ciri.png");
     }
 
+    // Load and cache image from file
     private void loadAndCacheImage(String path) {
         try {
             Image image = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
-            if (image == null) {
-                System.out.println("Failed to load image: " + path);
-            } else {
-                System.out.println("Loaded image: " + path);
-            }
             imageCache.put(path, image);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
+    // Initialize game state
     private void initializeGame() {
         dungeon = new Dungeon(WIDTH, HEIGHT);
         player = new Player(0, 0);
@@ -139,9 +149,16 @@ public class Game extends JFrame {
         bufferGraphics.setColor(new Color(50, 50, 50));
         bufferGraphics.fillRect(0, 0, getWidth(), Y_OFFSET);
 
+        // Draw level and character name
         bufferGraphics.setColor(Color.WHITE);
         bufferGraphics.setFont(new Font("Times", Font.BOLD, 20));
-        bufferGraphics.drawString("Level: " + level, 15, Y_OFFSET - 16); // Adjust position as needed
+        bufferGraphics.drawString("Level: " + level, 15, Y_OFFSET - 16);
+        if (Objects.equals(characterImage, "/images/geralt.png")) {
+            bufferGraphics.drawString("Geralt", 825, Y_OFFSET - 16);
+        }
+        else if (Objects.equals(characterImage, "/images/yen.png")) {
+            bufferGraphics.drawString("Yennefer", 800, Y_OFFSET - 16);
+        }
 
         // Draw tiles
         for (int y = 0; y < HEIGHT; y++) {
@@ -162,6 +179,7 @@ public class Game extends JFrame {
 
         g.drawImage(offScreenBuffer, 0, 0, this);
 
+        // Draw message if present
         if (message != null) {
             g.setColor(Color.WHITE);
             g.setFont(new Font("Times ", Font.BOLD, 56));
@@ -174,10 +192,12 @@ public class Game extends JFrame {
         }
     }
 
+    // Retrieve image from cache
     private Image getImageFromCache(String path) {
         return imageCache.get(path);
     }
 
+    // Display level announcement message
     private void showLevelAnnouncement() {
         message = "Welcome to Level " + level;
         if (messageTimer != null) {

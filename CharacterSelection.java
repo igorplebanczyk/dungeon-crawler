@@ -3,13 +3,13 @@ import java.awt.*;
 import java.util.Objects;
 
 public class CharacterSelection extends JFrame {
-    private static final int TILE_SIZE_SELECTION = 200;
-    private static final int TILE_SIZE_GAME = 60;
-    private static final int GAME_WIDTH = 15;
-    private static final int GAME_HEIGHT = 15;
-    private static final int SELECTION_WIDTH = 4;
-    private static final int SELECTION_HEIGHT = 4;
-    private static final int Y_OFFSET_GAME = 70;
+    private static final int TILE_SIZE_SELECTION = 200; // Size of each tile in the selection grid
+    private static final int TILE_SIZE_GAME = 60; // Size of each tile in the game grid
+    private static final int GAME_WIDTH = 15; // Width of the game grid
+    private static final int GAME_HEIGHT = 15; // Height of the game grid
+    private static final int SELECTION_WIDTH = 4; // Width of the selection grid
+    private static final int SELECTION_HEIGHT = 4; // Height of the selection grid
+    private static final int Y_OFFSET_GAME = 70; // Y offset for drawing the game grid
 
     public CharacterSelection() {
         setTitle("Character Selection");
@@ -32,6 +32,7 @@ public class CharacterSelection extends JFrame {
     }
 
     private JPanel getPanel() {
+        // Create the main panel for the character selection
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -47,6 +48,7 @@ public class CharacterSelection extends JFrame {
         };
         panel.setLayout(new GridLayout(SELECTION_HEIGHT, SELECTION_WIDTH));
 
+        // Layout representing the character selection grid
         char[][] layout = {
                 { '.', '.', '.', '.' },
                 { '.', 'G', 'Y', '.' },
@@ -54,22 +56,27 @@ public class CharacterSelection extends JFrame {
                 { '.', '.', '.', '.' }
         };
 
+        // Populate the panel with buttons and labels based on the layout
         for (int y = 0; y < SELECTION_HEIGHT; y++) {
             for (int x = 0; x < SELECTION_WIDTH; x++) {
                 char tile = layout[y][x];
                 JLabel label;
                 switch (tile) {
                     case '.':
+                        // Floor tile
                         label = new JLabel();
                         label.setPreferredSize(new Dimension(TILE_SIZE_SELECTION, TILE_SIZE_SELECTION));
                         break;
                     case 'G':
+                        // Geralt's character icon
                         label = new JLabel(new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/geralt.png"))).getImage().getScaledInstance(TILE_SIZE_SELECTION, TILE_SIZE_SELECTION, Image.SCALE_SMOOTH)));
                         break;
                     case 'Y':
+                        // Yennefer's character icon
                         label = new JLabel(new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/yen.png"))).getImage().getScaledInstance(TILE_SIZE_SELECTION, TILE_SIZE_SELECTION, Image.SCALE_SMOOTH)));
                         break;
                     case 'g':
+                        // Button to select Geralt
                         JButton geraltButton = new JButton("Select Geralt");
                         geraltButton.setPreferredSize(new Dimension(TILE_SIZE_SELECTION, TILE_SIZE_SELECTION));
                         geraltButton.setForeground(Color.WHITE); // Set text color
@@ -89,7 +96,8 @@ public class CharacterSelection extends JFrame {
                         label.add(geraltButton);
                         break;
                     case 'y':
-                        JButton yenButton = new JButton("Select Yen");
+                        // Button to select Yennefer
+                        JButton yenButton = new JButton("Select Yennefer");
                         yenButton.setPreferredSize(new Dimension(TILE_SIZE_SELECTION, TILE_SIZE_SELECTION));
                         yenButton.setForeground(Color.WHITE); // Set text color
                         yenButton.setBackground(new Color(70, 70, 70)); // Set background color
@@ -118,6 +126,7 @@ public class CharacterSelection extends JFrame {
         return panel;
     }
 
+    // Method to load image resources
     private Image loadImage() {
         try {
             return new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/floor.png"))).getImage();
