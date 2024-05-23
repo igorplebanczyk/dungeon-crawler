@@ -10,10 +10,12 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 public class Game extends JFrame {
-    private static final int TILE_SIZE = 60;
-    private static final int WIDTH = 15;
-    private static final int HEIGHT = 15;
-    private static final int Y_OFFSET = 70;
+    private final String characterImage;
+    private final int TILE_SIZE ;
+    private final int WIDTH;
+    private final int HEIGHT;
+    private final int Y_OFFSET;
+
     private Dungeon dungeon;
     private Player player;
     private BufferedImage offScreenBuffer;
@@ -23,7 +25,13 @@ public class Game extends JFrame {
     private String message;
     private Timer messageTimer;
 
-    public Game() {
+    public Game(String characterImage, int TILE_SIZE, int WIDTH, int HEIGHT, int Y_OFFSET) {
+        this.characterImage = characterImage;
+        this.TILE_SIZE = TILE_SIZE;
+        this.WIDTH = WIDTH;
+        this.HEIGHT = HEIGHT;
+        this.Y_OFFSET = Y_OFFSET;
+
         preloadImages();
         initializeGame();
         showLevelAnnouncement();
@@ -89,7 +97,7 @@ public class Game extends JFrame {
 
     private void preloadImages() {
         imageCache = new HashMap<>();
-        loadAndCacheImage("/images/geralt.png");
+        loadAndCacheImage(characterImage); // Load the provided character image
         loadAndCacheImage("/images/wall.png");
         loadAndCacheImage("/images/floor.png");
         loadAndCacheImage("/images/ciri.png");
@@ -98,11 +106,17 @@ public class Game extends JFrame {
     private void loadAndCacheImage(String path) {
         try {
             Image image = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
+            if (image == null) {
+                System.out.println("Failed to load image: " + path);
+            } else {
+                System.out.println("Loaded image: " + path);
+            }
             imageCache.put(path, image);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     private void initializeGame() {
         dungeon = new Dungeon(WIDTH, HEIGHT);
@@ -136,7 +150,7 @@ public class Game extends JFrame {
                 Image imageToDraw = switch (tile) {
                     case '#' -> getImageFromCache("/images/wall.png");
                     case '.' -> getImageFromCache("/images/floor.png");
-                    case 'P' -> getImageFromCache("/images/geralt.png");
+                    case 'P' -> getImageFromCache(characterImage);
                     case 'E' -> getImageFromCache("/images/ciri.png");
                     default -> null;
                 };
@@ -169,7 +183,7 @@ public class Game extends JFrame {
         if (messageTimer != null) {
             messageTimer.stop();
         }
-        messageTimer = new Timer(2000, e -> {
+        messageTimer = new Timer(1000, e -> {
             message = null;
             repaint();
         });
