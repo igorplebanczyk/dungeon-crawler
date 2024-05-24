@@ -4,10 +4,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import javax.imageio.ImageIO;
+import javax.swing.Timer;
 
 public class Game extends JFrame {
     // Variables to store game parameters
@@ -18,6 +17,7 @@ public class Game extends JFrame {
     private final int Y_OFFSET;
 
     // Game objects
+    private Dungeon[][] grid;
     private Dungeon dungeon;
     private Player player;
     private BufferedImage offScreenBuffer;
@@ -35,6 +35,10 @@ public class Game extends JFrame {
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;
         this.Y_OFFSET = Y_OFFSET;
+
+        //Game grid
+        grid = new Dungeon[4][4];
+        generateMap();
 
         // Preload images
         preloadImages();
@@ -134,6 +138,61 @@ public class Game extends JFrame {
         dungeon.setTile(player.getX(), player.getY(), 'P');
         dungeon.setTile(dungeon.exitX, dungeon.exitY, 'E');
     }
+
+    // Generate map
+    private void generateMap() {
+        Random random = new Random();
+
+        // Create first dungeon at a random position
+        int firstDungeonX = random.nextInt(1, 2);
+        int firstDungeonY = random.nextInt(1, 2);
+        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT);
+
+        // Create the rest of the dungeons ensuring adjacency
+        for (int k = 0; k < 2; k++) {
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (grid[i][j] == null && hasAdjacentDungeon(i, j)) {
+                        // Randomly decide whether to create a dungeon
+                        boolean shouldCreateDungeon = random.nextBoolean();
+                        if (shouldCreateDungeon) {
+                            grid[i][j] = new Dungeon(WIDTH, HEIGHT);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Print the generated map
+        for (int i = 0; i < 4; i++) {
+            System.out.println();
+            for (int j = 0; j < 4; j++) {
+                if (grid[i][j] != null) {
+                    System.out.print("D");
+                } else {
+                    System.out.print(".");
+                }
+            }
+        }
+    }
+
+    // Check if a dungeon exists at adjacent positions
+    private boolean hasAdjacentDungeon(int x, int y) {
+        if (x > 0 && grid[x - 1][y] != null) { // Check left
+            return true;
+        }
+        if (y > 0 && grid[x][y - 1] != null) { // Check up
+            return true;
+        }
+        if (x < 3 && grid[x + 1][y] != null) { // Check right
+            return true;
+        }
+        if (y < 3 && grid[x][y + 1] != null) { // Check down
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public void paint(Graphics g) {
