@@ -19,6 +19,14 @@ public class Player {
         return y;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
     // Method to move the player by specified amounts in the x and y directions
     public void move(int dx, int dy) {
         x += dx;
