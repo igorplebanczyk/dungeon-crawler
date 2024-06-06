@@ -1,14 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.Timer;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class Game extends JFrame {
@@ -118,12 +115,34 @@ public class Game extends JFrame {
                 // Use A* to find the shortest path
                 List<int[]> path = dungeon.aStar(new int[]{player.getX(), player.getY()}, new int[]{gridX, gridY});
 
-                // Move the player along the path
-                for (int[] position : path) {
-                    player.setX(position[0]);
-                    player.setY(position[1]);
-                    // You might want to add a delay here to animate the movement
-                }
+                // Create a Timer to animate the movement
+                Timer timer = new Timer(200, null); // 200ms delay between each move
+                timer.addActionListener(new ActionListener() {
+                    int index = 0;
+
+                    @Override
+                    public void actionPerformed(ActionEvent event) {
+                        if (index < path.size()) {
+                            // Clear the previous player position
+                            dungeon.setTile(player.getX(), player.getY(), '.');
+
+                            // Update the player's position
+                            int[] position = path.get(index);
+                            player.setX(position[0]);
+                            player.setY(position[1]);
+
+                            // Set the new player position
+                            dungeon.setTile(player.getX(), player.getY(), 'P');
+
+                            repaint(); // Refresh the screen
+                            index++;
+                        } else {
+                            // Stop the timer when the player has reached the destination
+                            timer.stop();
+                        }
+                    }
+                });
+                timer.start(); // Start the timer
             }
         });
 
