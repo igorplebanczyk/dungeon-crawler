@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.Timer;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class Game extends JFrame {
     // Variables to store game parameters
@@ -101,6 +104,25 @@ public class Game extends JFrame {
                     level++;
                     showLevelAnnouncement();
                     repaint();
+                }
+            }
+        });
+
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Convert mouse coordinates to grid coordinates
+                int gridX = e.getX() / TILE_SIZE;
+                int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
+
+                // Use A* to find the shortest path
+                List<int[]> path = dungeon.aStar(new int[]{player.getX(), player.getY()}, new int[]{gridX, gridY});
+
+                // Move the player along the path
+                for (int[] position : path) {
+                    player.setX(position[0]);
+                    player.setY(position[1]);
+                    // You might want to add a delay here to animate the movement
                 }
             }
         });
