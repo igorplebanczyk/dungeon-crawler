@@ -168,10 +168,18 @@ public class Dungeon {
     // Get valid neighbors for A*
     public List<int[]> getNeighbors(int[] pos) {
         List<int[]> neighbors = new ArrayList<>();
-        neighbors.add(new int[]{pos[0] - 1, pos[1]});
-        neighbors.add(new int[]{pos[0] + 1, pos[1]});
-        neighbors.add(new int[]{pos[0], pos[1] - 1});
-        neighbors.add(new int[]{pos[0], pos[1] + 1});
+        if (isValidTile(pos[0] - 1, pos[1])) { // Left
+            neighbors.add(new int[]{pos[0] - 1, pos[1]});
+        }
+        if (isValidTile(pos[0] + 1, pos[1])) { // Right
+            neighbors.add(new int[]{pos[0] + 1, pos[1]});
+        }
+        if (isValidTile(pos[0], pos[1] - 1)) { // Up
+            neighbors.add(new int[]{pos[0], pos[1] - 1});
+        }
+        if (isValidTile(pos[0], pos[1] + 1)) { // Down
+            neighbors.add(new int[]{pos[0], pos[1] + 1});
+        }
         return neighbors;
     }
 }
