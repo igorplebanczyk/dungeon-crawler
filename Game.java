@@ -7,8 +7,7 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.Timer;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class Game extends JFrame {
     // Variables to store game parameters
@@ -277,22 +276,33 @@ public class Game extends JFrame {
         // Create first dungeon at a random position
         int firstDungeonX = random.nextInt(1, 2);
         int firstDungeonY = random.nextInt(1, 2);
-        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);;
+        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);
 
         // Create the rest of the dungeons ensuring adjacency
         int ITERATE_TIMES = 2;
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         for (int k = 0; k < ITERATE_TIMES; k++) {
             for (int i = 0; i < GRID_SIZE; i++) {
                 for (int j = 0; j < GRID_SIZE; j++) {
-                    if (grid[i][j] == null && hasAdjacentDungeon(i, j)) {
-                        // Randomly decide whether to create a dungeon
-                        boolean shouldCreateDungeon = random.nextBoolean();
-                        if (shouldCreateDungeon) {
-                            grid[i][j] = new Dungeon(WIDTH, HEIGHT, i, j);
+                    int finalI = i;
+                    int finalJ = j;
+                    executor.submit(() -> {
+                        if (grid[finalI][finalJ] == null && hasAdjacentDungeon(finalI, finalJ)) {
+                            // Randomly decide whether to create a dungeon
+                            boolean shouldCreateDungeon = random.nextBoolean();
+                            if (shouldCreateDungeon) {
+                                grid[finalI][finalJ] = new Dungeon(WIDTH, HEIGHT, finalI, finalJ);
+                            }
                         }
-                    }
+                    });
                 }
             }
+        }
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         // Add doors
