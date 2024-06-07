@@ -11,7 +11,7 @@ public class Dungeon {
     private final int height;
 
     // 2D array to represent the dungeon map
-    private final char[][] map;
+    public final char[][] map;
 
     // Coordinates of the dungeon in the grid
     private final int x;
@@ -85,9 +85,6 @@ public class Dungeon {
             exitX = exitPosition[0];
             exitY = exitPosition[1];
             map[exitY][exitX] = 'E';
-
-            // Set player starting position
-            map[0][0] = 'P';
 
             // Fill in unreachable areas with walls
             fillInaccessibleAreasWithWalls();

@@ -56,8 +56,6 @@ public class Game extends JFrame {
         setResizable(false);
 
         // Add key listener for player movement
-        // Add key listener for player movement
-        // Add key listener for player movement
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -98,21 +96,19 @@ public class Game extends JFrame {
                     player.move(dx, dy); // Move the player first
                     if (dungeon.isDoor(newX, newY)) { // Check if the new position is a door
                         // Additional check to prevent moving out of bounds
-                        if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT) {
-                            // Check which edge the door is on and move to the corresponding adjacent dungeon
-                            if (newX == 0) { // Left edge
-                                dungeon = grid[dungeon.getX() - 1][dungeon.getY()];
-                                player.setX(WIDTH - 1);
-                            } else if (newX == WIDTH - 1) { // Right edge
-                                dungeon = grid[dungeon.getX() + 1][dungeon.getY()];
-                                player.setX(0);
-                            } else if (newY == 0) { // Top edge
-                                dungeon = grid[dungeon.getX()][dungeon.getY() - 1];
-                                player.setY(HEIGHT - 1);
-                            } else if (newY == HEIGHT - 1) { // Bottom edge
-                                dungeon = grid[dungeon.getX()][dungeon.getY() + 1];
-                                player.setY(0);
-                            }
+                        // Check which edge the door is on and move to the corresponding adjacent dungeon
+                        if (newX == 0) { // Left edge
+                            dungeon = grid[dungeon.getX() - 1][dungeon.getY()];
+                            player.setX(WIDTH - 1);
+                        } else if (newX == WIDTH - 1) { // Right edge
+                            dungeon = grid[dungeon.getX() + 1][dungeon.getY()];
+                            player.setX(0);
+                        } else if (newY == 0) { // Top edge
+                            dungeon = grid[dungeon.getX()][dungeon.getY() - 1];
+                            player.setY(HEIGHT - 1);
+                        } else if (newY == HEIGHT - 1) { // Bottom edge
+                            dungeon = grid[dungeon.getX()][dungeon.getY() + 1];
+                            player.setY(0);
                         }
                     }
                     dungeon.setTile(player.getX(), player.getY(), 'P'); // Draw the player at the new position
@@ -128,7 +124,7 @@ public class Game extends JFrame {
                     repaint();
                 }
             }
-        });;;
+        });
 
         this.addMouseListener(new MouseAdapter() {
             @Override
@@ -242,6 +238,7 @@ public class Game extends JFrame {
             for (int j = 0; j < GRID_SIZE; j++) {
                 if (grid[i][j] != null) {
                     dungeon = grid[i][j];
+                    dungeon.map[0][0] = 'P'; // Set player position
                     player = new Player(0, 0); // Assuming player starts at (0, 0) in the dungeon
                     dungeon.setTile(player.getX(), player.getY(), 'P');
                     dungeon.setTile(dungeon.exitX, dungeon.exitY, 'E');
@@ -254,6 +251,7 @@ public class Game extends JFrame {
     private void generateNewLevel() {
         // Generate a new dungeon
         dungeon = new Dungeon(WIDTH, HEIGHT, 0, 0);
+        dungeon.map[0][0] = 'P'; // Set player position
 
         // Set initial player position
         player.setX(0);
