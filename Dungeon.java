@@ -82,16 +82,16 @@ public class Dungeon {
             map[1][0] = '.';
 
             // Check if there exists a path from player's starting position to the exit
-            exitReachable = isExitReachable(0, 0);
+            exitReachable = isExitReachable();
             fillInaccessibleAreasWithWalls();
         }
     }
 
     // Method to check if the exit is reachable from a given position using DFS
-    private boolean isExitReachable(int startX, int startY) {
+    private boolean isExitReachable() {
         boolean[][] visited = new boolean[height][width];
         Stack<int[]> stack = new Stack<>();
-        stack.push(new int[]{startX, startY});
+        stack.push(new int[]{0, 0});
 
         while (!stack.isEmpty()) {
             int[] current = stack.pop();
@@ -155,6 +155,11 @@ public class Dungeon {
         return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#';
     }
 
+    // Method to check if a tile is valid for the pathfinder (within bounds, not a wall, and not an exit)
+    private boolean isValidTileForPathfinder(int x, int y) {
+        return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#' && map[y][x] != 'E';
+    }
+
     // Method to get the tile type at a given position
     public char getTile(int x, int y) {
         return map[y][x];
@@ -192,29 +197,29 @@ public class Dungeon {
                 if (x == goalX && y == goalY) {
                     List<Point> path = new ArrayList<>();
                     while (current != null) {
-                        path.add(0, current);
+                        path.addFirst(current);
                         current = cameFrom.get(current);
                     }
                     return path; // Early exit if goal is found
                 }
 
                 // Check adjacent tiles
-                if (isValidTile(x - 1, y) && !visited[y][x - 1]) { // Left
+                if (isValidTileForPathfinder(x - 1, y) && !visited[y][x - 1]) { // Left
                     frontier.add(new Point(x - 1, y));
                     cameFrom.put(new Point(x - 1, y), current);
                     visited[y][x - 1] = true; // Mark node as visited
                 }
-                if (isValidTile(x + 1, y) && !visited[y][x + 1]) { // Right
+                if (isValidTileForPathfinder(x + 1, y) && !visited[y][x + 1]) { // Right
                     frontier.add(new Point(x + 1, y));
                     cameFrom.put(new Point(x + 1, y), current);
                     visited[y][x + 1] = true;
                 }
-                if (isValidTile(x, y - 1) && !visited[y - 1][x]) { // Up
+                if (isValidTileForPathfinder(x, y - 1) && !visited[y - 1][x]) { // Up
                     frontier.add(new Point(x, y - 1));
                     cameFrom.put(new Point(x, y - 1), current);
                     visited[y - 1][x] = true;
                 }
-                if (isValidTile(x, y + 1) && !visited[y + 1][x]) { // Down
+                if (isValidTileForPathfinder(x, y + 1) && !visited[y + 1][x]) { // Down
                     frontier.add(new Point(x, y + 1));
                     cameFrom.put(new Point(x, y + 1), current);
                     visited[y + 1][x] = true;
@@ -226,23 +231,5 @@ public class Dungeon {
 
         // Return the result of the BFS method, or throw a TimeoutException if it does not complete within 15 seconds
         return future.orTimeout(15, TimeUnit.SECONDS).get();
-    }
-
-    // Get valid neighbors for A*
-    public List<int[]> getNeighbors(int[] pos) {
-        List<int[]> neighbors = new ArrayList<>();
-        if (isValidTile(pos[0] - 1, pos[1])) { // Left
-            neighbors.add(new int[]{pos[0] - 1, pos[1]});
-        }
-        if (isValidTile(pos[0] + 1, pos[1])) { // Right
-            neighbors.add(new int[]{pos[0] + 1, pos[1]});
-        }
-        if (isValidTile(pos[0], pos[1] - 1)) { // Up
-            neighbors.add(new int[]{pos[0], pos[1] - 1});
-        }
-        if (isValidTile(pos[0], pos[1] + 1)) { // Down
-            neighbors.add(new int[]{pos[0], pos[1] + 1});
-        }
-        return neighbors;
     }
 }

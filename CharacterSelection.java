@@ -86,7 +86,7 @@ public class CharacterSelection extends JFrame {
                         geraltButton.setBorder(BorderFactory.createCompoundBorder(
                                 BorderFactory.createMatteBorder(4, 4, 4, 2, Color.BLACK), // Top, Right, Bottom, Left
                                 BorderFactory.createEmptyBorder(10, 10, 10, 10))); // Add padding around the button
-                        geraltButton.addActionListener(e -> {
+                        geraltButton.addActionListener(_ -> {
                             dispose(); // Close the character selection window
                             // Launch the game with Geralt selected
                             new Game("/images/geralt.png", TILE_SIZE_GAME, GAME_WIDTH, GAME_HEIGHT, Y_OFFSET_GAME);
@@ -106,7 +106,7 @@ public class CharacterSelection extends JFrame {
                         yenButton.setBorder(BorderFactory.createCompoundBorder(
                                 BorderFactory.createMatteBorder(4, 2, 4, 4, Color.BLACK), // Top, Right, Bottom, Left
                                 BorderFactory.createEmptyBorder(10, 10, 10, 10))); // Add padding around the button
-                        yenButton.addActionListener(e -> {
+                        yenButton.addActionListener(_ -> {
                             dispose(); // Close the character selection window
                             // Launch the game with Yen selected
                             new Game("/images/yen.png", TILE_SIZE_GAME, GAME_WIDTH, GAME_HEIGHT, Y_OFFSET_GAME);

@@ -18,13 +18,11 @@ public class Game extends JFrame {
     private final int HEIGHT;
     private final int Y_OFFSET;
     private final int GRID_SIZE = 5;
-    private final int ITERATE_TIMES = 2;
 
     // Game objects
     private final Dungeon[][] grid;
     private Dungeon dungeon;
     private Player player;
-    private final int[] playerMapPos = new int[2];
     private BufferedImage offScreenBuffer;
 
     // Game state variables
@@ -45,16 +43,12 @@ public class Game extends JFrame {
         grid = new Dungeon[GRID_SIZE][GRID_SIZE];
         generateMap();
 
-        // Set initial player position
-        this.playerMapPos[0] = 0;
-        this.playerMapPos[1] = 0;
-
         // Preload images
         preloadImages();
 
         // Initialize game and display level announcement
         initializeGame();
-        showLevelAnnouncement();
+        showAnnouncement("Welcome to level " + level, 750);
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
@@ -101,7 +95,7 @@ public class Game extends JFrame {
                 if (playerPos[0] == dungeon.exitX && playerPos[1] == dungeon.exitY) {
                     level++;
                     generateNewLevel();
-                    showLevelAnnouncement();
+                    showAnnouncement("Welcome to level " + level, 750);
                     repaint();
                 }
             }
@@ -120,14 +114,14 @@ public class Game extends JFrame {
                     return;
                 }
                 else if (dungeon.getTile(gridX, gridY) == 'E') {
-                    itAintThatEasy();
+                    showAnnouncement("It ain't that easy", 500);
                     return;
                 }
 
                 // Use BFS to find the shortest path
-                List<Point> path = null;
+                List<Point> path;
                 try {
-                    path = dungeon.bfs(player.getX(), player.getY(), gridX, gridY);;
+                    path = dungeon.bfs(player.getX(), player.getY(), gridX, gridY);
                 } catch (InterruptedException | ExecutionException ex) {
                     if (ex.getCause() instanceof TimeoutException) {
                         // Handle TimeoutException
@@ -137,6 +131,11 @@ public class Game extends JFrame {
                     throw new RuntimeException(ex);
                 } catch (TimeoutException ex) {
                     throw new RuntimeException(ex);
+                }
+
+                // If path is null, don't start the timer
+                if (path == null) {
+                    return;
                 }
 
                 // Create a Timer to animate the movement
@@ -246,6 +245,7 @@ public class Game extends JFrame {
         grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT);
 
         // Create the rest of the dungeons ensuring adjacency
+        int ITERATE_TIMES = 2;
         for (int k = 0; k < ITERATE_TIMES; k++) {
             for (int i = 0; i < GRID_SIZE; i++) {
                 for (int j = 0; j < GRID_SIZE; j++) {
@@ -297,22 +297,7 @@ public class Game extends JFrame {
             offScreenBuffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
         }
 
-        Graphics bufferGraphics = offScreenBuffer.getGraphics();
-
-        // Draw top area
-        bufferGraphics.setColor(new Color(50, 50, 50));
-        bufferGraphics.fillRect(0, 0, getWidth(), Y_OFFSET);
-
-        // Draw level and character name
-        bufferGraphics.setColor(Color.WHITE);
-        bufferGraphics.setFont(new Font("Times", Font.BOLD, 20));
-        bufferGraphics.drawString("Level: " + level, 15, Y_OFFSET - 16);
-        if (Objects.equals(characterImage, "/images/geralt.png")) {
-            bufferGraphics.drawString("Geralt", 825, Y_OFFSET - 16);
-        }
-        else if (Objects.equals(characterImage, "/images/yen.png")) {
-            bufferGraphics.drawString("Yennefer", 800, Y_OFFSET - 16);
-        }
+        Graphics bufferGraphics = getBufferGraphics();
 
         // Draw tiles
         for (int y = 0; y < HEIGHT; y++) {
@@ -346,33 +331,39 @@ public class Game extends JFrame {
         }
     }
 
+    private Graphics getBufferGraphics() {
+        Graphics bufferGraphics = offScreenBuffer.getGraphics();
+
+        // Draw top area
+        bufferGraphics.setColor(new Color(50, 50, 50));
+        bufferGraphics.fillRect(0, 0, getWidth(), Y_OFFSET);
+
+        // Draw level and character name
+        bufferGraphics.setColor(Color.WHITE);
+        bufferGraphics.setFont(new Font("Times", Font.BOLD, 20));
+        bufferGraphics.drawString("Level: " + level, 15, Y_OFFSET - 16);
+        if (Objects.equals(characterImage, "/images/geralt.png")) {
+            bufferGraphics.drawString("Geralt", 825, Y_OFFSET - 16);
+        }
+        else if (Objects.equals(characterImage, "/images/yen.png")) {
+            bufferGraphics.drawString("Yennefer", 800, Y_OFFSET - 16);
+        }
+        return bufferGraphics;
+    }
+
     // Retrieve image from cache
     private Image getImageFromCache(String path) {
         return imageCache.get(path);
     }
 
-    // Display level announcement message
-    private void showLevelAnnouncement() {
-        message = "Welcome to Level " + level;
+    // Show announcement message for a specified duration
+    private void showAnnouncement(String message, int duration) {
+        this.message = message; // Set the message
         if (messageTimer != null) {
             messageTimer.stop();
         }
-        messageTimer = new Timer(1000, e -> {
-            message = null;
-            repaint();
-        });
-        messageTimer.setRepeats(false);
-        messageTimer.start();
-        repaint();
-    }
-
-    private void itAintThatEasy() {
-        message = "it ain't that easy";
-        if (messageTimer != null) {
-            messageTimer.stop();
-        }
-        messageTimer = new Timer(500, e -> {
-            message = null;
+        messageTimer = new Timer(duration, _ -> {
+            this.message = null; // Clear the message after the duration
             repaint();
         });
         messageTimer.setRepeats(false);
