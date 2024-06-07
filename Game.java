@@ -119,7 +119,7 @@ public class Game extends JFrame {
                 }
 
                 // Use A* to find the shortest path
-                List<int[]> path = dungeon.aStar(new int[]{player.getX(), player.getY()}, new int[]{gridX, gridY});
+                List<int[]> path = dungeon.bfs(new int[]{player.getX(), player.getY()}, new int[]{gridX, gridY});
 
                 // Create a Timer to animate the movement
                 Timer timer = new Timer(200, null); // 200ms delay between each move

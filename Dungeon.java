@@ -1,6 +1,10 @@
 import java.util.Random;
 import java.util.Stack;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Dungeon {
     // Dungeon dimensions
@@ -136,35 +140,33 @@ public class Dungeon {
         return new int[]{x, y};
     }
 
-    public List<int[]> aStar(int[] start, int[] goal) {
-        // Limit the search area to a certain radius around the player
-        int searchRadius = 10;
-        if (Math.abs(start[0] - goal[0]) > searchRadius || Math.abs(start[1] - goal[1]) > searchRadius) {
-            return null; // The goal is too far away
-        }
-
-        // Use a binary heap for the open set
-        PriorityQueue<int[]> frontier = new PriorityQueue<>(Comparator.comparingInt(pos -> Math.abs(pos[0] - goal[0]) + Math.abs(pos[1] - goal[1])));
+    public List<int[]> bfs(int[] start, int[] goal) {
+        // Use a Deque for BFS
+        Deque<int[]> frontier = new ArrayDeque<>();
         frontier.add(start);
         Map<int[], int[]> cameFrom = new HashMap<>();
         cameFrom.put(start, null);
 
+        // Use a set to keep track of visited nodes
+        Set<int[]> visited = new HashSet<>();
+        visited.add(start);
+
         while (!frontier.isEmpty()) {
             int[] current = frontier.poll();
-
             if (Arrays.equals(current, goal)) {
                 List<int[]> path = new ArrayList<>();
                 while (current != null) {
                     path.add(0, current);
                     current = cameFrom.get(current);
                 }
-                return path;
+                return path; // Early exit if goal is found
             }
 
             for (int[] next : getNeighbors(current)) {
-                if (!cameFrom.containsKey(next)) {
+                if (!visited.contains(next)) {
                     frontier.add(next);
                     cameFrom.put(next, current);
+                    visited.add(next); // Mark node as visited
                 }
             }
         }
