@@ -88,6 +88,9 @@ public class Game extends JFrame {
                 int newX = player.getX() + dx;
                 int newY = player.getY() + dy;
 
+                // Set 0, 0 to a wall to prevent an invalid exit
+                dungeon.setTile(0, 0, '#');
+
                 // Check for valid movement and update player position
                 if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
                         (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {

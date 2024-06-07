@@ -34,7 +34,8 @@ public class Dungeon {
         this.x = x;
         this.y = y;
         this.map = new char[height][width];
-        generateDungeon(); // Generate the dungeon layout
+
+        generateDungeon();// Generate the dungeon layout
     }
 
     // Method to generate the dungeon layout
