@@ -137,6 +137,13 @@ public class Dungeon {
     }
 
     public List<int[]> aStar(int[] start, int[] goal) {
+        // Limit the search area to a certain radius around the player
+        int searchRadius = 10;
+        if (Math.abs(start[0] - goal[0]) > searchRadius || Math.abs(start[1] - goal[1]) > searchRadius) {
+            return null; // The goal is too far away
+        }
+
+        // Use a binary heap for the open set
         PriorityQueue<int[]> frontier = new PriorityQueue<>(Comparator.comparingInt(pos -> Math.abs(pos[0] - goal[0]) + Math.abs(pos[1] - goal[1])));
         frontier.add(start);
         Map<int[], int[]> cameFrom = new HashMap<>();

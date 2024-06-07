@@ -112,6 +112,12 @@ public class Game extends JFrame {
                 int gridX = e.getX() / TILE_SIZE;
                 int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
 
+                // Check if the clicked tile is a wall
+                if (dungeon.getTile(gridX, gridY) == '#') {
+                    // If it's a wall, don't execute the pathfinder
+                    return;
+                }
+
                 // Use A* to find the shortest path
                 List<int[]> path = dungeon.aStar(new int[]{player.getX(), player.getY()}, new int[]{gridX, gridY});
 
@@ -144,7 +150,7 @@ public class Game extends JFrame {
                 });
                 timer.start(); // Start the timer
             }
-        });
+        });;
 
         pack(); // pack the frame first to calculate its preferred size
 
