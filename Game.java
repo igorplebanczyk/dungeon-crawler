@@ -17,7 +17,7 @@ public class Game extends JFrame {
     private final int WIDTH;
     private final int HEIGHT;
     private final int Y_OFFSET;
-    private final int GRID_SIZE = 5;
+    private final int GRID_SIZE = 4;
 
     // Game objects
     private final Dungeon[][] grid;
@@ -319,6 +319,27 @@ public class Game extends JFrame {
                 }
             }
         }
+
+        // Create a list of all dungeons except the starting one
+        List<Dungeon> dungeons = new ArrayList<>();
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                if (grid[i][j] != null && (i != firstDungeonY || j != firstDungeonX)) {
+                    dungeons.add(grid[i][j]);
+                }
+            }
+        }
+
+        System.out.println(dungeons.size());
+
+        // Randomly select a dungeon from the list to be the exit dungeon
+        Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
+
+        // Set the exit in the selected dungeon
+        int[] exitPosition = exitDungeon.getRandomTileInBottomRightQuadrant();
+        exitDungeon.exitX = exitPosition[0];
+        exitDungeon.exitY = exitPosition[1];
+        exitDungeon.map[exitDungeon.exitY][exitDungeon.exitX] = 'E';
     }
 
     // Check if a dungeon exists at adjacent positions

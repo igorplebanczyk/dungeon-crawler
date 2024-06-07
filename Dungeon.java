@@ -80,12 +80,6 @@ public class Dungeon {
                 }
             }
 
-            // Place exit in the bottom right quadrant
-            int[] exitPosition = getRandomTileInBottomRightQuadrant();
-            exitX = exitPosition[0];
-            exitY = exitPosition[1];
-            map[exitY][exitX] = 'E';
-
             // Fill in unreachable areas with walls
             fillInaccessibleAreasWithWalls();
 
@@ -209,7 +203,7 @@ public class Dungeon {
     }
 
     // Method to generate a random tile in the bottom right quadrant
-    private int[] getRandomTileInBottomRightQuadrant() {
+    public int[] getRandomTileInBottomRightQuadrant() {
         int x = random.nextInt(width / 2) + width / 2;
         int y = random.nextInt(height / 2) + height / 2;
         return new int[]{x, y};
