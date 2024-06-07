@@ -26,7 +26,7 @@ public class Game extends JFrame {
     private BufferedImage offScreenBuffer;
 
     // Game state variables
-    public int level = 1;
+    private int level = 1;
     private Map<String, Image> imageCache;
     private String message;
     private Timer messageTimer;
@@ -83,8 +83,12 @@ public class Game extends JFrame {
 
                 // Check for valid movement and update player position
                 if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
-                        (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E')) {
-                    dungeon.setTile(player.getX(), player.getY(), '.');
+                        (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {
+                    if (dungeon.isDoor(player.getX(), player.getY())) {
+                        dungeon.setTile(player.getX(), player.getY(), 'D'); // Set the tile back to a door if it's a door
+                    } else {
+                        dungeon.setTile(player.getX(), player.getY(), '.'); // Otherwise, set it to a floor
+                    }
                     player.move(dx, dy);
                     dungeon.setTile(player.getX(), player.getY(), 'P');
                     repaint();

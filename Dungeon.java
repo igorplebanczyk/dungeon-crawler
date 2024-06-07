@@ -20,7 +20,8 @@ public class Dungeon {
     public int exitX;
     public int exitY;
 
-    private final List<Point> doors = new ArrayList<>();
+    // List to store the positions of doors
+    private final List<Point> doorPositions = new ArrayList<>();
 
     // Constructor to initialize the dungeon with given dimensions
     public Dungeon(int width, int height) {
@@ -166,11 +167,16 @@ public class Dungeon {
         floodFill(accessible, x, y + 1); // Down
     }
 
+    // Method to add a door at a given position
     public void addDoor(int x, int y) {
-        doors.add(new Point(x, y));
         map[y][x] = 'D'; // 'D' represents a door
+        doorPositions.add(new Point(x, y)); // Add the door position to the list
     }
 
+    // Method to check if a tile is a door
+    public boolean isDoor(int x, int y) {
+        return doorPositions.contains(new Point(x, y));
+    }
 
     // Method to check if a tile is valid (within bounds and not a wall)
     private boolean isValidTile(int x, int y) {
@@ -193,7 +199,7 @@ public class Dungeon {
     }
 
     // Method to generate a random tile in the bottom right quadrant
-    public int[] getRandomTileInBottomRightQuadrant() {
+    private int[] getRandomTileInBottomRightQuadrant() {
         int x = random.nextInt(width / 2) + width / 2;
         int y = random.nextInt(height / 2) + height / 2;
         return new int[]{x, y};
