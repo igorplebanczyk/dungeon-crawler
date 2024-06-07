@@ -7,8 +7,8 @@ import java.util.concurrent.*;
 
 public class Dungeon {
     // Dungeon dimensions
-    private final int width;
-    private final int height;
+    public final int width;
+    public final int height;
 
     // 2D array to represent the dungeon map
     public final char[][] map;
@@ -34,7 +34,8 @@ public class Dungeon {
         this.x = x;
         this.y = y;
         this.map = new char[height][width];
-
+        this.exitX = width - 1;
+        this.exitY = height - 1;
         generateDungeon();// Generate the dungeon layout
     }
 
