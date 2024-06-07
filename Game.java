@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
@@ -24,7 +25,7 @@ public class Game extends JFrame {
     private Dungeon dungeon;
     private Dungeon startingDungeon;
     private Player player;
-    private BufferedImage offScreenBuffer;
+    private BufferStrategy bufferStrategy;
 
     // Game state variables
     private int level = 1;
@@ -34,6 +35,9 @@ public class Game extends JFrame {
     private boolean isTimerRunning = false;
 
     public Game(String characterImage, int TILE_SIZE, int WIDTH, int HEIGHT, int Y_OFFSET) {
+        // Enable double buffering at the JFrame level
+        setIgnoreRepaint(true);
+
         // Initialize game parameters
         this.characterImage = characterImage;
         this.TILE_SIZE = TILE_SIZE;
@@ -219,6 +223,9 @@ public class Game extends JFrame {
         setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 
         setVisible(true);
+
+        createBufferStrategy(2);
+        bufferStrategy = getBufferStrategy();
     }
 
     // Preload images into image cache
@@ -346,16 +353,23 @@ public class Game extends JFrame {
         return y < 3 && grid[x][y + 1] != null;
     }
 
-
+    // Override the paint method to render directly to the buffer strategy
     @Override
     public void paint(Graphics g) {
-        super.paint(g);
+        // Instead of calling super.paint(g), render directly to the buffer strategy
+        do {
+            do {
+                Graphics bufferGraphics = bufferStrategy.getDrawGraphics();
+                render(bufferGraphics);
+                bufferGraphics.dispose();
+            } while (bufferStrategy.contentsRestored());
+            bufferStrategy.show();
+        } while (bufferStrategy.contentsLost());
+    }
 
-        if (offScreenBuffer == null || offScreenBuffer.getWidth() != getWidth() || offScreenBuffer.getHeight() != getHeight()) {
-            offScreenBuffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-        }
-
-        Graphics bufferGraphics = getBufferGraphics();
+    // Extract the rendering logic into a separate method
+    private void render(Graphics g) {
+        // Rendering logic goes here, similar to your existing paint method
 
         // Draw tiles
         for (int y = 0; y < HEIGHT; y++) {
@@ -370,12 +384,10 @@ public class Game extends JFrame {
                     default -> null;
                 };
                 if (imageToDraw != null) {
-                    bufferGraphics.drawImage(imageToDraw, x * TILE_SIZE, Y_OFFSET - 8 + y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
+                    g.drawImage(imageToDraw, x * TILE_SIZE, Y_OFFSET - 8 + y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
                 }
             }
         }
-
-        g.drawImage(offScreenBuffer, 0, 0, this);
 
         // Draw message if present
         if (message != null) {
@@ -388,26 +400,20 @@ public class Game extends JFrame {
             int y = (getHeight() - messageHeight) / 2 + fm.getAscent();
             g.drawString(message, x, y);
         }
-    }
-
-    private Graphics getBufferGraphics() {
-        Graphics bufferGraphics = offScreenBuffer.getGraphics();
 
         // Draw top area
-        bufferGraphics.setColor(new Color(50, 50, 50));
-        bufferGraphics.fillRect(0, 0, getWidth(), Y_OFFSET);
+        g.setColor(new Color(50, 50, 50)); // Dark gray color
+        g.fillRect(0, 0, getWidth(), Y_OFFSET - 8);
 
         // Draw level and character name
-        bufferGraphics.setColor(Color.WHITE);
-        bufferGraphics.setFont(new Font("Times", Font.BOLD, 20));
-        bufferGraphics.drawString("Level " + level, 15, Y_OFFSET - 16);
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Times", Font.BOLD, 20));
+        g.drawString("Level " + level, 15, Y_OFFSET - 16);
         if (Objects.equals(characterImage, "/images/geralt.png")) {
-            bufferGraphics.drawString("Geralt", 825, Y_OFFSET - 16);
+            g.drawString("Geralt", 825, Y_OFFSET - 16);
+        } else if (Objects.equals(characterImage, "/images/yen.png")) {
+            g.drawString("Yennefer", 800, Y_OFFSET - 16);
         }
-        else if (Objects.equals(characterImage, "/images/yen.png")) {
-            bufferGraphics.drawString("Yennefer", 800, Y_OFFSET - 16);
-        }
-        return bufferGraphics;
     }
 
     // Retrieve image from cache
