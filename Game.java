@@ -248,19 +248,9 @@ public class Game extends JFrame {
 
     // Initialize game state
     private void initializeGame() {
-        // Find the first non-null dungeon in the grid
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
-                if (grid[i][j] != null) {
-                    dungeon = grid[i][j];
-                    startingDungeon = dungeon; // Store the starting dungeon
-                    dungeon.map[0][0] = 'P'; // Set player position
-                    player = new Player(0, 0); // Assuming player starts at (0, 0) in the dungeon
-                    dungeon.setTile(player.getX(), player.getY(), 'P');
-                    return; // Exit loop once the first dungeon is found
-                }
-            }
-        }
+        startingDungeon.map[0][0] = 'P';
+        player = new Player(0, 0);
+        dungeon.setTile(player.getX(), player.getY(), 'P');
     }
 
     private void generateNewLevel() {
@@ -322,6 +312,16 @@ public class Game extends JFrame {
                     if (j < GRID_SIZE - 1 && grid[i][j + 1] != null) { // Check down
                         d.addDoor(WIDTH / 2, HEIGHT - 1);
                     }
+                }
+            }
+        }
+
+        // Find the first non-null dungeon in the grid
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                if (grid[i][j] != null) {
+                    dungeon = grid[i][j];
+                    startingDungeon = dungeon; // Store the starting dungeon
                 }
             }
         }
