@@ -31,6 +31,7 @@ public class Game extends JFrame {
     private Map<String, Image> imageCache;
     private String message;
     private Timer messageTimer;
+    private boolean isTimerRunning = false;
 
     public Game(String characterImage, int TILE_SIZE, int WIDTH, int HEIGHT, int Y_OFFSET) {
         // Initialize game parameters
@@ -49,7 +50,7 @@ public class Game extends JFrame {
 
         // Initialize game and display level announcement
         initializeGame();
-        showAnnouncement("Welcome to level " + level, 750);
+        showAnnouncement("Find Ciri to advance to next level", 1500);
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
@@ -60,6 +61,9 @@ public class Game extends JFrame {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                if (isTimerRunning) {
+                    return; // If the timer is running, ignore the mouse event
+                }
                 int key = e.getKeyCode();
                 int dx = 0, dy = 0;
 
@@ -130,6 +134,9 @@ public class Game extends JFrame {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (isTimerRunning) {
+                    return; // If the timer is running, ignore the mouse event
+                }
                 // Convert mouse coordinates to grid coordinates
                 int gridX = e.getX() / TILE_SIZE;
                 int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
@@ -166,6 +173,7 @@ public class Game extends JFrame {
 
                 // Create a Timer to animate the movement
                 Timer timer = new Timer(150, null); // 150ms delay between each move
+                isTimerRunning = true; // Set the timer running flag
                 List<Point> finalPath = path;
                 timer.addActionListener(new ActionListener() {
                     int index = 0;
@@ -190,6 +198,7 @@ public class Game extends JFrame {
                         } else {
                             // Stop the timer when the player has reached the destination
                             timer.stop();
+                            isTimerRunning = false;
                         }
                     }
 
@@ -391,7 +400,7 @@ public class Game extends JFrame {
         // Draw level and character name
         bufferGraphics.setColor(Color.WHITE);
         bufferGraphics.setFont(new Font("Times", Font.BOLD, 20));
-        bufferGraphics.drawString("Level: " + level, 15, Y_OFFSET - 16);
+        bufferGraphics.drawString("Level " + level, 15, Y_OFFSET - 16);
         if (Objects.equals(characterImage, "/images/geralt.png")) {
             bufferGraphics.drawString("Geralt", 825, Y_OFFSET - 16);
         }
