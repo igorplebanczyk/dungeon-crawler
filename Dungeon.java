@@ -13,6 +13,10 @@ public class Dungeon {
     // 2D array to represent the dungeon map
     private final char[][] map;
 
+    // Coordinates of the dungeon in the grid
+    private final int x;
+    private final int y;
+
     // Random number generator
     private final Random random = new Random();
 
@@ -24,9 +28,11 @@ public class Dungeon {
     private final List<Point> doorPositions = new ArrayList<>();
 
     // Constructor to initialize the dungeon with given dimensions
-    public Dungeon(int width, int height) {
+    public Dungeon(int width, int height, int x, int y) {
         this.width = width;
         this.height = height;
+        this.x = x;
+        this.y = y;
         this.map = new char[height][width];
         generateDungeon(); // Generate the dungeon layout
     }
@@ -102,7 +108,6 @@ public class Dungeon {
             }
         }
     }
-
 
     // Method to check if a tile is reachable from a given position using DFS
     private boolean isTileReachable(int tileX, int tileY) {
@@ -185,7 +190,15 @@ public class Dungeon {
 
     // Method to check if a tile is valid for the pathfinder (within bounds, not a wall, and not an exit)
     private boolean isValidTileForPathfinder(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#' && map[y][x] != 'E';
+        return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#' && map[y][x] != 'E' && map[y][x] != 'D';
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     // Method to get the tile type at a given position

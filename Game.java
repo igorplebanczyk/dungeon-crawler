@@ -56,6 +56,7 @@ public class Game extends JFrame {
         setResizable(false);
 
         // Add key listener for player movement
+        // Add key listener for player movement
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -84,13 +85,30 @@ public class Game extends JFrame {
                 // Check for valid movement and update player position
                 if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
                         (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {
-                    if (dungeon.isDoor(player.getX(), player.getY())) {
-                        dungeon.setTile(player.getX(), player.getY(), 'D'); // Set the tile back to a door if it's a door
-                    } else {
-                        dungeon.setTile(player.getX(), player.getY(), '.'); // Otherwise, set it to a floor
+                    // Clear the previous player position
+                    dungeon.setTile(player.getX(), player.getY(), '.');
+
+                    player.move(dx, dy); // Move the player first
+                    if (dungeon.isDoor(newX, newY)) { // Check if the new position is a door
+                        // Additional check to prevent moving out of bounds
+                        if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT) {
+                            // Check which edge the door is on and move to the corresponding adjacent dungeon
+                            if (newX == 0) { // Left edge
+                                dungeon = grid[dungeon.getX() - 1][dungeon.getY()];
+                                player.setX(WIDTH - 1);
+                            } else if (newX == WIDTH - 1) { // Right edge
+                                dungeon = grid[dungeon.getX() + 1][dungeon.getY()];
+                                player.setX(0);
+                            } else if (newY == 0) { // Top edge
+                                dungeon = grid[dungeon.getX()][dungeon.getY() - 1];
+                                player.setY(HEIGHT - 1);
+                            } else if (newY == HEIGHT - 1) { // Bottom edge
+                                dungeon = grid[dungeon.getX()][dungeon.getY() + 1];
+                                player.setY(0);
+                            }
+                        }
                     }
-                    player.move(dx, dy);
-                    dungeon.setTile(player.getX(), player.getY(), 'P');
+                    dungeon.setTile(player.getX(), player.getY(), 'P'); // Draw the player at the new position
                     repaint();
                 }
 
@@ -103,7 +121,7 @@ public class Game extends JFrame {
                     repaint();
                 }
             }
-        });
+        });;
 
         this.addMouseListener(new MouseAdapter() {
             @Override
@@ -228,7 +246,7 @@ public class Game extends JFrame {
 
     private void generateNewLevel() {
         // Generate a new dungeon
-        dungeon = new Dungeon(WIDTH, HEIGHT);
+        dungeon = new Dungeon(WIDTH, HEIGHT, 0, 0);
 
         // Set initial player position
         player.setX(0);
@@ -239,7 +257,6 @@ public class Game extends JFrame {
         dungeon.setTile(dungeon.exitX, dungeon.exitY, 'E');
     }
 
-
     // Generate map
     private void generateMap() {
         Random random = new Random();
@@ -247,7 +264,7 @@ public class Game extends JFrame {
         // Create first dungeon at a random position
         int firstDungeonX = random.nextInt(1, 2);
         int firstDungeonY = random.nextInt(1, 2);
-        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT);
+        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);
 
         // Create the rest of the dungeons ensuring adjacency
         int ITERATE_TIMES = 2;
@@ -258,7 +275,7 @@ public class Game extends JFrame {
                         // Randomly decide whether to create a dungeon
                         boolean shouldCreateDungeon = random.nextBoolean();
                         if (shouldCreateDungeon) {
-                            grid[i][j] = new Dungeon(WIDTH, HEIGHT);
+                            grid[i][j] = new Dungeon(WIDTH, HEIGHT, i, j);
                         }
                     }
                 }
