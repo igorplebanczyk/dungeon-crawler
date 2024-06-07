@@ -110,7 +110,7 @@ public class Game extends JFrame {
 
                 // Check if the clicked tile is a wall
                 if (dungeon.getTile(gridX, gridY) == '#') {
-                    // If it's a wall, don't execute the pathfinder
+                    showAnnouncement("Can't walk through walls", 500);
                     return;
                 }
                 else if (dungeon.getTile(gridX, gridY) == 'E') {
@@ -139,7 +139,7 @@ public class Game extends JFrame {
                 }
 
                 // Create a Timer to animate the movement
-                Timer timer = new Timer(150, null);// 200ms delay between each move
+                Timer timer = new Timer(150, null); // 150ms delay between each move
                 List<Point> finalPath = path;
                 timer.addActionListener(new ActionListener() {
                     int index = 0;

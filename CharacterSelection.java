@@ -33,20 +33,7 @@ public class CharacterSelection extends JFrame {
 
     private JPanel getPanel() {
         // Create the main panel for the character selection
-        JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                // Draw the background with 'floor.png' images
-                for (int y = 0; y < SELECTION_HEIGHT; y++) {
-                    for (int x = 0; x < SELECTION_WIDTH; x++) {
-                        Image floorImage = loadImage();
-                        g.drawImage(floorImage, x * TILE_SIZE_SELECTION, y * TILE_SIZE_SELECTION, TILE_SIZE_SELECTION, TILE_SIZE_SELECTION, this);
-                    }
-                }
-            }
-        };
-        panel.setLayout(new GridLayout(SELECTION_HEIGHT, SELECTION_WIDTH));
+        JPanel panel = getJPanel();
 
         // Layout representing the character selection grid
         char[][] layout = {
@@ -123,6 +110,24 @@ public class CharacterSelection extends JFrame {
             }
         }
 
+        return panel;
+    }
+
+    private JPanel getJPanel() {
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Draw the background with 'floor.png' images
+                for (int y = 0; y < SELECTION_HEIGHT; y++) {
+                    for (int x = 0; x < SELECTION_WIDTH; x++) {
+                        Image floorImage = loadImage();
+                        g.drawImage(floorImage, x * TILE_SIZE_SELECTION, y * TILE_SIZE_SELECTION, TILE_SIZE_SELECTION, TILE_SIZE_SELECTION, this);
+                    }
+                }
+            }
+        };
+        panel.setLayout(new GridLayout(SELECTION_HEIGHT, SELECTION_WIDTH));
         return panel;
     }
 
