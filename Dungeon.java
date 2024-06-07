@@ -1,10 +1,7 @@
 import java.util.Random;
 import java.util.Stack;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class Dungeon {
     // Dungeon dimensions
@@ -173,38 +170,44 @@ public class Dungeon {
         return new int[]{x, y};
     }
 
-    public List<int[]> bfs(int[] start, int[] goal) {
-        // Use a Deque for BFS
-        Deque<int[]> frontier = new ArrayDeque<>();
-        frontier.add(start);
-        Map<int[], int[]> cameFrom = new HashMap<>();
-        cameFrom.put(start, null);
+    public List<int[]> bfs(int[] start, int[] goal) throws InterruptedException, ExecutionException, TimeoutException {
+        // Run BFS in a separate thread with a timeout
+        CompletableFuture<List<int[]>> future = CompletableFuture.supplyAsync(() -> {
+            // Use a Deque for BFS
+            Deque<int[]> frontier = new ArrayDeque<>();
+            frontier.add(start);
+            Map<int[], int[]> cameFrom = new HashMap<>();
+            cameFrom.put(start, null);
 
-        // Use a set to keep track of visited nodes
-        Set<int[]> visited = new HashSet<>();
-        visited.add(start);
+            // Use a set to keep track of visited nodes
+            Set<int[]> visited = new HashSet<>();
+            visited.add(start);
 
-        while (!frontier.isEmpty()) {
-            int[] current = frontier.poll();
-            if (Arrays.equals(current, goal)) {
-                List<int[]> path = new ArrayList<>();
-                while (current != null) {
-                    path.add(0, current);
-                    current = cameFrom.get(current);
+            while (!frontier.isEmpty()) {
+                int[] current = frontier.poll();
+                if (Arrays.equals(current, goal)) {
+                    List<int[]> path = new ArrayList<>();
+                    while (current != null) {
+                        path.add(0, current);
+                        current = cameFrom.get(current);
+                    }
+                    return path; // Early exit if goal is found
                 }
-                return path; // Early exit if goal is found
+
+                for (int[] next : getNeighbors(current)) {
+                    if (!visited.contains(next)) {
+                        frontier.add(next);
+                        cameFrom.put(next, current);
+                        visited.add(next); // Mark node as visited
+                    }
+                }
             }
 
-            for (int[] next : getNeighbors(current)) {
-                if (!visited.contains(next)) {
-                    frontier.add(next);
-                    cameFrom.put(next, current);
-                    visited.add(next); // Mark node as visited
-                }
-            }
-        }
+            return null; // No path found
+        });
 
-        return null; // No path found
+        // Return the result of the BFS method, or throw a TimeoutException if it does not complete within 15 seconds
+        return future.orTimeout(15, TimeUnit.SECONDS).get();
     }
 
     // Get valid neighbors for A*

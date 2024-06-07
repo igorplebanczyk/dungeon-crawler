@@ -7,6 +7,8 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.Timer;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public class Game extends JFrame {
     // Variables to store game parameters
@@ -97,8 +99,8 @@ public class Game extends JFrame {
                 // Check for reaching the exit and advance to the next level
                 int[] playerPos = player.getPosition();
                 if (playerPos[0] == dungeon.exitX && playerPos[1] == dungeon.exitY) {
-                    initializeGame();
                     level++;
+                    generateNewLevel();
                     showLevelAnnouncement();
                     repaint();
                 }
@@ -117,23 +119,40 @@ public class Game extends JFrame {
                     // If it's a wall, don't execute the pathfinder
                     return;
                 }
+                else if (dungeon.getTile(gridX, gridY) == 'E') {
+                    itAintThatEasy();
+                    return;
+                }
 
-                // Use A* to find the shortest path
-                List<int[]> path = dungeon.bfs(new int[]{player.getX(), player.getY()}, new int[]{gridX, gridY});
+                // Use BFS to find the shortest path
+                List<int[]> path = null;
+                try {
+                    path = dungeon.bfs(new int[]{player.getX(), player.getY()}, new int[]{gridX, gridY});
+                } catch (InterruptedException | ExecutionException ex) {
+                    if (ex.getCause() instanceof TimeoutException) {
+                        // Handle TimeoutException
+                        System.out.println("Pathfinding took too long and was cancelled.");
+                        return;
+                    }
+                    throw new RuntimeException(ex);
+                } catch (TimeoutException ex) {
+                    throw new RuntimeException(ex);
+                }
 
                 // Create a Timer to animate the movement
                 Timer timer = new Timer(200, null); // 200ms delay between each move
+                List<int[]> finalPath = path;
                 timer.addActionListener(new ActionListener() {
                     int index = 0;
 
                     @Override
                     public void actionPerformed(ActionEvent event) {
-                        if (index < path.size()) {
+                        if (index < finalPath.size()) {
                             // Clear the previous player position
                             dungeon.setTile(player.getX(), player.getY(), '.');
 
                             // Update the player's position
-                            int[] position = path.get(index);
+                            int[] position = finalPath.get(index);
                             player.setX(position[0]);
                             player.setY(position[1]);
 
@@ -199,6 +218,19 @@ public class Game extends JFrame {
                 }
             }
         }
+    }
+
+    private void generateNewLevel() {
+        // Generate a new dungeon
+        dungeon = new Dungeon(WIDTH, HEIGHT);
+
+        // Set initial player position
+        player.setX(0);
+        player.setY(0);
+
+        // Update the dungeon with the player's new position
+        dungeon.setTile(player.getX(), player.getY(), 'P');
+        dungeon.setTile(dungeon.exitX, dungeon.exitY, 'E');
     }
 
 
@@ -324,6 +356,20 @@ public class Game extends JFrame {
             messageTimer.stop();
         }
         messageTimer = new Timer(1000, e -> {
+            message = null;
+            repaint();
+        });
+        messageTimer.setRepeats(false);
+        messageTimer.start();
+        repaint();
+    }
+
+    private void itAintThatEasy() {
+        message = "it ain't that easy";
+        if (messageTimer != null) {
+            messageTimer.stop();
+        }
+        messageTimer = new Timer(500, e -> {
             message = null;
             repaint();
         });
