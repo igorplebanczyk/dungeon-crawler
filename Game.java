@@ -22,6 +22,7 @@ public class Game extends JFrame {
     // Game objects
     private final Dungeon[][] grid;
     private Dungeon dungeon;
+    private Dungeon startingDungeon;
     private Player player;
     private BufferedImage offScreenBuffer;
 
@@ -238,10 +239,10 @@ public class Game extends JFrame {
             for (int j = 0; j < GRID_SIZE; j++) {
                 if (grid[i][j] != null) {
                     dungeon = grid[i][j];
+                    startingDungeon = dungeon; // Store the starting dungeon
                     dungeon.map[0][0] = 'P'; // Set player position
                     player = new Player(0, 0); // Assuming player starts at (0, 0) in the dungeon
                     dungeon.setTile(player.getX(), player.getY(), 'P');
-                    dungeon.setTile(dungeon.exitX, dungeon.exitY, 'E');
                     return; // Exit loop once the first dungeon is found
                 }
             }
@@ -249,17 +250,9 @@ public class Game extends JFrame {
     }
 
     private void generateNewLevel() {
-        // Generate a new dungeon
-        dungeon = new Dungeon(WIDTH, HEIGHT, 0, 0);
-        dungeon.map[0][0] = 'P'; // Set player position
-
-        // Set initial player position
-        player.setX(0);
-        player.setY(0);
-
-        // Update the dungeon with the player's new position
-        dungeon.setTile(player.getX(), player.getY(), 'P');
-        dungeon.setTile(dungeon.exitX, dungeon.exitY, 'E');
+        dungeon.setTile(player.getX(), player.getY(), '.'); // Clear the player's previous position
+        generateMap();
+        initializeGame();
     }
 
     // Generate map
@@ -269,7 +262,8 @@ public class Game extends JFrame {
         // Create first dungeon at a random position
         int firstDungeonX = random.nextInt(1, 2);
         int firstDungeonY = random.nextInt(1, 2);
-        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);
+        startingDungeon = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);
+        grid[firstDungeonX][firstDungeonY] = startingDungeon;
 
         // Create the rest of the dungeons ensuring adjacency
         int ITERATE_TIMES = 2;
@@ -283,18 +277,6 @@ public class Game extends JFrame {
                             grid[i][j] = new Dungeon(WIDTH, HEIGHT, i, j);
                         }
                     }
-                }
-            }
-        }
-
-        // Print the generated map
-        for (int i = 0; i < GRID_SIZE; i++) {
-            System.out.println();
-            for (int j = 0; j < GRID_SIZE; j++) {
-                if (grid[i][j] != null) {
-                    System.out.print("D");
-                } else {
-                    System.out.print(".");
                 }
             }
         }
@@ -324,13 +306,11 @@ public class Game extends JFrame {
         List<Dungeon> dungeons = new ArrayList<>();
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
-                if (grid[i][j] != null && (i != firstDungeonY || j != firstDungeonX)) {
+                if (grid[i][j] != null && grid[i][j] != startingDungeon) {
                     dungeons.add(grid[i][j]);
                 }
             }
         }
-
-        System.out.println(dungeons.size());
 
         // Randomly select a dungeon from the list to be the exit dungeon
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
