@@ -193,6 +193,7 @@ public class Game extends JFrame {
         loadAndCacheImage("/images/wall.png");
         loadAndCacheImage("/images/floor.png");
         loadAndCacheImage("/images/ciri.png");
+        loadAndCacheImage("/images/door.png");
     }
 
     // Load and cache image from file
@@ -271,6 +272,27 @@ public class Game extends JFrame {
                 }
             }
         }
+
+        // Add doors
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                Dungeon d = grid[i][j];
+                if (d != null) {
+                    if (i > 0 && grid[i - 1][j] != null) { // Check left
+                        d.addDoor(0, HEIGHT / 2);
+                    }
+                    if (j > 0 && grid[i][j - 1] != null) { // Check up
+                        d.addDoor(WIDTH / 2, 0);
+                    }
+                    if (i < GRID_SIZE - 1 && grid[i + 1][j] != null) { // Check right
+                        d.addDoor(WIDTH - 1, HEIGHT / 2);
+                    }
+                    if (j < GRID_SIZE - 1 && grid[i][j + 1] != null) { // Check down
+                        d.addDoor(WIDTH / 2, HEIGHT - 1);
+                    }
+                }
+            }
+        }
     }
 
     // Check if a dungeon exists at adjacent positions
@@ -308,6 +330,7 @@ public class Game extends JFrame {
                     case '.' -> getImageFromCache("/images/floor.png");
                     case 'P' -> getImageFromCache(characterImage);
                     case 'E' -> getImageFromCache("/images/ciri.png");
+                    case 'D' -> getImageFromCache("/images/door.png");
                     default -> null;
                 };
                 if (imageToDraw != null) {

@@ -20,6 +20,8 @@ public class Dungeon {
     public int exitX;
     public int exitY;
 
+    private final List<Point> doors = new ArrayList<>();
+
     // Constructor to initialize the dungeon with given dimensions
     public Dungeon(int width, int height) {
         this.width = width;
@@ -30,8 +32,9 @@ public class Dungeon {
 
     // Method to generate the dungeon layout
     private void generateDungeon() {
-        boolean exitReachable = false;
-        while (!exitReachable) {
+        boolean allEdgeMiddlesReachable = false;
+
+        while (!allEdgeMiddlesReachable) {
             // Generate initial dungeon with walls and floors
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
@@ -78,17 +81,30 @@ public class Dungeon {
 
             // Set player starting position
             map[0][0] = 'P';
-            map[0][1] = '.'; // Ensure path is possible
-            map[1][0] = '.';
+
+            // Fill in unreachable areas with walls
+            fillInaccessibleAreasWithWalls();
 
             // Check if there exists a path from player's starting position to the exit
-            exitReachable = isExitReachable();
-            fillInaccessibleAreasWithWalls();
+            boolean exitReachable = isTileReachable(exitX, exitY);
+
+            allEdgeMiddlesReachable = exitReachable; // Initially set allEdgeMiddlesReachable to the value of exitReachable
+
+            if (exitReachable) { // If the exit is reachable, check the reachability of all edge middles
+                int[] edgeMiddles = {width / 2, 0, width - 1, height / 2, width / 2, height - 1, 0, height / 2}; // Middle points of each edge
+                for (int i = 0; i < edgeMiddles.length; i += 2) {
+                    if (!isTileReachable(edgeMiddles[i], edgeMiddles[i + 1])) {
+                        allEdgeMiddlesReachable = false; // If any edge middle is not reachable, set allEdgeMiddlesReachable to false and break the loop
+                        break;
+                    }
+                }
+            }
         }
     }
 
-    // Method to check if the exit is reachable from a given position using DFS
-    private boolean isExitReachable() {
+
+    // Method to check if a tile is reachable from a given position using DFS
+    private boolean isTileReachable(int tileX, int tileY) {
         boolean[][] visited = new boolean[height][width];
         Stack<int[]> stack = new Stack<>();
         stack.push(new int[]{0, 0});
@@ -98,7 +114,7 @@ public class Dungeon {
             int x = current[0];
             int y = current[1];
             visited[y][x] = true;
-            if (x == exitX && y == exitY) {
+            if (x == tileX && y == tileY) {
                 return true;
             }
             // Check adjacent tiles
@@ -149,6 +165,12 @@ public class Dungeon {
         floodFill(accessible, x, y - 1); // Up
         floodFill(accessible, x, y + 1); // Down
     }
+
+    public void addDoor(int x, int y) {
+        doors.add(new Point(x, y));
+        map[y][x] = 'D'; // 'D' represents a door
+    }
+
 
     // Method to check if a tile is valid (within bounds and not a wall)
     private boolean isValidTile(int x, int y) {
