@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
 import javax.imageio.ImageIO;
@@ -25,7 +24,7 @@ public class Game extends JFrame {
     private Dungeon dungeon;
     private Dungeon startingDungeon;
     private Player player;
-    private BufferStrategy bufferStrategy;
+    private final BufferStrategy bufferStrategy;
 
     // Game state variables
     private int level = 1;
@@ -278,8 +277,7 @@ public class Game extends JFrame {
         // Create first dungeon at a random position
         int firstDungeonX = random.nextInt(1, 2);
         int firstDungeonY = random.nextInt(1, 2);
-        startingDungeon = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);
-        grid[firstDungeonX][firstDungeonY] = startingDungeon;
+        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);;
 
         // Create the rest of the dungeons ensuring adjacency
         int ITERATE_TIMES = 2;
