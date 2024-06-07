@@ -1,3 +1,5 @@
+import java.awt.*;
+import java.util.List;
 import java.util.Random;
 import java.util.Stack;
 import java.util.*;
@@ -170,23 +172,25 @@ public class Dungeon {
         return new int[]{x, y};
     }
 
-    public List<int[]> bfs(int[] start, int[] goal) throws InterruptedException, ExecutionException, TimeoutException {
+    public List<Point> bfs(int startX, int startY, int goalX, int goalY) throws InterruptedException, ExecutionException, TimeoutException {
         // Run BFS in a separate thread with a timeout
-        CompletableFuture<List<int[]>> future = CompletableFuture.supplyAsync(() -> {
-            // Use a Deque for BFS
-            Deque<int[]> frontier = new ArrayDeque<>();
-            frontier.add(start);
-            Map<int[], int[]> cameFrom = new HashMap<>();
-            cameFrom.put(start, null);
+        CompletableFuture<List<Point>> future = CompletableFuture.supplyAsync(() -> {
+            // Use a Queue for BFS
+            Queue<Point> frontier = new LinkedList<>();
+            frontier.add(new Point(startX, startY));
+            Map<Point, Point> cameFrom = new HashMap<>();
+            cameFrom.put(new Point(startX, startY), null);
 
-            // Use a set to keep track of visited nodes
-            Set<int[]> visited = new HashSet<>();
-            visited.add(start);
+            // Use a boolean[][] to keep track of visited nodes
+            boolean[][] visited = new boolean[height][width];
+            visited[startY][startX] = true;
 
             while (!frontier.isEmpty()) {
-                int[] current = frontier.poll();
-                if (Arrays.equals(current, goal)) {
-                    List<int[]> path = new ArrayList<>();
+                Point current = frontier.poll();
+                int x = current.x;
+                int y = current.y;
+                if (x == goalX && y == goalY) {
+                    List<Point> path = new ArrayList<>();
                     while (current != null) {
                         path.add(0, current);
                         current = cameFrom.get(current);
@@ -194,12 +198,26 @@ public class Dungeon {
                     return path; // Early exit if goal is found
                 }
 
-                for (int[] next : getNeighbors(current)) {
-                    if (!visited.contains(next)) {
-                        frontier.add(next);
-                        cameFrom.put(next, current);
-                        visited.add(next); // Mark node as visited
-                    }
+                // Check adjacent tiles
+                if (isValidTile(x - 1, y) && !visited[y][x - 1]) { // Left
+                    frontier.add(new Point(x - 1, y));
+                    cameFrom.put(new Point(x - 1, y), current);
+                    visited[y][x - 1] = true; // Mark node as visited
+                }
+                if (isValidTile(x + 1, y) && !visited[y][x + 1]) { // Right
+                    frontier.add(new Point(x + 1, y));
+                    cameFrom.put(new Point(x + 1, y), current);
+                    visited[y][x + 1] = true;
+                }
+                if (isValidTile(x, y - 1) && !visited[y - 1][x]) { // Up
+                    frontier.add(new Point(x, y - 1));
+                    cameFrom.put(new Point(x, y - 1), current);
+                    visited[y - 1][x] = true;
+                }
+                if (isValidTile(x, y + 1) && !visited[y + 1][x]) { // Down
+                    frontier.add(new Point(x, y + 1));
+                    cameFrom.put(new Point(x, y + 1), current);
+                    visited[y + 1][x] = true;
                 }
             }
 

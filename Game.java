@@ -125,9 +125,9 @@ public class Game extends JFrame {
                 }
 
                 // Use BFS to find the shortest path
-                List<int[]> path = null;
+                List<Point> path = null;
                 try {
-                    path = dungeon.bfs(new int[]{player.getX(), player.getY()}, new int[]{gridX, gridY});
+                    path = dungeon.bfs(player.getX(), player.getY(), gridX, gridY);;
                 } catch (InterruptedException | ExecutionException ex) {
                     if (ex.getCause() instanceof TimeoutException) {
                         // Handle TimeoutException
@@ -140,8 +140,8 @@ public class Game extends JFrame {
                 }
 
                 // Create a Timer to animate the movement
-                Timer timer = new Timer(200, null); // 200ms delay between each move
-                List<int[]> finalPath = path;
+                Timer timer = new Timer(150, null);// 200ms delay between each move
+                List<Point> finalPath = path;
                 timer.addActionListener(new ActionListener() {
                     int index = 0;
 
@@ -152,24 +152,26 @@ public class Game extends JFrame {
                             dungeon.setTile(player.getX(), player.getY(), '.');
 
                             // Update the player's position
-                            int[] position = finalPath.get(index);
-                            player.setX(position[0]);
-                            player.setY(position[1]);
+                            Point position = finalPath.get(index);
+                            player.setX(position.x);
+                            player.setY(position.y);
 
                             // Set the new player position
                             dungeon.setTile(player.getX(), player.getY(), 'P');
 
-                            repaint(); // Refresh the screen
+                            Game.this.revalidate(); // Re-layout the components
+                            Game.this.repaint(); // Refresh the screen
                             index++;
                         } else {
                             // Stop the timer when the player has reached the destination
                             timer.stop();
                         }
                     }
+
                 });
                 timer.start(); // Start the timer
             }
-        });;
+        });
 
         pack(); // pack the frame first to calculate its preferred size
 
