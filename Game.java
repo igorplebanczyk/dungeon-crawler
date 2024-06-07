@@ -57,6 +57,7 @@ public class Game extends JFrame {
 
         // Add key listener for player movement
         // Add key listener for player movement
+        // Add key listener for player movement
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -85,8 +86,14 @@ public class Game extends JFrame {
                 // Check for valid movement and update player position
                 if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
                         (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {
-                    // Clear the previous player position
-                    dungeon.setTile(player.getX(), player.getY(), '.');
+                    // Check if the player is currently on a door
+                    if (dungeon.isDoor(player.getX(), player.getY())) {
+                        // If so, redraw the door
+                        dungeon.setTile(player.getX(), player.getY(), 'D');
+                    } else {
+                        // Otherwise, clear the previous player position
+                        dungeon.setTile(player.getX(), player.getY(), '.');
+                    }
 
                     player.move(dx, dy); // Move the player first
                     if (dungeon.isDoor(newX, newY)) { // Check if the new position is a door
@@ -121,7 +128,7 @@ public class Game extends JFrame {
                     repaint();
                 }
             }
-        });;
+        });;;
 
         this.addMouseListener(new MouseAdapter() {
             @Override
