@@ -84,6 +84,7 @@ public class Dungeon {
 
             // Check if there exists a path from player's starting position to the exit
             exitReachable = isExitReachable(0, 0);
+            fillInaccessibleAreasWithWalls();
         }
     }
 
@@ -116,6 +117,38 @@ public class Dungeon {
             }
         }
         return false;
+    }
+
+    private void fillInaccessibleAreasWithWalls() {
+        // Use a flood fill algorithm starting from the player's starting position
+        boolean[][] accessible = new boolean[height][width];
+        floodFill(accessible, 0, 0); // Assuming player starts at (0, 0)
+
+        // Fill any area that is not accessible with walls
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (!accessible[y][x] && map[y][x] != 'E') { // Don't fill the exit with a wall
+                    map[y][x] = '#';
+                }
+            }
+        }
+    }
+
+    private void floodFill(boolean[][] accessible, int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return; // Out of bounds
+        }
+        if (map[y][x] == '#' || accessible[y][x]) {
+            return; // Wall or already visited
+        }
+
+        accessible[y][x] = true; // Mark as accessible
+
+        // Recursively flood fill the neighboring tiles
+        floodFill(accessible, x - 1, y); // Left
+        floodFill(accessible, x + 1, y); // Right
+        floodFill(accessible, x, y - 1); // Up
+        floodFill(accessible, x, y + 1); // Down
     }
 
     // Method to check if a tile is valid (within bounds and not a wall)
