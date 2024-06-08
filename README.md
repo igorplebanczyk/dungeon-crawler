@@ -12,9 +12,9 @@ Mechanics:
 
 ---
 Authors:
-* Igor Plebańczyk
-* Szymon Płoński
-* Karol Pacek
+* [Igor Plebańczyk](https://github.com/igorplebanczyk)
+* [Szymon Płoński](https://github.com/tmyon)
+* [Karol Pacek](https://github.com/KarateKarol)
 
 ---
 TODO:
