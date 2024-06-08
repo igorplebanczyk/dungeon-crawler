@@ -79,10 +79,10 @@ public class Game extends JFrame {
                         break;
                     case KeyEvent.VK_B:
                         if (!bulldozerMode) {
-                            showAnnouncement("Bulldozer mode activated", 500);
+                            showAnnouncement("Bulldozer mode activated ⛏", 750);
                             bulldozerMode = true;
                         } else {
-                            showAnnouncement("Bulldozer mode deactivated", 500);
+                            showAnnouncement("Bulldozer mode deactivated ⛏", 750);
                             bulldozerMode = false;
                         }
                         break;
@@ -92,8 +92,11 @@ public class Game extends JFrame {
                 int newX = player.getX() + dx;
                 int newY = player.getY() + dy;
 
-                // Set 0, 0 to a wall to prevent an invalid exit
-                dungeon.setTile(dungeon.width - 1, dungeon.height - 1, '#');
+                if (!dungeon.doesHaveExit) {
+                    dungeon.exitX = dungeon.width - 1;
+                    dungeon.exitY = dungeon.height - 1;
+                    dungeon.setTile(dungeon.width - 1, dungeon.height - 1, '#'); // Set invalid exit tile to a wall to prevent an invalid exit
+                }
 
                 // Check for valid movement and update player position
                 if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
@@ -345,12 +348,8 @@ public class Game extends JFrame {
 
         // Randomly select a dungeon from the list to be the exit dungeon
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
-
-        // Set the exit in the selected dungeon
-        int[] exitPosition = exitDungeon.getRandomTileInBottomRightQuadrant();
-        exitDungeon.exitX = exitPosition[0];
-        exitDungeon.exitY = exitPosition[1];
-        exitDungeon.map[exitDungeon.exitY][exitDungeon.exitX] = 'E';
+        exitDungeon.doesHaveExit = true; // Set the exit flag
+        exitDungeon.map[exitDungeon.exitY][exitDungeon.exitX] = 'E'; // Set the exit in the selected dungeon
     }
 
     // Check if a dungeon exists at adjacent positions

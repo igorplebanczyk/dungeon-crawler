@@ -20,7 +20,8 @@ public class Dungeon {
     // Random number generator
     private final Random random = new Random();
 
-    // Coordinates of the exit
+    // Exit tile variables
+    public boolean doesHaveExit = false;
     public int exitX;
     public int exitY;
 
@@ -34,8 +35,12 @@ public class Dungeon {
         this.x = x;
         this.y = y;
         this.map = new char[height][width];
-        this.exitX = width - 1;
-        this.exitY = height - 1;
+
+        // Select a tile where the exit might be placed
+        int[] exit = getRandomTileInBottomRightQuadrant();
+        this.exitX = exit[0];
+        this.exitY = exit[1];
+
         generateDungeon();// Generate the dungeon layout
     }
 
