@@ -18,7 +18,8 @@ Authors:
 
 ---
 TODO:
-* Improve loading times
-* Add torch mode
+* Fix doors not reappearing when stepping off using pathfinder
 * Make pause menu more extensive
 * Improve textures
+* Add torch mode
+* Improve loading times
