@@ -1,3 +1,5 @@
+package src;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -11,7 +13,7 @@ import java.util.concurrent.*;
 import java.awt.event.KeyEvent;
 
 public class Game extends JFrame {
-    // Variables to store game parameters
+    // Game parameters
     private final String characterImage;
     private final int TILE_SIZE ;
     private final int WIDTH;
@@ -19,18 +21,18 @@ public class Game extends JFrame {
     private final int Y_OFFSET;
     private final int GRID_SIZE = 4;
 
-    // Game objects
+    // sGame objects
     private final Dungeon[][] grid;
     private Dungeon dungeon;
     private Dungeon startingDungeon;
     private Player player;
     private final BufferStrategy bufferStrategy;
-
-    // Game state variables
-    private int level = 1;
     private Map<String, Image> imageCache;
     private String message;
     private Timer messageTimer;
+
+    // Game state variables
+    private int level = 1;
     private boolean isTimerRunning = false;
     public static boolean bulldozerMode = false;
     public boolean isPaused = false;
@@ -44,11 +46,11 @@ public class Game extends JFrame {
         this.HEIGHT = HEIGHT;
         this.Y_OFFSET = Y_OFFSET;
 
-        //Game grid
+        // Game grid
         grid = new Dungeon[GRID_SIZE][GRID_SIZE];
-        generateMap(); // Generate the map
-        preloadImages(); // Preload images
-        initializeGame(); // Initialize the game
+        generateMap();
+        preloadImages();
+        initializeGame();
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
@@ -120,16 +122,16 @@ public class Game extends JFrame {
                     if (dungeon.isDoor(newX, newY)) { // Check if the new position is a door
                         // Check which edge the door is on and move to the corresponding adjacent dungeon
                         if (newX == 0) { // Left edge
-                            dungeon = grid[dungeon.getX() - 1][dungeon.getY()];
+                            dungeon = grid[dungeon.getGridX() - 1][dungeon.getGridY()];
                             player.setX(WIDTH - 1);
                         } else if (newX == WIDTH - 1) { // Right edge
-                            dungeon = grid[dungeon.getX() + 1][dungeon.getY()];
+                            dungeon = grid[dungeon.getGridX() + 1][dungeon.getGridY()];
                             player.setX(0);
                         } else if (newY == 0) { // Top edge
-                            dungeon = grid[dungeon.getX()][dungeon.getY() - 1];
+                            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() - 1];
                             player.setY(HEIGHT - 1);
                         } else if (newY == HEIGHT - 1) { // Bottom edge
-                            dungeon = grid[dungeon.getX()][dungeon.getY() + 1];
+                            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() + 1];
                             player.setY(0);
                         }
                     }
@@ -241,6 +243,19 @@ public class Game extends JFrame {
         bufferStrategy = getBufferStrategy();
     }
 
+    // Pause the game
+    public void pause() {
+        isPaused = !isPaused; // Toggle the paused state
+
+        if (isPaused) {
+            System.out.println("Game paused");
+            PauseMenu pauseMenu = new PauseMenu(this);
+            pauseMenu.setVisible(true);
+        } else {
+            System.out.println("Game resumed");
+        }
+    }
+
     // Preload images into image cache
     private void preloadImages() {
         imageCache = new HashMap<>();
@@ -261,18 +276,19 @@ public class Game extends JFrame {
         }
     }
 
+    // Generate a new level
+    private void generateNewLevel() {
+        dungeon.setTile(player.getX(), player.getY(), '.'); // Clear the player's previous position
+        generateMap();
+        initializeGame();
+    }
+
     // Initialize game state
     private void initializeGame() {
         startingDungeon.map[0][0] = 'P';
         player = new Player(0, 0);
         dungeon.setTile(player.getX(), player.getY(), 'P');
         showAnnouncement("Find Ciri to advance to next level", 1500);
-    }
-
-    public void generateNewLevel() {
-        dungeon.setTile(player.getX(), player.getY(), '.'); // Clear the player's previous position
-        generateMap();
-        initializeGame();
     }
 
     // Generate map
@@ -306,12 +322,20 @@ public class Game extends JFrame {
             }
         }
         executor.shutdown();
+
         try {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        addDoors();
+        selectStartingDungeon();
+        selectExitDungeon(random);
+    }
+
+    // Add doors to dungeons
+    private void addDoors() {
         // Add doors
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
@@ -332,8 +356,10 @@ public class Game extends JFrame {
                 }
             }
         }
+    }
 
-        // Find the first non-null dungeon in the grid
+    // Select the starting dungeon
+    private void selectStartingDungeon() {
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
                 if (grid[i][j] != null) {
@@ -342,7 +368,10 @@ public class Game extends JFrame {
                 }
             }
         }
+    }
 
+    // Select the exit dungeon
+    private void selectExitDungeon(Random random) {
         // Create a list of all dungeons except the starting one
         List<Dungeon> dungeons = new ArrayList<>();
         for (int i = 0; i < GRID_SIZE; i++) {
@@ -378,7 +407,6 @@ public class Game extends JFrame {
     // Override the paint method to render directly to the buffer strategy
     @Override
     public void paint(Graphics g) {
-        // Instead of calling super.paint(g), render directly to the buffer strategy
         do {
             do {
                 Graphics bufferGraphics = bufferStrategy.getDrawGraphics();
@@ -389,11 +417,46 @@ public class Game extends JFrame {
         } while (bufferStrategy.contentsLost());
     }
 
-    // Extract the rendering logic into a separate method
+    // Render the game
     private void render(Graphics g) {
-        // Rendering logic goes here, similar to your existing paint method
+        drawTiles(g);
+        drawMessageIfNecessary(g);
+        drawTopBar(g);
+    }
 
-        // Draw tiles
+    // Draw top bar
+    private void drawTopBar(Graphics g) {
+        // Draw top bar background
+        g.setColor(new Color(50, 50, 50)); // Dark gray color
+        g.fillRect(0, 0, getWidth(), Y_OFFSET - 8);
+
+        // Draw level and character name
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Times", Font.BOLD, 20));
+        g.drawString("Level " + level, 15, Y_OFFSET - 16);
+        if (Objects.equals(characterImage, "/images/geralt.png")) {
+            g.drawString("Geralt", 825, Y_OFFSET - 16);
+        } else if (Objects.equals(characterImage, "/images/yen.png")) {
+            g.drawString("Yennefer", 800, Y_OFFSET - 16);
+        }
+    }
+
+    // Draw message if present
+    private void drawMessageIfNecessary(Graphics g) {
+        if (message != null) {
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Times ", Font.BOLD, 56));
+            FontMetrics fm = g.getFontMetrics();
+            int messageWidth = fm.stringWidth(message);
+            int messageHeight = fm.getHeight();
+            int x = (getWidth() - messageWidth) / 2;
+            int y = (getHeight() - messageHeight) / 2 + fm.getAscent();
+            g.drawString(message, x, y);
+        }
+    }
+
+    // Draw tiles based on the dungeon map
+    private void drawTiles(Graphics g) {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 char tile = dungeon.getTile(x, y);
@@ -409,32 +472,6 @@ public class Game extends JFrame {
                     g.drawImage(imageToDraw, x * TILE_SIZE, Y_OFFSET - 8 + y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
                 }
             }
-        }
-
-        // Draw message if present
-        if (message != null) {
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Times ", Font.BOLD, 56));
-            FontMetrics fm = g.getFontMetrics();
-            int messageWidth = fm.stringWidth(message);
-            int messageHeight = fm.getHeight();
-            int x = (getWidth() - messageWidth) / 2;
-            int y = (getHeight() - messageHeight) / 2 + fm.getAscent();
-            g.drawString(message, x, y);
-        }
-
-        // Draw top area
-        g.setColor(new Color(50, 50, 50)); // Dark gray color
-        g.fillRect(0, 0, getWidth(), Y_OFFSET - 8);
-
-        // Draw level and character name
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Times", Font.BOLD, 20));
-        g.drawString("Level " + level, 15, Y_OFFSET - 16);
-        if (Objects.equals(characterImage, "/images/geralt.png")) {
-            g.drawString("Geralt", 825, Y_OFFSET - 16);
-        } else if (Objects.equals(characterImage, "/images/yen.png")) {
-            g.drawString("Yennefer", 800, Y_OFFSET - 16);
         }
     }
 
@@ -456,17 +493,5 @@ public class Game extends JFrame {
         messageTimer.setRepeats(false);
         messageTimer.start();
         repaint();
-    }
-
-    public void pause() {
-        isPaused = !isPaused; // Toggle the paused state
-
-        if (isPaused) {
-            System.out.println("Game paused");
-            PauseMenu pauseMenu = new PauseMenu(this);
-            pauseMenu.setVisible(true);
-        } else {
-            System.out.println("Game resumed");
-        }
     }
 }

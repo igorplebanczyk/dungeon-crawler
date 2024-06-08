@@ -1,3 +1,5 @@
+package src;
+
 import java.awt.*;
 import java.util.List;
 import java.util.Random;
@@ -6,34 +8,25 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class Dungeon {
-    // Dungeon dimensions
+    // Dungeon properties
     public final int width;
     public final int height;
-
-    // 2D array to represent the dungeon map
-    public final char[][] map;
-
-    // Coordinates of the dungeon in the grid
-    private final int x;
-    private final int y;
-
-    // Random number generator
-    private final Random random = new Random();
-
-    // Exit tile variables
+    private final int gridX;
+    private final int gridY;
     public boolean doesHaveExit = false;
     public int exitX;
     public int exitY;
-
-    // List to store the positions of doors
     private final List<Point> doorPositions = new ArrayList<>();
 
-    // Constructor to initialize the dungeon with given dimensions
+    // Dungeon objects
+    public final char[][] map; // 2D array to represent the dungeon map
+    private final Random random = new Random();
+
     public Dungeon(int width, int height, int x, int y) {
         this.width = width;
         this.height = height;
-        this.x = x;
-        this.y = y;
+        this.gridX = x;
+        this.gridY = y;
         this.map = new char[height][width];
 
         // Select a tile where the exit might be placed
@@ -49,6 +42,7 @@ public class Dungeon {
         boolean allEdgeMiddlesReachable = false;
 
         while (!allEdgeMiddlesReachable) {
+
             // Generate initial dungeon with walls and floors
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
@@ -60,39 +54,11 @@ public class Dungeon {
                 }
             }
 
-            // Ensure each wall has at least one adjacent wall
-            for (int y = 1; y < height - 1; y++) {
-                for (int x = 1; x < width - 1; x++) {
-                    if (map[y][x] == '#') { // If current tile is wall
-                        // Check surrounding tiles
-                        if (map[y - 1][x] == '.' && map[y][x - 1] == '.' && map[y + 1][x] == '.' && map[y][x + 1] == '.') {
-                            // If no adjacent walls, make one adjacent wall
-                            int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
-                            switch (direction) {
-                                case 0:
-                                    map[y - 1][x] = '#';
-                                    break;
-                                case 1:
-                                    map[y][x - 1] = '#';
-                                    break;
-                                case 2:
-                                    map[y + 1][x] = '#';
-                                    break;
-                                case 3:
-                                    map[y][x + 1] = '#';
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Fill in unreachable areas with walls
+            ensureAdjacentWalls();
             fillInaccessibleAreasWithWalls();
 
             // Check if there exists a path from player's starting position to the exit
             boolean exitReachable = isTileReachable(exitX, exitY);
-
             allEdgeMiddlesReachable = exitReachable; // Initially set allEdgeMiddlesReachable to the value of exitReachable
 
             if (exitReachable) { // If the exit is reachable, check the reachability of all edge middles
@@ -101,6 +67,35 @@ public class Dungeon {
                     if (!isTileReachable(edgeMiddles[i], edgeMiddles[i + 1])) {
                         allEdgeMiddlesReachable = false; // If any edge middle is not reachable, set allEdgeMiddlesReachable to false and break the loop
                         break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Ensure each wall has at least one adjacent wall
+    private void ensureAdjacentWalls() {
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                if (map[y][x] == '#') { // If current tile is wall
+                    // Check surrounding tiles
+                    if (map[y - 1][x] == '.' && map[y][x - 1] == '.' && map[y + 1][x] == '.' && map[y][x + 1] == '.') {
+                        // If no adjacent walls, make one adjacent wall
+                        int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
+                        switch (direction) {
+                            case 0:
+                                map[y - 1][x] = '#';
+                                break;
+                            case 1:
+                                map[y][x - 1] = '#';
+                                break;
+                            case 2:
+                                map[y + 1][x] = '#';
+                                break;
+                            case 3:
+                                map[y][x + 1] = '#';
+                                break;
+                        }
                     }
                 }
             }
@@ -195,12 +190,12 @@ public class Dungeon {
         }
     }
 
-    public int getX() {
-        return x;
+    public int getGridX() {
+        return gridX;
     }
 
-    public int getY() {
-        return y;
+    public int getGridY() {
+        return gridY;
     }
 
     // Method to get the tile type at a given position

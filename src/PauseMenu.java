@@ -1,3 +1,5 @@
+package src;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -11,7 +13,6 @@ public class PauseMenu extends JDialog {
         this.game = (Game) parent;
         setLayout(new FlowLayout());
 
-        // Add key listener to the pause menu
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
