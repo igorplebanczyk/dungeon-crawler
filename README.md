@@ -1,6 +1,14 @@
-# src.Dungeon Crawler
+# Dungeon Crawler
 
-Simple dungeon crawler game in Java using the Swing library.
+Simple dungeon crawler game in Java.
+
+---
+Mechanics:
+* Use WASD or arrows to move
+* Click with LMB to auto-move
+* Press ESC to pause
+* Move through dungeon rooms using doors
+* Advance to next level by finding Ciri
 
 ---
 Authors:
@@ -11,7 +19,6 @@ Authors:
 ---
 TODO:
 * Improve loading times
-* Clean up the code
 * Add torch mode
 * Make pause menu more extensive
 * Improve textures

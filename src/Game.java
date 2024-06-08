@@ -21,7 +21,7 @@ public class Game extends JFrame {
     private final int Y_OFFSET;
     private final int GRID_SIZE = 4;
 
-    // sGame objects
+    // Game objects
     private final Dungeon[][] grid;
     private Dungeon dungeon;
     private Dungeon startingDungeon;
@@ -62,12 +62,10 @@ public class Game extends JFrame {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (isTimerRunning) {
-                    return; // If the timer is running, ignore the mouse event
-                }
+                if (isTimerRunning) return; // If the timer is running, ignore the keyboard press
 
-                int key = e.getKeyCode();
-                int dx = 0, dy = 0;
+                int key = e.getKeyCode(); // Get the pressed key code
+                int dx = 0, dy = 0; // Initialize the change in x and y
 
                 switch (key) {
                     case KeyEvent.VK_W, KeyEvent.VK_UP:
@@ -83,13 +81,7 @@ public class Game extends JFrame {
                         dx = 1;
                         break;
                     case KeyEvent.VK_B:
-                        if (!bulldozerMode) {
-                            showAnnouncement("Bulldozer mode activated ⛏", 750);
-                            bulldozerMode = true;
-                        } else {
-                            showAnnouncement("Bulldozer mode deactivated ⛏", 750);
-                            bulldozerMode = false;
-                        }
+                        toggleBulldozerMode();
                         break;
                     case KeyEvent.VK_ESCAPE:
                         pause();
@@ -100,52 +92,18 @@ public class Game extends JFrame {
                 int newX = player.getX() + dx;
                 int newY = player.getY() + dy;
 
-                if (!dungeon.doesHaveExit) {
-                    dungeon.exitX = dungeon.width - 1;
-                    dungeon.exitY = dungeon.height - 1;
-                    dungeon.setTile(dungeon.width - 1, dungeon.height - 1, '#'); // Set invalid exit tile to a wall to prevent an invalid exit
-                }
+                preventInvalidExit(); // Prevent stepping on an invalid exit
 
                 // Check for valid movement and update player position
                 if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
                     (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {
-                    // Check if the player is currently on a door
-                    if (dungeon.isDoor(player.getX(), player.getY())) {
-                        // If so, redraw the door
-                        dungeon.setTile(player.getX(), player.getY(), 'D');
-                    } else {
-                        // Otherwise, redraw the floor tile
-                        dungeon.setTile(player.getX(), player.getY(), '.');
-                    }
-
-                    player.move(dx, dy); // Move the player first
-                    if (dungeon.isDoor(newX, newY)) { // Check if the new position is a door
-                        // Check which edge the door is on and move to the corresponding adjacent dungeon
-                        if (newX == 0) { // Left edge
-                            dungeon = grid[dungeon.getGridX() - 1][dungeon.getGridY()];
-                            player.setX(WIDTH - 1);
-                        } else if (newX == WIDTH - 1) { // Right edge
-                            dungeon = grid[dungeon.getGridX() + 1][dungeon.getGridY()];
-                            player.setX(0);
-                        } else if (newY == 0) { // Top edge
-                            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() - 1];
-                            player.setY(HEIGHT - 1);
-                        } else if (newY == HEIGHT - 1) { // Bottom edge
-                            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() + 1];
-                            player.setY(0);
-                        }
-                    }
-                    dungeon.setTile(player.getX(), player.getY(), 'P'); // Draw the player at the new position
-                    repaint();
+                    movePlayer(dx, dy, newX, newY);
                 }
 
                 // Check for reaching the exit and advance to the next level
                 int[] playerPos = player.getPosition();
                 if (playerPos[0] == dungeon.exitX && playerPos[1] == dungeon.exitY) {
-                    level++;
-                    generateNewLevel();
-                    showAnnouncement("Welcome to level " + level, 750);
-                    repaint();
+                    advanceToNextLevel();
                 }
             }
         });
@@ -153,14 +111,13 @@ public class Game extends JFrame {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (isTimerRunning) {
-                    return; // If the timer is running, ignore the mouse event
-                }
+                if (isTimerRunning) return; // If the timer is running, ignore the mouse event
+
                 // Convert mouse coordinates to grid coordinates
                 int gridX = e.getX() / TILE_SIZE;
                 int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
 
-                // Check if the clicked tile is a wall
+                // Check if the clicked tile is a wall or exit
                 if (dungeon.getTile(gridX, gridY) == '#') {
                     showAnnouncement("Can't walk through walls", 500);
                     return;
@@ -171,64 +128,13 @@ public class Game extends JFrame {
                 }
 
                 // Use BFS to find the shortest path
-                List<Point> path;
-                try {
-                    path = dungeon.bfs(player.getX(), player.getY(), gridX, gridY);
-                } catch (InterruptedException | ExecutionException ex) {
-                    if (ex.getCause() instanceof TimeoutException) {
-                        // Handle TimeoutException
-                        System.out.println("Pathfinding took too long and was cancelled.");
-                        return;
-                    }
-                    throw new RuntimeException(ex);
-                } catch (TimeoutException ex) {
-                    throw new RuntimeException(ex);
-                }
-
-                // If path is null, don't start the timer
-                if (path == null) {
-                    return;
-                }
-
-                // Create a Timer to animate the movement
-                Timer timer = new Timer(150, null); // 150ms delay between each move
-                isTimerRunning = true; // Set the timer running flag
-                List<Point> finalPath = path;
-                timer.addActionListener(new ActionListener() {
-                    int index = 0;
-
-                    @Override
-                    public void actionPerformed(ActionEvent event) {
-                        if (index < finalPath.size()) {
-                            // Clear the previous player position
-                            dungeon.setTile(player.getX(), player.getY(), '.');
-
-                            // Update the player's position
-                            Point position = finalPath.get(index);
-                            player.setX(position.x);
-                            player.setY(position.y);
-
-                            // Set the new player position
-                            dungeon.setTile(player.getX(), player.getY(), 'P');
-
-                            Game.this.revalidate(); // Re-layout the components
-                            Game.this.repaint(); // Refresh the screen
-                            index++;
-                        } else {
-                            // Stop the timer when the player has reached the destination
-                            timer.stop();
-                            isTimerRunning = false;
-                        }
-                    }
-
-                });
-                timer.start(); // Start the timer
+                List<Point> path = getPath(gridX, gridY);
+                if (path == null) return;
+                animateAutoMovement(path); // Animate the player movement
             }
         });
 
         pack(); // pack the frame first to calculate its preferred size
-
-        // Set the size of the frame with additional padding for margins
         int frameWidth = WIDTH * TILE_SIZE; // 20 pixels padding on each side
         int frameHeight = HEIGHT * TILE_SIZE + Y_OFFSET; // 20 pixels padding on top and bottom
         setSize(frameWidth, frameHeight);
@@ -238,9 +144,118 @@ public class Game extends JFrame {
         setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 
         setVisible(true);
-
         createBufferStrategy(2);
         bufferStrategy = getBufferStrategy();
+    }
+
+    private List<Point> getPath(int gridX, int gridY) {
+        List<Point> path;
+        try {
+            path = dungeon.bfs(player.getX(), player.getY(), gridX, gridY);
+        } catch (InterruptedException | ExecutionException ex) {
+            if (ex.getCause() instanceof TimeoutException) {
+                System.out.println("Pathfinding took too long and was cancelled.");
+                return null;
+            }
+            throw new RuntimeException(ex);
+        } catch (TimeoutException ex) { throw new RuntimeException(ex);}
+        return path;
+    }
+
+    private void animateAutoMovement(List<Point> path) {
+        // Create a Timer to animate the movement
+        Timer timer = new Timer(150, null); // 150ms delay between each move
+        isTimerRunning = true; // Set the timer running flag
+        timer.addActionListener(new ActionListener() {
+            int index = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                if (index < path.size()) {
+                    // Clear the previous player position
+                    dungeon.setTile(player.getX(), player.getY(), '.');
+
+                    // Update the player's position
+                    Point position = path.get(index);
+                    player.setX(position.x);
+                    player.setY(position.y);
+
+                    // Set the new player position
+                    dungeon.setTile(player.getX(), player.getY(), 'P');
+
+                    Game.this.revalidate(); // Re-layout the components
+                    Game.this.repaint(); // Refresh the screen
+                    index++;
+                } else {
+                    // Stop the timer when the player has reached the destination
+                    timer.stop();
+                    isTimerRunning = false;
+                }
+            }
+
+        });
+        timer.start();
+    }
+
+    private void movePlayer(int dx, int dy, int newX, int newY) {
+        // Check if the player is currently on a door
+        if (dungeon.isDoor(player.getX(), player.getY())) {
+            dungeon.setTile(player.getX(), player.getY(), 'D'); // If so, redraw the door
+        } else {
+            dungeon.setTile(player.getX(), player.getY(), '.'); // Otherwise, redraw the floor
+        }
+
+        player.move(dx, dy);
+        if (dungeon.isDoor(newX, newY)) {
+            moveToAdjacentRoom(newX, newY);
+        }
+        dungeon.setTile(player.getX(), player.getY(), 'P'); // Draw the player at the new position
+        repaint();
+    }
+
+    // Move to the corresponding adjacent dungeon
+    private void moveToAdjacentRoom(int newX, int newY) {
+        if (newX == 0) { // Left edge
+            dungeon = grid[dungeon.getGridX() - 1][dungeon.getGridY()];
+            player.setX(WIDTH - 1);
+        } else if (newX == WIDTH - 1) { // Right edge
+            dungeon = grid[dungeon.getGridX() + 1][dungeon.getGridY()];
+            player.setX(0);
+        } else if (newY == 0) { // Top edge
+            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() - 1];
+            player.setY(HEIGHT - 1);
+        } else if (newY == HEIGHT - 1) { // Bottom edge
+            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() + 1];
+            player.setY(0);
+        }
+    }
+
+    // Toggle bulldozer mode
+    private void toggleBulldozerMode() {
+        if (!bulldozerMode) {
+            showAnnouncement("Bulldozer mode activated ⛏", 750);
+            bulldozerMode = true;
+        } else {
+            showAnnouncement("Bulldozer mode deactivated ⛏", 750);
+            bulldozerMode = false;
+        }
+    }
+
+    // Advance to the next level
+    private void advanceToNextLevel() {
+        level++;
+        generateNewLevel();
+        showAnnouncement("Welcome to level " + level, 750);
+        repaint();
+    }
+
+    // Prevent being able to exit the dungeon from an invalid position
+    private void preventInvalidExit() {
+        if (!dungeon.doesHaveExit) {
+            dungeon.exitX = dungeon.width - 1;
+            dungeon.exitY = dungeon.height - 1;
+            dungeon.setTile(dungeon.width - 1, dungeon.height - 1, '#'); // Set invalid exit tile to a wall to prevent an invalid exit
+        }
     }
 
     // Pause the game
@@ -302,9 +317,8 @@ public class Game extends JFrame {
         grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);
 
         // Create the rest of the dungeons ensuring adjacency
-        int ITERATE_TIMES = 2;
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        for (int k = 0; k < ITERATE_TIMES; k++) {
+        for (int k = 0; k < 2; k++) { // Iterate twice to increase the number of dungeons
             for (int i = 0; i < GRID_SIZE; i++) {
                 for (int j = 0; j < GRID_SIZE; j++) {
                     int finalI = i;
