@@ -31,11 +31,9 @@ public class Game extends JFrame {
     private String message;
     private Timer messageTimer;
     private boolean isTimerRunning = false;
+    public static boolean bulldozerMode = false;
 
     public Game(String characterImage, int TILE_SIZE, int WIDTH, int HEIGHT, int Y_OFFSET) {
-        // Enable double buffering at the JFrame level
-        setIgnoreRepaint(true);
-
         // Initialize game parameters
         this.characterImage = characterImage;
         this.TILE_SIZE = TILE_SIZE;
@@ -45,18 +43,14 @@ public class Game extends JFrame {
 
         //Game grid
         grid = new Dungeon[GRID_SIZE][GRID_SIZE];
-        generateMap();
-
-        // Preload images
-        preloadImages();
-
-        // Initialize game and display level announcement
-        initializeGame();
-        showAnnouncement("Find Ciri to advance to next level", 1500);
+        generateMap(); // Generate the map
+        preloadImages(); // Preload images
+        initializeGame(); // Initialize the game
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setIgnoreRepaint(true);
         setResizable(false);
 
         // Add key listener for player movement
@@ -66,6 +60,7 @@ public class Game extends JFrame {
                 if (isTimerRunning) {
                     return; // If the timer is running, ignore the mouse event
                 }
+
                 int key = e.getKeyCode();
                 int dx = 0, dy = 0;
 
@@ -82,6 +77,15 @@ public class Game extends JFrame {
                     case KeyEvent.VK_D, KeyEvent.VK_RIGHT:
                         dx = 1;
                         break;
+                    case KeyEvent.VK_B:
+                        if (!bulldozerMode) {
+                            showAnnouncement("Bulldozer mode activated", 500);
+                            bulldozerMode = true;
+                        } else {
+                            showAnnouncement("Bulldozer mode deactivated", 500);
+                            bulldozerMode = false;
+                        }
+                        break;
                 }
 
                 // Update player position based on key input
@@ -93,19 +97,18 @@ public class Game extends JFrame {
 
                 // Check for valid movement and update player position
                 if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
-                        (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {
+                    (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {
                     // Check if the player is currently on a door
                     if (dungeon.isDoor(player.getX(), player.getY())) {
                         // If so, redraw the door
                         dungeon.setTile(player.getX(), player.getY(), 'D');
                     } else {
-                        // Otherwise, clear the previous player position
+                        // Otherwise, redraw the floor tile
                         dungeon.setTile(player.getX(), player.getY(), '.');
                     }
 
                     player.move(dx, dy); // Move the player first
                     if (dungeon.isDoor(newX, newY)) { // Check if the new position is a door
-                        // Additional check to prevent moving out of bounds
                         // Check which edge the door is on and move to the corresponding adjacent dungeon
                         if (newX == 0) { // Left edge
                             dungeon = grid[dungeon.getX() - 1][dungeon.getY()];
@@ -254,6 +257,7 @@ public class Game extends JFrame {
         startingDungeon.map[0][0] = 'P';
         player = new Player(0, 0);
         dungeon.setTile(player.getX(), player.getY(), 'P');
+        showAnnouncement("Find Ciri to advance to next level", 1500);
     }
 
     private void generateNewLevel() {

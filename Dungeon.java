@@ -183,7 +183,11 @@ public class Dungeon {
 
     // Method to check if a tile is valid for the pathfinder (within bounds, not a wall, and not an exit)
     private boolean isValidTileForPathfinder(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#' && map[y][x] != 'E' && map[y][x] != 'D';
+        if (!Game.bulldozerMode) {
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#' && map[y][x] != 'E' && map[y][x] != 'D';
+        } else {
+            return x >= 0 && x < width && y >= 0 && map[y][x] != 'E' && map[y][x] != 'D';
+        }
     }
 
     public int getX() {
