@@ -3,6 +3,8 @@ package game;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class StartMenu extends JFrame {
     private static final int TILE_SIZE_SELECTION = 200;
@@ -12,6 +14,8 @@ public class StartMenu extends JFrame {
     private static final int SELECTION_WIDTH = 4;
     private static final int SELECTION_HEIGHT = 4;
     private static final int Y_OFFSET_GAME = 70;
+
+    private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
     public StartMenu() {
         // Set up the frame
@@ -198,7 +202,7 @@ public class StartMenu extends JFrame {
         try {
             return new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/floor.png"))).getImage();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "An exception occurred", e);
             return null;
         }
     }
