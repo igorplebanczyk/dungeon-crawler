@@ -1,4 +1,4 @@
-package src;
+package game;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +11,8 @@ import javax.swing.Timer;
 import java.util.List;
 import java.util.concurrent.*;
 import java.awt.event.KeyEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Game extends JFrame {
     // Game parameters
@@ -30,6 +32,7 @@ public class Game extends JFrame {
     private Map<String, Image> imageCache;
     private String message;
     private Timer messageTimer;
+    private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
     // Game state variables
     private int level = 1;
@@ -287,7 +290,7 @@ public class Game extends JFrame {
             Image image = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
             imageCache.put(path, image);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "An exception occurred", e);
         }
     }
 
@@ -338,9 +341,10 @@ public class Game extends JFrame {
         executor.shutdown();
 
         try {
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            boolean tasksEnded = executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            if (!tasksEnded) throw new TimeoutException();
+        } catch (InterruptedException | TimeoutException e) {
+            LOGGER.log(Level.SEVERE, "An exception occurred", e);
         }
 
         addDoors();
