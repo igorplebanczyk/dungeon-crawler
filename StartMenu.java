@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 
-public class CharacterSelection extends JFrame {
+public class StartMenu extends JFrame {
     private static final int TILE_SIZE_SELECTION = 200; // Size of each tile in the selection grid
     private static final int TILE_SIZE_GAME = 60; // Size of each tile in the game grid
     private static final int GAME_WIDTH = 15; // Width of the game grid
@@ -11,7 +11,7 @@ public class CharacterSelection extends JFrame {
     private static final int SELECTION_HEIGHT = 4; // Height of the selection grid
     private static final int Y_OFFSET_GAME = 70; // Y offset for drawing the game grid
 
-    public CharacterSelection() {
+    public StartMenu() {
         setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
@@ -100,7 +100,7 @@ public class CharacterSelection extends JFrame {
         return panel;
     }
 
-    private JPanel getSelectionPanel() {
+    public JPanel getSelectionPanel() {
         // Create the main panel for the character selection
         JPanel panel = getJPanel();
 

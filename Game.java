@@ -9,7 +9,6 @@ import javax.swing.Timer;
 import java.util.List;
 import java.util.concurrent.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 public class Game extends JFrame {
     // Variables to store game parameters
@@ -34,25 +33,8 @@ public class Game extends JFrame {
     private Timer messageTimer;
     private boolean isTimerRunning = false;
     public static boolean bulldozerMode = false;
-
-    private boolean isPaused = false;
-
-    public void pause() {
-        isPaused = !isPaused; // Zmieniamy stan gry na przeciwny
-
-        if (isPaused) {
-            System.out.println("Game paused");
-            // Tutaj zatrzymaj logikę gry i wyświetl menu pauzy
-            // Możesz na przykład zmienić stan gry na "PAUSED" i wywołać metodę repaint(), aby odświeżyć ekran
-            PauseMenu pauseMenu = new PauseMenu(this);
-            pauseMenu.setVisible(true);
-        } else {
-            System.out.println("Game resumed");
-
-            // Tutaj wznow logikę gry
-            // Możesz na przykład zmienić stan gry na "RUNNING" i wywołać metodę repaint(), aby odświeżyć ekran
-        }
-    }
+    public boolean isPaused = false;
+    public static volatile boolean isMapGenerating = false;
 
     public Game(String characterImage, int TILE_SIZE, int WIDTH, int HEIGHT, int Y_OFFSET) {
         // Initialize game parameters
@@ -108,7 +90,7 @@ public class Game extends JFrame {
                         }
                         break;
                     case KeyEvent.VK_ESCAPE:
-                        pause(); // Metoda, która zatrzymuje grę i wyświetla menu pauzy
+                        pause();
                         break;
                 }
 
@@ -295,6 +277,7 @@ public class Game extends JFrame {
 
     // Generate map
     private void generateMap() {
+        isMapGenerating = true;
         Random random = new Random();
 
         // Create first dungeon at a random position
@@ -374,6 +357,7 @@ public class Game extends JFrame {
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
         exitDungeon.doesHaveExit = true; // Set the exit flag
         exitDungeon.map[exitDungeon.exitY][exitDungeon.exitX] = 'E'; // Set the exit in the selected dungeon
+        isMapGenerating = false;
     }
 
     // Check if a dungeon exists at adjacent positions
@@ -472,5 +456,17 @@ public class Game extends JFrame {
         messageTimer.setRepeats(false);
         messageTimer.start();
         repaint();
+    }
+
+    public void pause() {
+        isPaused = !isPaused; // Toggle the paused state
+
+        if (isPaused) {
+            System.out.println("Game paused");
+            PauseMenu pauseMenu = new PauseMenu(this);
+            pauseMenu.setVisible(true);
+        } else {
+            System.out.println("Game resumed");
+        }
     }
 }
