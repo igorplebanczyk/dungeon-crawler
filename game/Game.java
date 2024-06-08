@@ -111,7 +111,7 @@ public class Game extends JFrame {
             }
         });
 
-        this.addMouseListener(new MouseAdapter() {
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (isTimerRunning) return; // If the timer is running, ignore the mouse event
@@ -137,20 +137,20 @@ public class Game extends JFrame {
             }
         });
 
-        pack(); // pack the frame first to calculate its preferred size
-        int frameWidth = WIDTH * TILE_SIZE; // 20 pixels padding on each side
-        int frameHeight = HEIGHT * TILE_SIZE + Y_OFFSET; // 20 pixels padding on top and bottom
-        setSize(frameWidth, frameHeight);
+        pack(); // Pack the frame first to calculate its preferred size
+        setSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE + Y_OFFSET); // Set the frame size
 
         // Center the frame on the screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 
+        // Show the frame and create a buffer strategy
         setVisible(true);
         createBufferStrategy(2);
         bufferStrategy = getBufferStrategy();
     }
 
+    // Call the BFS algorithm to find the shortest path
     private List<Point> getPath(int gridX, int gridY) {
         List<Point> path;
         try {
@@ -165,6 +165,7 @@ public class Game extends JFrame {
         return path;
     }
 
+    // Animate the auto player movement
     private void animateAutoMovement(List<Point> path) {
         // Create a Timer to animate the movement
         Timer timer = new Timer(150, null); // 150ms delay between each move
@@ -200,7 +201,8 @@ public class Game extends JFrame {
         timer.start();
     }
 
-    private void movePlayer(int dx, int dy, int newX, int newY) {
+    // Move the player to the new position
+    private void movePlayer(int dx, int dy, int targetX, int targetY) {
         // Check if the player is currently on a door
         if (dungeon.isDoor(player.getX(), player.getY())) {
             dungeon.setTile(player.getX(), player.getY(), 'D'); // If so, redraw the door
@@ -209,8 +211,8 @@ public class Game extends JFrame {
         }
 
         player.move(dx, dy);
-        if (dungeon.isDoor(newX, newY)) {
-            moveToAdjacentRoom(newX, newY);
+        if (dungeon.isDoor(targetX, targetY)) {
+            moveToAdjacentRoom(targetX, targetY);
         }
         dungeon.setTile(player.getX(), player.getY(), 'P'); // Draw the player at the new position
         repaint();
@@ -314,13 +316,32 @@ public class Game extends JFrame {
         isMapGenerating = true;
         Random random = new Random();
 
-        // Create first dungeon at a random position
-        int firstDungeonX = random.nextInt(1, 2);
-        int firstDungeonY = random.nextInt(1, 2);
-        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);
+        createDungeons(random);
+        addDoors();
+        selectStartingDungeon();
+        selectExitDungeon(random);
+    }
 
-        // Create the rest of the dungeons ensuring adjacency
+    // Create dungeons on the grid
+    private void createDungeons(Random random) {
+        // Create first dungeon at a random position
+        createInitialDungeon(random);
+
+        // Create the rest of the dungeons ensuring adjacency, use multithreading
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        createMoreDungeons(executor, random);
+        executor.shutdown();
+
+        try {
+            boolean tasksEnded = executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            if (!tasksEnded) throw new TimeoutException();
+        } catch (InterruptedException | TimeoutException e) {
+            LOGGER.log(Level.SEVERE, "An exception occurred", e);
+        }
+    }
+
+    // Populate the grid with more dungeons
+    private void createMoreDungeons(ExecutorService executor, Random random) {
         for (int k = 0; k < 2; k++) { // Iterate twice to increase the number of dungeons
             for (int i = 0; i < GRID_SIZE; i++) {
                 for (int j = 0; j < GRID_SIZE; j++) {
@@ -338,18 +359,13 @@ public class Game extends JFrame {
                 }
             }
         }
-        executor.shutdown();
+    }
 
-        try {
-            boolean tasksEnded = executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            if (!tasksEnded) throw new TimeoutException();
-        } catch (InterruptedException | TimeoutException e) {
-            LOGGER.log(Level.SEVERE, "An exception occurred", e);
-        }
-
-        addDoors();
-        selectStartingDungeon();
-        selectExitDungeon(random);
+    // Create the initial dungeon, from which all other dungeons branch out
+    private void createInitialDungeon(Random random) {
+        int firstDungeonX = random.nextInt(1, 2);
+        int firstDungeonY = random.nextInt(1, 2);
+        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);
     }
 
     // Add doors to dungeons
@@ -407,7 +423,7 @@ public class Game extends JFrame {
         isMapGenerating = false;
     }
 
-    // Check if a dungeon exists at adjacent positions
+    // Check if a dungeons exists at adjacent positions
     private boolean hasAdjacentDungeon(int x, int y) {
         if (x > 0 && grid[x - 1][y] != null) { // Check left
             return true;
@@ -437,9 +453,9 @@ public class Game extends JFrame {
 
     // Render the game
     private void render(Graphics g) {
-        drawTiles(g);
-        drawMessageIfNecessary(g);
         drawTopBar(g);
+        drawTiles(g);
+        if (message != null) drawMessage(g);
     }
 
     // Draw top bar
@@ -459,18 +475,16 @@ public class Game extends JFrame {
         }
     }
 
-    // Draw message if present
-    private void drawMessageIfNecessary(Graphics g) {
-        if (message != null) {
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Times ", Font.BOLD, 56));
-            FontMetrics fm = g.getFontMetrics();
-            int messageWidth = fm.stringWidth(message);
-            int messageHeight = fm.getHeight();
-            int x = (getWidth() - messageWidth) / 2;
-            int y = (getHeight() - messageHeight) / 2 + fm.getAscent();
-            g.drawString(message, x, y);
-        }
+    // Draw a message
+    private void drawMessage(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Times ", Font.BOLD, 56));
+        FontMetrics fm = g.getFontMetrics();
+        int messageWidth = fm.stringWidth(message);
+        int messageHeight = fm.getHeight();
+        int x = (getWidth() - messageWidth) / 2;
+        int y = (getHeight() - messageHeight) / 2 + fm.getAscent();
+        g.drawString(message, x, y);
     }
 
     // Draw tiles based on the dungeon map
