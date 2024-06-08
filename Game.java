@@ -8,6 +8,8 @@ import javax.imageio.ImageIO;
 import javax.swing.Timer;
 import java.util.List;
 import java.util.concurrent.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class Game extends JFrame {
     // Variables to store game parameters
@@ -32,6 +34,25 @@ public class Game extends JFrame {
     private Timer messageTimer;
     private boolean isTimerRunning = false;
     public static boolean bulldozerMode = false;
+
+    private boolean isPaused = false;
+
+    public void pause() {
+        isPaused = !isPaused; // Zmieniamy stan gry na przeciwny
+
+        if (isPaused) {
+            System.out.println("Game paused");
+            // Tutaj zatrzymaj logikę gry i wyświetl menu pauzy
+            // Możesz na przykład zmienić stan gry na "PAUSED" i wywołać metodę repaint(), aby odświeżyć ekran
+            PauseMenu pauseMenu = new PauseMenu(this);
+            pauseMenu.setVisible(true);
+        } else {
+            System.out.println("Game resumed");
+
+            // Tutaj wznow logikę gry
+            // Możesz na przykład zmienić stan gry na "RUNNING" i wywołać metodę repaint(), aby odświeżyć ekran
+        }
+    }
 
     public Game(String characterImage, int TILE_SIZE, int WIDTH, int HEIGHT, int Y_OFFSET) {
         // Initialize game parameters
@@ -85,6 +106,9 @@ public class Game extends JFrame {
                             showAnnouncement("Bulldozer mode deactivated ⛏", 750);
                             bulldozerMode = false;
                         }
+                        break;
+                    case KeyEvent.VK_ESCAPE:
+                        pause(); // Metoda, która zatrzymuje grę i wyświetla menu pauzy
                         break;
                 }
 
@@ -263,7 +287,7 @@ public class Game extends JFrame {
         showAnnouncement("Find Ciri to advance to next level", 1500);
     }
 
-    private void generateNewLevel() {
+    public void generateNewLevel() {
         dungeon.setTile(player.getX(), player.getY(), '.'); // Clear the player's previous position
         generateMap();
         initializeGame();
