@@ -43,6 +43,7 @@ public class PauseMenu extends JFrame {
         addFloorTiles(mainPanel);
 
         add(mainPanel);
+        getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 6));
 
         // Center the frame on the screen
         setLocationRelativeTo(parent);
@@ -68,6 +69,11 @@ public class PauseMenu extends JFrame {
         button.setPreferredSize(size);
         button.setMinimumSize(size);
         button.setMaximumSize(size);
+        button.setForeground(Color.WHITE);
+        button.setBackground(new Color(70, 70, 70));
+        button.setFont(new Font("Arial", Font.BOLD, 24));
+        button.setFocusable(false);
+        button.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.BLACK));
         panel.add(button, gbc);
     }
 
