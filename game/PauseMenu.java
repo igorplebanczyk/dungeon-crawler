@@ -4,23 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.Objects;
 
-public class PauseMenu extends JFrame {
-    private static final int PAUSE_MENU_TILE_SIZE = 150;
-    private static final int PAUSE_MENU_WINDOW_WIDTH = 3;
-    private static final int PAUSE_MENU_WINDOW_HEIGHT = 3;
-
+public class PauseMenu extends Menu {
     private final Game game;
 
     public PauseMenu(JFrame parent) {
-        // Set up the frame
         setTitle("Pause Menu");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setUndecorated(true);
-        setResizable(false);
-        setSize(PAUSE_MENU_WINDOW_WIDTH * PAUSE_MENU_TILE_SIZE, PAUSE_MENU_WINDOW_HEIGHT * PAUSE_MENU_TILE_SIZE);
-
         this.game = (Game) parent;
 
         this.addKeyListener(new KeyAdapter() {
@@ -28,53 +17,24 @@ public class PauseMenu extends JFrame {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     PauseMenu.this.setVisible(false);
-                    ((Game)parent).pause();
+                    ((Game) parent).pause();
                 }
             }
         });
         this.setFocusable(true);
         this.requestFocusInWindow();
 
-        // Create the main panel with a GridLayout
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        addButton(getResumeButton(), mainPanel, 0, 200);
-        addButton(getRefreshButton(), mainPanel, 0, 0);
-        addButton(getQuitButton(), mainPanel, 200, 0);
-        addFloorTiles(mainPanel);
-
-        add(mainPanel);
-        getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 6));
-
-        // Center the frame on the screen
+        getPausePanel();
         setLocationRelativeTo(parent);
     }
 
-    // Add the floor tiles to the panel
-    private void addFloorTiles(JPanel panel) {
-        ImageIcon floorIcon = createScaledIcon("/images/floor.png");
-
-        for (int y = 0; y < PAUSE_MENU_WINDOW_HEIGHT; y++) {
-            for (int x = 0; x < PAUSE_MENU_WINDOW_WIDTH; x++) {
-                JLabel label = new JLabel(floorIcon);
-                label.setPreferredSize(new Dimension(PAUSE_MENU_TILE_SIZE, PAUSE_MENU_TILE_SIZE));
-                GridBagConstraints gbc = createGridBagConstraints(x, y, 1, 1, 0, 0);
-                panel.add(label, gbc);
-            }
-        }
-    }
-
-    private void addButton(JButton button, JPanel panel, int offsetTop, int offsetBottom) {
-        Dimension size = new Dimension(200, 75);
-        GridBagConstraints gbc = createGridBagConstraints(0, 0, PAUSE_MENU_WINDOW_WIDTH, PAUSE_MENU_WINDOW_HEIGHT, offsetTop, offsetBottom);
-        button.setPreferredSize(size);
-        button.setMinimumSize(size);
-        button.setMaximumSize(size);
-        button.setForeground(Color.WHITE);
-        button.setBackground(new Color(70, 70, 70));
-        button.setFont(new Font("Arial", Font.BOLD, 24));
-        button.setFocusable(false);
-        button.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.BLACK));
-        panel.add(button, gbc);
+    private void getPausePanel() {
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        addButton(getResumeButton(), mainPanel, 0, 200, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
+        addButton(getRefreshButton(), mainPanel, 0, 0, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
+        addButton(getQuitButton(), mainPanel, 200, 0, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
+        addFloorTiles(mainPanel, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
+        add(mainPanel);
     }
 
     private JButton getResumeButton() {
@@ -89,11 +49,11 @@ public class PauseMenu extends JFrame {
     private JButton getRefreshButton() {
         JButton refreshButton = new JButton("Restart");
         refreshButton.addActionListener(_ -> {
-            StartMenu startMenu = new StartMenu(); // Create new start menu
-            JPanel characterPanel = startMenu.getSelectionPanel(); // Get the character selection panel
+            StartMenu startMenu = new StartMenu();
+            JPanel characterPanel = startMenu.getSelectionPanel();
 
-            game.dispose(); // Close the current game
-            startMenu.setContentPane(characterPanel); // Set the character selection panel as the content pane
+            game.dispose();
+            startMenu.setContentPane(characterPanel);
             characterPanel.setVisible(true);
         });
         return refreshButton;
@@ -103,22 +63,5 @@ public class PauseMenu extends JFrame {
         JButton quitButton = new JButton("Exit");
         quitButton.addActionListener(_ -> System.exit(0));
         return quitButton;
-    }
-
-    // Create a scaled icon
-    private ImageIcon createScaledIcon(String path) {
-        return new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(path))).getImage().getScaledInstance(PAUSE_MENU_TILE_SIZE, PAUSE_MENU_TILE_SIZE, Image.SCALE_SMOOTH));
-    }
-
-    // Create a grid for the layout in start panel
-    private GridBagConstraints createGridBagConstraints(int gridX, int gridY, int gridWidth, int gridHeight, int top, int bottom) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = gridX;
-        gbc.gridy = gridY;
-        gbc.gridwidth = gridWidth;
-        gbc.gridheight = gridHeight;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(top, 0, bottom, 0);
-        return gbc;
     }
 }

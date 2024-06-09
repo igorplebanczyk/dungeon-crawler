@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class StartMenu extends JFrame {
+public class StartMenu extends Menu {
     private static final int START_MENU_TILE_SIZE = 200;
     private static final int START_MENU_WINDOW_WIDTH = 4;
     private static final int START_MENU_WINDOW_HEIGHT = 4;
@@ -18,13 +18,11 @@ public class StartMenu extends JFrame {
     private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
     public StartMenu() {
-        // Set up the frame
         setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setSize(START_MENU_WINDOW_WIDTH * START_MENU_TILE_SIZE, START_MENU_WINDOW_HEIGHT * START_MENU_TILE_SIZE);
 
-        // Show the start panel
         add(getStartPanel());
         setVisible(true);
         centerFrameOnScreen();
@@ -41,7 +39,7 @@ public class StartMenu extends JFrame {
         JPanel panel = new JPanel(new GridBagLayout());
         addStartButton(panel);
         addTitleLabels(panel);
-        addFloorTiles(panel);
+        addFloorTiles(panel, START_MENU_TILE_SIZE, START_MENU_WINDOW_WIDTH, START_MENU_WINDOW_HEIGHT);
         return panel;
     }
 
@@ -63,20 +61,6 @@ public class StartMenu extends JFrame {
 
         panel.add(topTitleLabel, gbcTopTitle);
         panel.add(bottomTitleLabel, gbcBottomTitle);
-    }
-
-    // Add the floor tiles to the panel
-    private void addFloorTiles(JPanel panel) {
-        ImageIcon floorIcon = createScaledIcon("/images/floor.png");
-
-        for (int y = 0; y < START_MENU_WINDOW_HEIGHT; y++) {
-            for (int x = 0; x < START_MENU_WINDOW_WIDTH; x++) {
-                JLabel label = new JLabel(floorIcon);
-                label.setPreferredSize(new Dimension(START_MENU_TILE_SIZE, START_MENU_TILE_SIZE));
-                GridBagConstraints gbc = createGridBagConstraints(x, y, 1, 1, 0, 0);
-                panel.add(label, gbc);
-            }
-        }
     }
 
     // Switch to the selection panel
@@ -144,7 +128,7 @@ public class StartMenu extends JFrame {
 
     // Create a character image tile
     private JLabel createCharacterLabel(String imagePath) {
-        ImageIcon icon = createScaledIcon(imagePath);
+        ImageIcon icon = createScaledIcon(imagePath, START_MENU_TILE_SIZE);
         return new JLabel(icon);
     }
 
@@ -179,22 +163,6 @@ public class StartMenu extends JFrame {
         label.setFont(new Font("Dialog", Font.BOLD, 72));
         label.setForeground(new Color(60, 60, 60));
         return label;
-    }
-
-    // Create a grid for the layout in start panel
-    private GridBagConstraints createGridBagConstraints(int gridX, int gridY, int gridWidth, int gridHeight, int top, int bottom) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = gridX;
-        gbc.gridy = gridY;
-        gbc.gridwidth = gridWidth;
-        gbc.gridheight = gridHeight;
-        gbc.insets = new Insets(top, 0, bottom, 0);
-        return gbc;
-    }
-
-    // Create a scaled icon
-    private ImageIcon createScaledIcon(String path) {
-        return new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(path))).getImage().getScaledInstance(StartMenu.START_MENU_TILE_SIZE, StartMenu.START_MENU_TILE_SIZE, Image.SCALE_SMOOTH));
     }
 
     // Load floor image
