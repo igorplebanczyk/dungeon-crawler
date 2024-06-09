@@ -195,7 +195,7 @@ public class Dungeon {
     }
     
     // Breadth-first search algorithm to find the shortest path between two points
-    public List<Point> bfs(int startX, int startY, int goalX, int goalY) throws InterruptedException, ExecutionException, TimeoutException {
+    public List<Point> findPath(int startX, int startY, int goalX, int goalY) throws InterruptedException, ExecutionException, TimeoutException {
         // Run BFS in a separate thread with a timeout
         CompletableFuture<List<Point>> future = CompletableFuture.supplyAsync(() -> {
             // Use a Queue for BFS

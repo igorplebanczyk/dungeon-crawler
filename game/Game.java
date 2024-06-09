@@ -28,11 +28,11 @@ public class Game extends JFrame {
     private Dungeon dungeon;
     private Dungeon startingDungeon;
     private Player player;
-    private final BufferStrategy bufferStrategy;
-    private Map<String, Image> imageCache;
     private String message;
-    private Timer messageTimer;
-    private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
+    private Timer messageTimer; // Timer to clear the message after a certain duration
+    private Map<String, Image> imageCache; // Cache for images
+    private final BufferStrategy bufferStrategy; // Buffer strategy for rendering
+    private static final Logger LOGGER = Logger.getLogger(Game.class.getName()); // Logger for error messages
 
     // Game state variables
     private int level = 1;
@@ -157,7 +157,7 @@ public class Game extends JFrame {
     private List<Point> getPath(int gridX, int gridY) {
         List<Point> path;
         try {
-            path = dungeon.bfs(player.getX(), player.getY(), gridX, gridY);
+            path = dungeon.findPath(player.getX(), player.getY(), gridX, gridY);
         } catch (InterruptedException | ExecutionException ex) {
             if (ex.getCause() instanceof TimeoutException) {
                 System.out.println("Pathfinding took too long and was cancelled.");

@@ -26,30 +26,46 @@ public class PauseMenu extends JDialog {
         this.requestFocusInWindow();
 
         // Resume button
+        JButton resumeButton = getResumeButton();
+        add(resumeButton);
+
+        // Restart button
+        JButton refreshButton = getRefreshButton();
+        add(refreshButton);
+
+        // Quit button
+        JButton quitButton = getQuitButton();
+        add(quitButton);
+
+        pack();
+        setLocationRelativeTo(parent);
+    }
+
+    private static JButton getQuitButton() {
+        JButton quitButton = new JButton("Exit");
+        quitButton.addActionListener(_ -> System.exit(0));
+        return quitButton;
+    }
+
+    private JButton getResumeButton() {
         JButton resumeButton = new JButton("Resume");
         resumeButton.addActionListener(_ -> {
             game.pause();
             PauseMenu.this.setVisible(false);
         });
-        add(resumeButton);
+        return resumeButton;
+    }
 
-        // Restart button
+    private JButton getRefreshButton() {
         JButton refreshButton = new JButton("Restart");
         refreshButton.addActionListener(_ -> {
+            StartMenu startMenu = new StartMenu(); // Create new start menu
+            JPanel characterPanel = startMenu.getSelectionPanel(); // Get the character selection panel
+
             game.dispose(); // Close the current game
-            StartMenu characterSelection = new StartMenu(); // Open the character selection screen
-            JPanel characterPanel = characterSelection.getSelectionPanel();
-            characterSelection.setContentPane(characterPanel);
+            startMenu.setContentPane(characterPanel); // Set the character selection panel as the content pane
             characterPanel.setVisible(true);
         });
-        add(refreshButton);
-
-        // Quit button
-        JButton quitButton = new JButton("Exit");
-        quitButton.addActionListener(_ -> System.exit(0));
-        add(quitButton);
-
-        pack();
-        setLocationRelativeTo(parent);
+        return refreshButton;
     }
 }

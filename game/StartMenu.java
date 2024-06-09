@@ -7,13 +7,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class StartMenu extends JFrame {
-    private static final int TILE_SIZE_SELECTION = 200;
-    private static final int TILE_SIZE_GAME = 60;
+    private static final int START_MENU_TILE_SIZE = 200;
+    private static final int START_MENU_WINDOW_WIDTH = 4;
+    private static final int START_MENU_WINDOW_HEIGHT = 4;
+    private static final int GAME_TILE_SIZE = 60;
     private static final int GAME_WIDTH = 15;
     private static final int GAME_HEIGHT = 15;
-    private static final int SELECTION_WIDTH = 4;
-    private static final int SELECTION_HEIGHT = 4;
-    private static final int Y_OFFSET_GAME = 70;
+    private static final int GAME_Y_OFFSET = 70;
 
     private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
@@ -22,7 +22,7 @@ public class StartMenu extends JFrame {
         setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
-        setSize(SELECTION_WIDTH * TILE_SIZE_SELECTION, SELECTION_HEIGHT * TILE_SIZE_SELECTION);
+        setSize(START_MENU_WINDOW_WIDTH * START_MENU_TILE_SIZE, START_MENU_WINDOW_HEIGHT * START_MENU_TILE_SIZE);
 
         // Show the start panel
         add(getStartPanel());
@@ -47,9 +47,9 @@ public class StartMenu extends JFrame {
 
     // Add the start button to the panel
     private void addStartButton(JPanel panel) {
-        JButton startButton = createButton("Start", TILE_SIZE_SELECTION * 2, 48, 4, 4);
+        JButton startButton = createButton("Start", START_MENU_TILE_SIZE * 2, 48, 4, 4);
         startButton.addActionListener(_ -> switchToSelectionPanel());
-        GridBagConstraints gbc = createGridBagConstraints(1, 1, 2, 2, TILE_SIZE_SELECTION / 3, 0);
+        GridBagConstraints gbc = createGridBagConstraints(1, 1, 2, 2, START_MENU_TILE_SIZE / 3, 0);
         panel.add(startButton, gbc);
     }
 
@@ -58,8 +58,8 @@ public class StartMenu extends JFrame {
         JLabel topTitleLabel = createTitleLabel("Dungeon");
         JLabel bottomTitleLabel = createTitleLabel("Crawler");
 
-        GridBagConstraints gbcTopTitle = createGridBagConstraints(1, 0, 2, 1, 0, TILE_SIZE_SELECTION / 5);
-        GridBagConstraints gbcBottomTitle = createGridBagConstraints(1, 0, 2, 1, TILE_SIZE_SELECTION / 2, 0);
+        GridBagConstraints gbcTopTitle = createGridBagConstraints(1, 0, 2, 1, 0, START_MENU_TILE_SIZE / 5);
+        GridBagConstraints gbcBottomTitle = createGridBagConstraints(1, 0, 2, 1, START_MENU_TILE_SIZE / 2, 0);
 
         panel.add(topTitleLabel, gbcTopTitle);
         panel.add(bottomTitleLabel, gbcBottomTitle);
@@ -69,10 +69,10 @@ public class StartMenu extends JFrame {
     private void addFloorTiles(JPanel panel) {
         ImageIcon floorIcon = createScaledIcon("/images/floor.png");
 
-        for (int y = 0; y < SELECTION_HEIGHT; y++) {
-            for (int x = 0; x < SELECTION_WIDTH; x++) {
+        for (int y = 0; y < START_MENU_WINDOW_HEIGHT; y++) {
+            for (int x = 0; x < START_MENU_WINDOW_WIDTH; x++) {
                 JLabel label = new JLabel(floorIcon);
-                label.setPreferredSize(new Dimension(TILE_SIZE_SELECTION, TILE_SIZE_SELECTION));
+                label.setPreferredSize(new Dimension(START_MENU_TILE_SIZE, START_MENU_TILE_SIZE));
                 GridBagConstraints gbc = createGridBagConstraints(x, y, 1, 1, 0, 0);
                 panel.add(label, gbc);
             }
@@ -107,24 +107,24 @@ public class StartMenu extends JFrame {
                 drawFloorTiles(g);
             }
         };
-        panel.setLayout(new GridLayout(SELECTION_HEIGHT, SELECTION_WIDTH));
+        panel.setLayout(new GridLayout(START_MENU_WINDOW_HEIGHT, START_MENU_WINDOW_WIDTH));
         return panel;
     }
 
     // Draw the floor tiles
     private void drawFloorTiles(Graphics g) {
         Image floorImage = loadFloorImage();
-        for (int y = 0; y < SELECTION_HEIGHT; y++) {
-            for (int x = 0; x < SELECTION_WIDTH; x++) {
-                g.drawImage(floorImage, x * TILE_SIZE_SELECTION, y * TILE_SIZE_SELECTION, TILE_SIZE_SELECTION, TILE_SIZE_SELECTION, this);
+        for (int y = 0; y < START_MENU_WINDOW_HEIGHT; y++) {
+            for (int x = 0; x < START_MENU_WINDOW_WIDTH; x++) {
+                g.drawImage(floorImage, x * START_MENU_TILE_SIZE, y * START_MENU_TILE_SIZE, START_MENU_TILE_SIZE, START_MENU_TILE_SIZE, this);
             }
         }
     }
 
     // Populate the selection panel with floor tiles
     private void populateSelectionPanel(JPanel panel, char[][] layout) {
-        for (int y = 0; y < SELECTION_HEIGHT; y++) {
-            for (int x = 0; x < SELECTION_WIDTH; x++) {
+        for (int y = 0; y < START_MENU_WINDOW_HEIGHT; y++) {
+            for (int x = 0; x < START_MENU_WINDOW_WIDTH; x++) {
                 JLabel label = createTileLabel(layout[y][x]);
                 panel.add(label);
             }
@@ -150,7 +150,7 @@ public class StartMenu extends JFrame {
 
     // Create a selection button
     private JLabel createSelectionButton(String text, String characterImagePath, int borderLeft, int borderRight) {
-        JButton button = createButton(text, TILE_SIZE_SELECTION, 16, borderLeft, borderRight);
+        JButton button = createButton(text, START_MENU_TILE_SIZE, 16, borderLeft, borderRight);
         button.addActionListener(_ -> launchGame(characterImagePath));
         JLabel label = new JLabel();
         label.setLayout(new BorderLayout());
@@ -161,7 +161,7 @@ public class StartMenu extends JFrame {
     // Create a button
     private JButton createButton(String text, int width, int fontSize, int borderLeft, int borderRight) {
         JButton button = new JButton(text);
-        Dimension buttonSize = new Dimension(width, TILE_SIZE_SELECTION);
+        Dimension buttonSize = new Dimension(width, START_MENU_TILE_SIZE);
         button.setPreferredSize(buttonSize);
         button.setMinimumSize(buttonSize);
         button.setMaximumSize(buttonSize);
@@ -194,7 +194,7 @@ public class StartMenu extends JFrame {
 
     // Create a scaled icon
     private ImageIcon createScaledIcon(String path) {
-        return new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(path))).getImage().getScaledInstance(StartMenu.TILE_SIZE_SELECTION, StartMenu.TILE_SIZE_SELECTION, Image.SCALE_SMOOTH));
+        return new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(path))).getImage().getScaledInstance(StartMenu.START_MENU_TILE_SIZE, StartMenu.START_MENU_TILE_SIZE, Image.SCALE_SMOOTH));
     }
 
     // Load floor image
@@ -210,6 +210,6 @@ public class StartMenu extends JFrame {
     // Launch the actual game
     private void launchGame(String characterImagePath) {
         dispose();
-        new Game(characterImagePath, TILE_SIZE_GAME, GAME_WIDTH, GAME_HEIGHT, Y_OFFSET_GAME);
+        new Game(characterImagePath, GAME_TILE_SIZE, GAME_WIDTH, GAME_HEIGHT, GAME_Y_OFFSET);
     }
 }
