@@ -41,7 +41,7 @@ public abstract class Menu extends JFrame {
         return new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(path))).getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH));
     }
 
-    // Creat GridBagConstraints with common settings
+    // Create GridBagConstraints with common settings
     protected GridBagConstraints createGridBagConstraints(int gridX, int gridY, int gridWidth, int gridHeight, int top, int bottom) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = gridX;

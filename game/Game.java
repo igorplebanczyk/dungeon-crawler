@@ -167,7 +167,7 @@ public class Game extends JFrame {
                 return null;
             }
             throw new RuntimeException(ex);
-        } catch (TimeoutException ex) { throw new RuntimeException(ex);}
+        } catch (TimeoutException ex) { throw new RuntimeException(ex); }
         return path;
     }
 

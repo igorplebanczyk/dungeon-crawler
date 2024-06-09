@@ -20,4 +20,3 @@ Authors:
 TODO:
 * Improve textures
 * Add torch mode
-* Improve loading times
