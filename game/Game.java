@@ -224,18 +224,18 @@ public class Game extends JFrame {
 
     // Move to the corresponding adjacent dungeon
     private void moveToAdjacentRoom(int newX, int newY) {
-        if (newX == 0) { // Left edge
-            dungeon = grid[dungeon.getGridX() - 1][dungeon.getGridY()];
-            player.move(WIDTH - 1, player.getY());
-        } else if (newX == WIDTH - 1) { // Right edge
-            dungeon = grid[dungeon.getGridX() + 1][dungeon.getGridY()];
-            player.move(0, player.getY());
-        } else if (newY == 0) { // Top edge
-            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() - 1];
-            player.move(player.getX(), HEIGHT - 1);
-        } else if (newY == HEIGHT - 1) { // Bottom edge
-            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() + 1];
-            player.move(player.getX(), 0);
+        if (newX == 0) {
+            dungeon = grid[dungeon.getGridX() - 1][dungeon.getGridY()]; // Left edge
+            player.setX(WIDTH - 1);
+        } else if (newX == WIDTH - 1) {
+            dungeon = grid[dungeon.getGridX() + 1][dungeon.getGridY()]; // Right edge
+            player.setX(0);
+        } else if (newY == 0) {
+            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() - 1]; // Top edge
+            player.setY(HEIGHT - 1);
+        } else if (newY == HEIGHT - 1) {
+            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() + 1]; // Bottom edge
+            player.setY(0);
         }
     }
 
@@ -421,7 +421,7 @@ public class Game extends JFrame {
         // Randomly select a dungeon from the list to be the exit dungeon
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
         exitDungeon.doesHaveExit = true; // Set the exit flag
-        exitDungeon.setTile(exitDungeon.getExitY(), exitDungeon.getExitX(), 'E'); // Set the exit in the selected dungeon
+        exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), 'E'); // Set the exit in the selected dungeon
     }
 
     // Check if a dungeons exists at adjacent positions
