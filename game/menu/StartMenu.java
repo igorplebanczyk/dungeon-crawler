@@ -1,4 +1,6 @@
-package game;
+package game.menu;
+
+import game.Game;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,10 +12,6 @@ public class StartMenu extends Menu {
     private static final int TILE_SIZE = 200;
     private static final int WINDOW_WIDTH = 4;
     private static final int WINDOW_HEIGHT = 4;
-    private static final int GAME_TILE_SIZE = 60;
-    private static final int GAME_WIDTH = 15;
-    private static final int GAME_HEIGHT = 15;
-    private static final int GAME_Y_OFFSET = 70;
 
     private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
@@ -169,6 +167,6 @@ public class StartMenu extends Menu {
     // Launch the actual game
     private void launchGame(String characterImagePath) {
         dispose();
-        new Game(characterImagePath, GAME_TILE_SIZE, GAME_WIDTH, GAME_HEIGHT, GAME_Y_OFFSET);
+        new Game(characterImagePath);
     }
 }

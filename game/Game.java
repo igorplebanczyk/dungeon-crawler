@@ -1,5 +1,7 @@
 package game;
 
+import game.menu.PauseMenu;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -17,10 +19,10 @@ import java.util.logging.Logger;
 public class Game extends JFrame {
     // Game parameters
     private final String characterImage;
-    private final int TILE_SIZE ;
-    private final int WIDTH;
-    private final int HEIGHT;
-    private final int Y_OFFSET;
+    private static final int TILE_SIZE = 60;
+    private static final int WIDTH = 15;
+    private static final int HEIGHT = 15;
+    private static final int Y_OFFSET = 70;
     private final int GRID_SIZE = 4;
 
     // Game objects
@@ -40,13 +42,9 @@ public class Game extends JFrame {
     private boolean isPaused = false;
     private static boolean bulldozerMode = false;
 
-    public Game(String characterImage, int TILE_SIZE, int WIDTH, int HEIGHT, int Y_OFFSET) {
+    public Game(String characterImage) {
         // Initialize game parameters
         this.characterImage = characterImage;
-        this.TILE_SIZE = TILE_SIZE;
-        this.WIDTH = WIDTH;
-        this.HEIGHT = HEIGHT;
-        this.Y_OFFSET = Y_OFFSET;
 
         // Game grid
         grid = new Dungeon[GRID_SIZE][GRID_SIZE];
