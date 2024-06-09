@@ -7,9 +7,9 @@ import java.awt.event.KeyEvent;
 import java.util.Objects;
 
 public class PauseMenu extends JFrame {
-    private static final int PAUSE_MENU_TILE_SIZE = 200;
-    private static final int PAUSE_MENU_WINDOW_WIDTH = 2;
-    private static final int PAUSE_MENU_WINDOW_HEIGHT = 2;
+    private static final int PAUSE_MENU_TILE_SIZE = 150;
+    private static final int PAUSE_MENU_WINDOW_WIDTH = 3;
+    private static final int PAUSE_MENU_WINDOW_HEIGHT = 3;
 
     private final Game game;
 
@@ -37,9 +37,9 @@ public class PauseMenu extends JFrame {
 
         // Create the main panel with a GridLayout
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        addButton(getResumeButton(), mainPanel, 0);
-        addButton(getRefreshButton(), mainPanel, 150);
-        addButton(getQuitButton(), mainPanel, 300);
+        addButton(getResumeButton(), mainPanel, 0, 200);
+        addButton(getRefreshButton(), mainPanel, 0, 0);
+        addButton(getQuitButton(), mainPanel, 200, 0);
         addFloorTiles(mainPanel);
 
         add(mainPanel);
@@ -62,9 +62,12 @@ public class PauseMenu extends JFrame {
         }
     }
 
-    private void addButton(JButton button, JPanel panel, int offsetTop) {
-        GridBagConstraints gbc = createGridBagConstraints(1, 0, 2, 2, offsetTop, 0);
-        button.setPreferredSize(new Dimension(200, 75));
+    private void addButton(JButton button, JPanel panel, int offsetTop, int offsetBottom) {
+        Dimension size = new Dimension(200, 75);
+        GridBagConstraints gbc = createGridBagConstraints(0, 0, PAUSE_MENU_WINDOW_WIDTH, PAUSE_MENU_WINDOW_HEIGHT, offsetTop, offsetBottom);
+        button.setPreferredSize(size);
+        button.setMinimumSize(size);
+        button.setMaximumSize(size);
         panel.add(button, gbc);
     }
 
