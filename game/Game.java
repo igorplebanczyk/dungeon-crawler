@@ -176,8 +176,7 @@ public class Game extends JFrame {
             @Override
             public void actionPerformed(ActionEvent event) {
                 if (index < path.size()) {
-                    // Clear the previous player position
-                    dungeon.setTile(player.getX(), player.getY(), '.');
+                    redrawPreviousTile(); // Clear the previous player position and redraw either a door or floor
 
                     // Update the player's position
                     Point position = path.get(index);
@@ -201,14 +200,17 @@ public class Game extends JFrame {
         timer.start();
     }
 
-    // Move the player to the new position
-    private void movePlayer(int dx, int dy, int targetX, int targetY) {
-        // Check if the player is currently on a door
+    private void redrawPreviousTile() {
         if (dungeon.isDoor(player.getX(), player.getY())) {
             dungeon.setTile(player.getX(), player.getY(), 'D'); // If so, redraw the door
         } else {
             dungeon.setTile(player.getX(), player.getY(), '.'); // Otherwise, redraw the floor
         }
+    }
+
+    // Move the player to the new position
+    private void movePlayer(int dx, int dy, int targetX, int targetY) {
+        redrawPreviousTile(); // Clear the previous player position and redraw either a door or floor
 
         player.move(dx, dy);
         if (dungeon.isDoor(targetX, targetY)) {
@@ -305,9 +307,8 @@ public class Game extends JFrame {
 
     // Initialize game state
     private void initializeGame() {
-        startingDungeon.map[0][0] = 'P';
         player = new Player(0, 0);
-        dungeon.setTile(player.getX(), player.getY(), 'P');
+        dungeon.setTile(player.getX(), player.getY(), 'P'); // Set the player's initial position
         showAnnouncement("Find Ciri to advance to next level", 1500);
     }
 
