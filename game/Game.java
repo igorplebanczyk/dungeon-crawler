@@ -317,7 +317,8 @@ public class Game extends JFrame {
     // Generate a new level
     private void generateNewLevel() {
         dungeon.setTile(player.getX(), player.getY(), '.'); // Clear the player's previous position
-        initializeGame();
+        generateMap(); // Call synchronously, because asynchronous generation is slower in this case
+        initializePlayer();
     }
 
     private void initializeGame() {
