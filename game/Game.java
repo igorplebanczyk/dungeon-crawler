@@ -15,6 +15,7 @@ import java.util.concurrent.*;
 import java.awt.event.KeyEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 public class Game extends JFrame {
     // Game parameters
@@ -43,10 +44,10 @@ public class Game extends JFrame {
     private static boolean bulldozerMode = false;
 
     public Game(String characterImage) {
-        long startTime = System.nanoTime();
         // Initialize game parameters
-        this.characterImage = characterImage;
+        long startTime = System.nanoTime();
         grid = new Dungeon[GRID_SIZE][GRID_SIZE];
+        this.characterImage = characterImage;
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
@@ -339,10 +340,8 @@ public class Game extends JFrame {
     // Generate map
     private void generateMap() {
         Random random = new Random();
-        long startTime6 = System.nanoTime();
+
         createDungeons(random);
-        long endTime6 = System.nanoTime();
-        System.out.println("\nDungeons created in " + (endTime6 - startTime6) / 1e6 + "ms");
         addDoors();
         selectStartingDungeon();
         selectExitDungeon(random);
@@ -355,7 +354,7 @@ public class Game extends JFrame {
 
         // Create the rest of the dungeons ensuring adjacency, use multithreading
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        createMoreDungeons(executor, random);
+        createMoreDungeons(random);
         executor.shutdown();
 
         try {
@@ -367,24 +366,18 @@ public class Game extends JFrame {
     }
 
     // Populate the grid with more dungeons
-    private void createMoreDungeons(ExecutorService executor, Random random) {
-        for (int k = 0; k < 2; k++) { // Iterate twice to increase the number of dungeons
-            for (int i = 0; i < GRID_SIZE; i++) {
-                for (int j = 0; j < GRID_SIZE; j++) {
-                    int finalI = i;
-                    int finalJ = j;
-                    executor.submit(() -> {
-                        if (grid[finalI][finalJ] == null && hasAdjacentDungeon(finalI, finalJ)) {
-                            // Randomly decide whether to create a dungeon
-                            boolean shouldCreateDungeon = random.nextBoolean();
-                            if (shouldCreateDungeon) {
-                                grid[finalI][finalJ] = new Dungeon(WIDTH, HEIGHT, finalI, finalJ);
-                            }
-                        }
-                    });
+    private void createMoreDungeons(Random random) {
+        IntStream.range(0, 2).parallel().forEach(_ -> { // Iterate twice to increase the number of dungeons
+            IntStream.range(0, GRID_SIZE).parallel().forEach(i -> IntStream.range(0, GRID_SIZE).parallel().forEach(j -> {
+                if (grid[i][j] == null && hasAdjacentDungeon(i, j)) {
+                    // Randomly decide whether to create a dungeon
+                    boolean shouldCreateDungeon = random.nextBoolean();
+                    if (shouldCreateDungeon) {
+                        grid[i][j] = new Dungeon(WIDTH, HEIGHT, i, j);
+                    }
                 }
-            }
-        }
+            }));
+        });
     }
 
     // Create the initial dungeon, from which all other dungeons branch out
