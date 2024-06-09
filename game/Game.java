@@ -46,7 +46,7 @@ public class Game extends JFrame {
 
     public Game(String characterImage) {
         // Initialize game parameters
-        long startTime = System.nanoTime();
+        long startTime = System.nanoTime(); // Start time for measuring initialization time
         this.characterImage = characterImage;
         grid = new Dungeon[GRID_SIZE][GRID_SIZE];
 
@@ -58,7 +58,29 @@ public class Game extends JFrame {
 
         initializeGame();
 
-        // Add key listener for player movement
+        handleKeyboardInput(); // Add keylistener to handle keyboard input
+        handleMouseInput(); // Add mouselistener to handle mouse input
+
+        pack(); // Pack the frame first to calculate its preferred size
+        setSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE + Y_OFFSET); // Set the frame size
+
+        // Center the frame on the screen
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
+
+        // Create a buffer strategy for rendering
+        createBufferStrategy(2);
+        bufferStrategy = getBufferStrategy();
+
+        setVisible(true);
+        repaint();
+
+        long endTime = System.nanoTime(); // End time for measuring initialization time
+        System.out.println("Game initialized in " + (endTime - startTime) / 1e6 + "ms");
+    }
+
+    // Add a keyListener to handle player movement
+    private void handleKeyboardInput() {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -88,68 +110,63 @@ public class Game extends JFrame {
                         break;
                 }
 
-                // Update player position based on key input
-                int newX = player.getX() + dx;
-                int newY = player.getY() + dy;
-
-                preventInvalidExit(); // Prevent stepping on an invalid exit
-
-                // Check for valid movement and update player position
-                if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
-                    (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {
-                    movePlayer(dx, dy, newX, newY);
-                }
-
-                // Check for reaching the exit and advance to the next level
-                int[] playerPos = player.getPosition();
-                if (playerPos[0] == dungeon.getExitX() && playerPos[1] == dungeon.getExitY()) {
-                    advanceToNextLevel();
-                }
+                handleManualMovement(dx, dy);
             }
         });
+    }
 
+    // Handle movement with keyboard input
+    private void handleManualMovement(int dx, int dy) {
+        // Calculate the new player position
+        int newX = player.getX() + dx;
+        int newY = player.getY() + dy;
+
+        preventInvalidExit(); // Prevent stepping on an invalid exit by replacing it with a wall
+
+        // Check for valid movement and update player position
+        if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
+                (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {
+            movePlayer(dx, dy, newX, newY);
+        }
+
+        // Check for reaching the exit and advance to the next level
+        int[] playerPos = player.getPosition();
+        if (playerPos[0] == dungeon.getExitX() && playerPos[1] == dungeon.getExitY()) {
+            advanceToNextLevel();
+        }
+    }
+
+    // Add a mouseListener and handle player movement with pathfinding
+    private void handleMouseInput() {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (isTimerRunning) return; // If the timer is running, ignore the mouse event
-
-                // Convert mouse coordinates to grid coordinates
-                int gridX = e.getX() / TILE_SIZE;
-                int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
-
-                // Check if the clicked tile is a wall or exit
-                if (dungeon.getTile(gridX, gridY) == '#') {
-                    showAnnouncement("Can't walk through walls", 500);
-                    return;
-                }
-                else if (dungeon.getTile(gridX, gridY) == 'E') {
-                    showAnnouncement("It ain't that easy", 500);
-                    return;
-                }
-
-                // Use BFS to find the shortest path
-                List<Point> path = getPath(gridX, gridY);
-                if (path == null) return;
-                animateAutoMovement(path); // Animate the player movement
+                handleAutoMovement(e);
             }
         });
+    }
 
-        pack(); // Pack the frame first to calculate its preferred size
-        setSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE + Y_OFFSET); // Set the frame size
+    // Handle movement with pathfinder
+    private void handleAutoMovement(MouseEvent e) {
+        // Convert mouse coordinates to grid coordinates
+        int gridX = e.getX() / TILE_SIZE;
+        int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
 
-        // Center the frame on the screen
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
+        // Check if the clicked tile is a wall or exit
+        if (dungeon.getTile(gridX, gridY) == '#') {
+            showAnnouncement("Can't walk through walls", 500);
+            return;
+        }
+        else if (dungeon.getTile(gridX, gridY) == 'E') {
+            showAnnouncement("It ain't that easy", 500);
+            return;
+        }
 
-        // Create a buffer strategy
-        createBufferStrategy(2);
-        bufferStrategy = getBufferStrategy();
-
-        setVisible(true);
-        repaint();
-
-        long endTime = System.nanoTime();
-        System.out.println("Game initialized in " + (endTime - startTime) / 1e6 + "ms");
+        // Use BFS to find the shortest path
+        List<Point> path = getPath(gridX, gridY);
+        if (path == null) return;
+        animateAutoMovement(path); // Animate the player movement
     }
 
     public static boolean isBulldozerMode() {
