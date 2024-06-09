@@ -36,13 +36,11 @@ public class PauseMenu extends JDialog {
         // Restart button
         JButton refreshButton = new JButton("Restart");
         refreshButton.addActionListener(_ -> {
-            if (!Game.isMapGenerating) {
-                game.dispose(); // Close the current game
-                StartMenu characterSelection = new StartMenu(); // Open the character selection screen
-                JPanel characterPanel = characterSelection.getSelectionPanel();
-                characterSelection.setContentPane(characterPanel);
-                characterPanel.setVisible(true);
-            }
+            game.dispose(); // Close the current game
+            StartMenu characterSelection = new StartMenu(); // Open the character selection screen
+            JPanel characterPanel = characterSelection.getSelectionPanel();
+            characterSelection.setContentPane(characterPanel);
+            characterPanel.setVisible(true);
         });
         add(refreshButton);
 

@@ -37,9 +37,8 @@ public class Game extends JFrame {
     // Game state variables
     private int level = 1;
     private boolean isTimerRunning = false;
-    public static boolean bulldozerMode = false;
-    public boolean isPaused = false;
-    public static volatile boolean isMapGenerating = false;
+    private boolean isPaused = false;
+    private static boolean bulldozerMode = false;
 
     public Game(String characterImage, int TILE_SIZE, int WIDTH, int HEIGHT, int Y_OFFSET) {
         // Initialize game parameters
@@ -105,7 +104,7 @@ public class Game extends JFrame {
 
                 // Check for reaching the exit and advance to the next level
                 int[] playerPos = player.getPosition();
-                if (playerPos[0] == dungeon.exitX && playerPos[1] == dungeon.exitY) {
+                if (playerPos[0] == dungeon.getExitX() && playerPos[1] == dungeon.getExitY()) {
                     advanceToNextLevel();
                 }
             }
@@ -150,6 +149,10 @@ public class Game extends JFrame {
         bufferStrategy = getBufferStrategy();
     }
 
+    public static boolean isBulldozerMode() {
+        return bulldozerMode;
+    }
+
     // Call the BFS algorithm to find the shortest path
     private List<Point> getPath(int gridX, int gridY) {
         List<Point> path;
@@ -180,8 +183,7 @@ public class Game extends JFrame {
 
                     // Update the player's position
                     Point position = path.get(index);
-                    player.setX(position.x);
-                    player.setY(position.y);
+                    player.move(position.x - player.getX(), position.y - player.getY());
 
                     // Set the new player position
                     dungeon.setTile(player.getX(), player.getY(), 'P');
@@ -239,12 +241,12 @@ public class Game extends JFrame {
 
     // Toggle bulldozer mode
     private void toggleBulldozerMode() {
-        if (!bulldozerMode) {
-            showAnnouncement("Bulldozer mode activated ⛏", 750);
-            bulldozerMode = true;
-        } else {
+        if (isBulldozerMode()) {
             showAnnouncement("Bulldozer mode deactivated ⛏", 750);
             bulldozerMode = false;
+        } else {
+            showAnnouncement("Bulldozer mode activated ⛏", 750);
+            bulldozerMode = true;
         }
     }
 
@@ -259,9 +261,9 @@ public class Game extends JFrame {
     // Prevent being able to exit the dungeon from an invalid position
     private void preventInvalidExit() {
         if (!dungeon.doesHaveExit) {
-            dungeon.exitX = dungeon.width - 1;
-            dungeon.exitY = dungeon.height - 1;
-            dungeon.setTile(dungeon.width - 1, dungeon.height - 1, '#'); // Set invalid exit tile to a wall to prevent an invalid exit
+            dungeon.setExitX(dungeon.getWidth() - 1);
+            dungeon.setExitY(dungeon.getHeight() - 1);
+            dungeon.setTile(dungeon.getWidth() - 1, dungeon.getHeight() - 1, '#'); // Set invalid exit tile to a wall to prevent an invalid exit
         }
     }
 
@@ -314,7 +316,6 @@ public class Game extends JFrame {
 
     // Generate map
     private void generateMap() {
-        isMapGenerating = true;
         Random random = new Random();
 
         createDungeons(random);
@@ -420,8 +421,7 @@ public class Game extends JFrame {
         // Randomly select a dungeon from the list to be the exit dungeon
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
         exitDungeon.doesHaveExit = true; // Set the exit flag
-        exitDungeon.map[exitDungeon.exitY][exitDungeon.exitX] = 'E'; // Set the exit in the selected dungeon
-        isMapGenerating = false;
+        exitDungeon.setTile(exitDungeon.getExitY(), exitDungeon.getExitX(), 'E'); // Set the exit in the selected dungeon
     }
 
     // Check if a dungeons exists at adjacent positions
