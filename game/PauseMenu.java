@@ -8,9 +8,17 @@ import java.awt.event.KeyEvent;
 public class PauseMenu extends Menu {
     private final Game game;
 
+    private static final int TILE_SIZE = 150;
+    private static final int WINDOW_WIDTH = 3;
+    private static final int WINDOW_HEIGHT = 3;
+
     public PauseMenu(JFrame parent) {
         setTitle("Pause Menu");
         this.game = (Game) parent;
+
+        setUndecorated(true);
+        setSize(WINDOW_WIDTH * TILE_SIZE, WINDOW_HEIGHT * TILE_SIZE);
+        getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 6));
 
         this.addKeyListener(new KeyAdapter() {
             @Override
@@ -21,20 +29,29 @@ public class PauseMenu extends Menu {
                 }
             }
         });
-        this.setFocusable(true);
-        this.requestFocusInWindow();
 
-        getPausePanel();
+        setFocusable(true);
+        requestFocusInWindow();
+
+        add(getPausePanel());
         setLocationRelativeTo(parent);
     }
 
-    private void getPausePanel() {
+    // Create the pause panel
+    private JPanel getPausePanel() {
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        addButton(getResumeButton(), mainPanel, 0, 200, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
-        addButton(getRefreshButton(), mainPanel, 0, 0, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
-        addButton(getQuitButton(), mainPanel, 200, 0, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
+        addButton(getResumeButton(), mainPanel, 0, 200);
+        addButton(getRefreshButton(), mainPanel, 0, 0);
+        addButton(getQuitButton(), mainPanel, 200, 0);
         addFloorTiles(mainPanel, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
-        add(mainPanel);
+        return mainPanel;
+    }
+
+    // Add a button to the panel
+    private void addButton(JButton button, JPanel panel, int offsetTop, int offsetBottom) {
+        GridBagConstraints gbc = createGridBagConstraints(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, offsetTop, offsetBottom);
+        configureButton(button, TILE_SIZE, TILE_SIZE / 2, 24, 4, 4);
+        panel.add(button, gbc);
     }
 
     private JButton getResumeButton() {

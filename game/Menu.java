@@ -5,18 +5,12 @@ import java.awt.*;
 import java.util.Objects;
 
 public abstract class Menu extends JFrame {
-    protected static final int TILE_SIZE = 150;
-    protected static final int WINDOW_WIDTH = 3;
-    protected static final int WINDOW_HEIGHT = 3;
-
     public Menu() {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setUndecorated(true);
         setResizable(false);
-        setSize(WINDOW_WIDTH * TILE_SIZE, WINDOW_HEIGHT * TILE_SIZE);
-        getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 6));
     }
 
+    // Add floor tiles to a panel
     protected void addFloorTiles(JPanel panel, int tileSize, int width, int height) {
         ImageIcon floorIcon = createScaledIcon("/images/floor.png", tileSize);
 
@@ -30,24 +24,24 @@ public abstract class Menu extends JFrame {
         }
     }
 
-    protected void addButton(JButton button, JPanel panel, int offsetTop, int offsetBottom, int tileSize, int width, int height) {
-        Dimension size = new Dimension(tileSize, tileSize / 2);
-        GridBagConstraints gbc = createGridBagConstraints(0, 0, width, height, offsetTop, offsetBottom);
-        button.setPreferredSize(size);
-        button.setMinimumSize(size);
-        button.setMaximumSize(size);
+    // Configure a button with common settings
+    protected void configureButton(JButton button, int width, int height, int fontSize, int borderLeft, int borderRight) {
+        Dimension buttonSize = new Dimension(width, height);
+        button.setPreferredSize(buttonSize);
+        button.setMinimumSize(buttonSize);
+        button.setMaximumSize(buttonSize);
         button.setForeground(Color.WHITE);
         button.setBackground(new Color(70, 70, 70));
-        button.setFont(new Font("Arial", Font.BOLD, 24));
+        button.setFont(new Font("Arial", Font.BOLD, fontSize));
         button.setFocusable(false);
-        button.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.BLACK));
-        panel.add(button, gbc);
+        button.setBorder(BorderFactory.createMatteBorder(4, borderLeft, 4, borderRight, Color.BLACK));
     }
 
     protected ImageIcon createScaledIcon(String path, int size) {
         return new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(path))).getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH));
     }
 
+    // Creat GridBagConstraints with common settings
     protected GridBagConstraints createGridBagConstraints(int gridX, int gridY, int gridWidth, int gridHeight, int top, int bottom) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = gridX;
