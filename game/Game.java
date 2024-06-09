@@ -24,16 +24,17 @@ public class Game extends JFrame {
     private static final int WIDTH = 15;
     private static final int HEIGHT = 15;
     private static final int Y_OFFSET = 70;
-    private final int GRID_SIZE = 4;
+    private static final int GRID_SIZE = 4;
 
     // Game objects
     private final Dungeon[][] grid;
-    private Dungeon dungeon;
+    private Dungeon dungeon; // Current dungeon
     private Dungeon startingDungeon;
     private Player player;
     private String message;
     private Timer messageTimer; // Timer to clear the message after a certain duration
-    private Map<String, Image> imageCache; // Cache for images
+
+    private static Map<String, Image> imageCache; // Cache for images
     private final BufferStrategy bufferStrategy; // Buffer strategy for rendering
     private static final Logger LOGGER = Logger.getLogger(Game.class.getName()); // Logger for error messages
 
@@ -46,8 +47,8 @@ public class Game extends JFrame {
     public Game(String characterImage) {
         // Initialize game parameters
         long startTime = System.nanoTime();
-        grid = new Dungeon[GRID_SIZE][GRID_SIZE];
         this.characterImage = characterImage;
+        grid = new Dungeon[GRID_SIZE][GRID_SIZE];
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");

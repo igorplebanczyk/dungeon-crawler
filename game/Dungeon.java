@@ -13,9 +13,9 @@ public class Dungeon {
     private final int height;
     private final int gridX;
     private final int gridY;
-    public boolean doesHaveExit = false;
     private int exitX;
     private int exitY;
+    public boolean doesHaveExit = false;
     private final List<Point> doorPositions = new ArrayList<>();
 
     // Dungeon objects
