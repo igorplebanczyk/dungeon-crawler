@@ -18,7 +18,6 @@ Authors:
 
 ---
 TODO:
-* Make pause menu more extensive
 * Improve textures
 * Add torch mode
 * Improve loading times
