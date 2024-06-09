@@ -46,17 +46,17 @@ public class Game extends JFrame {
         // Initialize game parameters
         this.characterImage = characterImage;
 
-        // Game grid
-        grid = new Dungeon[GRID_SIZE][GRID_SIZE];
-        generateMap();
-        preloadImages();
-        initializeGame();
-
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIgnoreRepaint(true);
         setResizable(false);
+
+        // Game grid
+        grid = new Dungeon[GRID_SIZE][GRID_SIZE];
+        generateMap();
+        preloadImages();
+        initializeGame();
 
         // Add key listener for player movement
         addKeyListener(new KeyAdapter() {
@@ -145,6 +145,7 @@ public class Game extends JFrame {
         setVisible(true);
         createBufferStrategy(2);
         bufferStrategy = getBufferStrategy();
+        repaint();
     }
 
     public static boolean isBulldozerMode() {
@@ -270,11 +271,8 @@ public class Game extends JFrame {
         isPaused = !isPaused; // Toggle the paused state
 
         if (isPaused) {
-            System.out.println("Game paused");
             PauseMenu pauseMenu = new PauseMenu(this);
             pauseMenu.setVisible(true);
-        } else {
-            System.out.println("Game resumed");
         }
     }
 
@@ -315,7 +313,6 @@ public class Game extends JFrame {
     // Generate map
     private void generateMap() {
         Random random = new Random();
-
         createDungeons(random);
         addDoors();
         selectStartingDungeon();
