@@ -43,8 +43,10 @@ public class Game extends JFrame {
     private static boolean bulldozerMode = false;
 
     public Game(String characterImage) {
+        long startTime = System.nanoTime();
         // Initialize game parameters
         this.characterImage = characterImage;
+        grid = new Dungeon[GRID_SIZE][GRID_SIZE];
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
@@ -52,10 +54,6 @@ public class Game extends JFrame {
         setIgnoreRepaint(true);
         setResizable(false);
 
-        // Game grid
-        grid = new Dungeon[GRID_SIZE][GRID_SIZE];
-        generateMap();
-        preloadImages();
         initializeGame();
 
         // Add key listener for player movement
@@ -141,11 +139,15 @@ public class Game extends JFrame {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 
-        // Show the frame and create a buffer strategy
-        setVisible(true);
+        // Create a buffer strategy
         createBufferStrategy(2);
         bufferStrategy = getBufferStrategy();
+
+        setVisible(true);
         repaint();
+
+        long endTime = System.nanoTime();
+        System.out.println("Game initialized in " + (endTime - startTime) / 1e6 + "ms");
     }
 
     public static boolean isBulldozerMode() {
@@ -279,11 +281,25 @@ public class Game extends JFrame {
     // Preload images into image cache
     private void preloadImages() {
         imageCache = new HashMap<>();
-        loadAndCacheImage(characterImage); // Load the provided character image
-        loadAndCacheImage("/images/wall.png");
-        loadAndCacheImage("/images/floor.png");
-        loadAndCacheImage("/images/ciri.png");
-        loadAndCacheImage("/images/door.png");
+        List<String> imagePaths = List.of(characterImage, "/images/wall.png", "/images/floor.png", "/images/ciri.png", "/images/door.png");
+
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+        for (String path : imagePaths) {
+            // Submit a task to load and cache each image
+            CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+                loadAndCacheImage(path);
+                return null;
+            }, executor);
+
+            futures.add(future);
+        }
+
+        // A CompletableFuture that completes when all image loading tasks are done
+        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allFutures.thenRun(() -> System.out.println("All images preloaded")); // Attach a callback to handle post-loading logic
+        executor.shutdown();
     }
 
     // Load and cache image from file
@@ -299,21 +315,34 @@ public class Game extends JFrame {
     // Generate a new level
     private void generateNewLevel() {
         dungeon.setTile(player.getX(), player.getY(), '.'); // Clear the player's previous position
-        generateMap();
         initializeGame();
     }
 
-    // Initialize game state
     private void initializeGame() {
+        // Generate map asynchronously
+        CompletableFuture<Void> future = CompletableFuture.runAsync(this::generateMap);
+
+        // Preload images and initialize player after map generation
+        future.thenRun(() -> {
+            preloadImages();
+            initializePlayer();
+        });
+
+        showAnnouncement("Find Ciri to advance to next level", 1500);
+    }
+    // Initialize the player
+    private void initializePlayer() {
         player = new Player(0, 0);
         dungeon.setTile(player.getX(), player.getY(), 'P'); // Set the player's initial position
-        showAnnouncement("Find Ciri to advance to next level", 1500);
     }
 
     // Generate map
     private void generateMap() {
         Random random = new Random();
+        long startTime6 = System.nanoTime();
         createDungeons(random);
+        long endTime6 = System.nanoTime();
+        System.out.println("\nDungeons created in " + (endTime6 - startTime6) / 1e6 + "ms");
         addDoors();
         selectStartingDungeon();
         selectExitDungeon(random);
