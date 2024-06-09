@@ -9,13 +9,13 @@ import java.util.concurrent.*;
 
 public class Dungeon {
     // Dungeon properties
-    public final int width;
-    public final int height;
+    private final int width;
+    private final int height;
     private final int gridX;
     private final int gridY;
     public boolean doesHaveExit = false;
-    public int exitX;
-    public int exitY;
+    private int exitX;
+    private int exitY;
     private final List<Point> doorPositions = new ArrayList<>();
 
     // Dungeon objects
@@ -30,11 +30,18 @@ public class Dungeon {
         this.map = new char[height][width];
 
         // Select a tile where the exit might be placed
-        int[] exit = getRandomTileInBottomRightQuadrant();
-        this.exitX = exit[0];
-        this.exitY = exit[1];
+        int[] exit = getPossibleExitTile();
+        this.setExitX(exit[0]);
+        this.setExitY(exit[1]);
 
         generateDungeon();// Generate the dungeon layout
+    }
+
+    // Select a random tile in the bottom right quadrant
+    private int[] getPossibleExitTile() {
+        int x = random.nextInt(width / 2) + width / 2;
+        int y = random.nextInt(height / 2) + height / 2;
+        return new int[]{x, y};
     }
 
     // Generate the dungeon layout
@@ -127,7 +134,7 @@ public class Dungeon {
     private boolean areExitsAndDoorsReachable() {
         boolean allEdgeMiddlesReachable;
         // Check if there exists a path from player's starting position to the exit
-        boolean exitReachable = isTileReachable(exitX, exitY);
+        boolean exitReachable = isTileReachable(getExitX(), getExitY());
         allEdgeMiddlesReachable = exitReachable; // Initially set allEdgeMiddlesReachable to the value of exitReachable
 
         if (exitReachable) { // If the exit is reachable, check the reachability of all edge middles
@@ -142,7 +149,7 @@ public class Dungeon {
         return allEdgeMiddlesReachable;
     }
     
-    // Check if a tile is reachable from a given position using DFS
+    // Check if a tile is reachable from the start position using DFS
     private boolean isTileReachable(int tileX, int tileY) {
         boolean[][] visited = new boolean[height][width];
         Stack<int[]> stack = new Stack<>();
@@ -173,17 +180,6 @@ public class Dungeon {
         return false;
     }
 
-    // Add a door at a given position
-    public void addDoor(int x, int y) {
-        map[y][x] = 'D'; // 'D' represents a door
-        doorPositions.add(new Point(x, y)); // Add the door position to the list
-    }
-
-    // Check if a tile is a door
-    public boolean isDoor(int x, int y) {
-        return doorPositions.contains(new Point(x, y));
-    }
-
     // Check if a tile is valid (within bounds and not a wall)
     private boolean isValidTile(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#';
@@ -191,36 +187,11 @@ public class Dungeon {
 
     // Check if a tile is valid for the pathfinder (within bounds, not a wall, and not an exit)
     private boolean isValidTileForPathfinder(int x, int y) {
-        if (!Game.bulldozerMode) {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#' && map[y][x] != 'E' && map[y][x] != 'D';
-        } else {
+        if (Game.isBulldozerMode()) {
             return x >= 0 && x < width && y >= 0 && map[y][x] != 'E' && map[y][x] != 'D';
+        } else {
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#' && map[y][x] != 'E' && map[y][x] != 'D';
         }
-    }
-
-    public int getGridX() {
-        return gridX;
-    }
-
-    public int getGridY() {
-        return gridY;
-    }
-
-    // Get the tile type at a given position
-    public char getTile(int x, int y) {
-        return map[y][x];
-    }
-
-    // set the tile type at a given position
-    public void setTile(int x, int y, char tile) {
-        map[y][x] = tile;
-    }
-
-    // Select a random tile in the bottom right quadrant
-    public int[] getRandomTileInBottomRightQuadrant() {
-        int x = random.nextInt(width / 2) + width / 2;
-        int y = random.nextInt(height / 2) + height / 2;
-        return new int[]{x, y};
     }
     
     // Breadth-first search algorithm to find the shortest path between two points
@@ -278,5 +249,58 @@ public class Dungeon {
 
         // Return the result of the BFS method, or throw a TimeoutException if it does not complete within 5 seconds
         return future.orTimeout(5, TimeUnit.SECONDS).get();
+    }
+
+    // Add a door at a given position
+    public void addDoor(int x, int y) {
+        map[y][x] = 'D'; // 'D' represents a door
+        doorPositions.add(new Point(x, y)); // Add the door position to the list
+    }
+
+    // Check if a tile is a door
+    public boolean isDoor(int x, int y) {
+        return doorPositions.contains(new Point(x, y));
+    }
+
+    public int getGridX() {
+        return gridX;
+    }
+
+    public int getGridY() {
+        return gridY;
+    }
+
+    // Get the tile type at a given position
+    public char getTile(int x, int y) {
+        return map[y][x];
+    }
+
+    // set the tile type at a given position
+    public void setTile(int x, int y, char tile) {
+        map[y][x] = tile;
+    }
+
+    public int getExitY() {
+        return exitY;
+    }
+
+    public void setExitY(int exitY) {
+        this.exitY = exitY;
+    }
+
+    public int getExitX() {
+        return exitX;
+    }
+
+    public void setExitX(int exitX) {
+        this.exitX = exitX;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }
