@@ -18,6 +18,5 @@ Authors:
 
 ---
 TODO:
-* Potentially implement a common interface for Game and Menu
 * Improve textures
 * Add torch mode
