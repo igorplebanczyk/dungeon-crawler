@@ -18,7 +18,6 @@ Authors:
 
 ---
 TODO:
-* Fix weird restart behavior when restarting too early
 * Potentially implement a common interface for Game and Menu
 * Improve textures
 * Add torch mode
