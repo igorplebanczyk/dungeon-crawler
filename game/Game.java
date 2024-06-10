@@ -299,26 +299,28 @@ public class Game extends JFrame {
 
     // Preload images into image cache
     private void preloadImages() {
-        imageCache = new HashMap<>();
-        List<String> imagePaths = List.of(characterImage, "/images/wall.png", "/images/floor.png", "/images/ciri.png", "/images/door.png");
+        if (imageCache == null) { // Preload images only if the cache is empty
+            imageCache = new HashMap<>();
+            List<String> imagePaths = List.of(characterImage, "/images/wall.png", "/images/floor.png", "/images/ciri.png", "/images/door.png");
 
-        ExecutorService executor = Executors.newFixedThreadPool(5);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
+            ExecutorService executor = Executors.newFixedThreadPool(5);
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-        for (String path : imagePaths) {
-            // Submit a task to load and cache each image
-            CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-                loadAndCacheImage(path);
-                return null;
-            }, executor);
+            for (String path : imagePaths) {
+                // Submit a task to load and cache each image
+                CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+                    loadAndCacheImage(path);
+                    return null;
+                }, executor);
 
-            futures.add(future);
+                futures.add(future);
+            }
+
+            // A CompletableFuture that completes when all image loading tasks are done
+            CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            allFutures.thenRun(() -> System.out.println("All images preloaded")); // Attach a callback to handle post-loading logic
+            executor.shutdown();
         }
-
-        // A CompletableFuture that completes when all image loading tasks are done
-        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allFutures.thenRun(() -> System.out.println("All images preloaded")); // Attach a callback to handle post-loading logic
-        executor.shutdown();
     }
 
     // Load and cache image from file
