@@ -13,7 +13,7 @@ public class StartMenu extends Menu {
     private static final int WINDOW_WIDTH = 4;
     private static final int WINDOW_HEIGHT = 4;
 
-    private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(StartMenu.class.getName());
 
     public StartMenu() {
         setTitle("Dungeon Crawler");

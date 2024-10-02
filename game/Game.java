@@ -538,7 +538,6 @@ public class Game extends JFrame {
                     case Tile.PLAYER -> getImageFromCache(characterImage);
                     case Tile.EXIT -> getImageFromCache("/images/ciri.png");
                     case Tile.DOOR -> getImageFromCache("/images/door.png");
-                    default -> null;
                 };
                 if (imageToDraw != null) {
                     g.drawImage(imageToDraw, x * TILE_SIZE, Y_OFFSET - 8 + y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
