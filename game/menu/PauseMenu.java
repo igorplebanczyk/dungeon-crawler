@@ -72,8 +72,7 @@ public class PauseMenu extends Menu {
             JPanel characterPanel = startMenu.getSelectionPanel();
 
             game.dispose();
-            startMenu.setContentPane(characterPanel);
-            characterPanel.setVisible(true);
+            startMenu.setVisible(true);
         });
         return refreshButton;
     }

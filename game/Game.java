@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
 public class Game extends JFrame {
     // Game parameters
     private final String characterImage;
-    private static final int TILE_SIZE = 60;
+    private static final int TILE_SIZE = 45; // Safe to modify; must always be a multiple of 15
     private static final int WIDTH = 15;
     private static final int HEIGHT = 15;
     private static final int Y_OFFSET = 70;
@@ -34,7 +34,7 @@ public class Game extends JFrame {
     private String message;
     private Timer messageTimer; // Timer to clear the message after a certain duration
 
-    private static Map<String, Image> imageCache; // Cache for images
+    private Map<String, Image> imageCache; // Cache for images
     private final BufferStrategy bufferStrategy; // Buffer strategy for rendering
     private static final Logger LOGGER = Logger.getLogger(Game.class.getName()); // Logger for error messages
 
@@ -48,6 +48,7 @@ public class Game extends JFrame {
         // Initialize game parameters
         long startTime = System.nanoTime(); // Start time for measuring initialization time
         this.characterImage = characterImage;
+        System.out.println(characterImage);
         grid = new Dungeon[GRID_SIZE][GRID_SIZE];
 
         // Set up JFrame properties
@@ -72,8 +73,8 @@ public class Game extends JFrame {
         createBufferStrategy(2);
         bufferStrategy = getBufferStrategy();
 
-        setVisible(true);
         repaint();
+        setVisible(true);
 
         long endTime = System.nanoTime(); // End time for measuring initialization time
         System.out.println("Game initialized in " + (endTime - startTime) / 1e6 + "ms");
@@ -125,7 +126,7 @@ public class Game extends JFrame {
 
         // Check for valid movement and update player position
         if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
-                (dungeon.getTile(newX, newY) == '.' || dungeon.getTile(newX, newY) == 'E' || dungeon.getTile(newX, newY) == 'D')) {
+                (dungeon.getTile(newX, newY) == Tile.FLOOR || dungeon.getTile(newX, newY) == Tile.EXIT || dungeon.getTile(newX, newY) == Tile.DOOR)) {
             movePlayer(dx, dy, newX, newY);
         }
 
@@ -154,11 +155,11 @@ public class Game extends JFrame {
         int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
 
         // Check if the clicked tile is a wall or exit
-        if (dungeon.getTile(gridX, gridY) == '#') {
+        if (dungeon.getTile(gridX, gridY) == Tile.WALL) {
             showAnnouncement("Can't walk through walls", 500);
             return;
         }
-        else if (dungeon.getTile(gridX, gridY) == 'E') {
+        else if (dungeon.getTile(gridX, gridY) == Tile.EXIT) {
             showAnnouncement("It ain't that easy", 500);
             return;
         }
@@ -206,7 +207,7 @@ public class Game extends JFrame {
                     player.move(position.x - player.getX(), position.y - player.getY());
 
                     // Set the new player position
-                    dungeon.setTile(player.getX(), player.getY(), 'P');
+                    dungeon.setTile(player.getX(), player.getY(), Tile.PLAYER);
 
                     Game.this.revalidate(); // Re-layout the components
                     Game.this.repaint(); // Refresh the screen
@@ -224,9 +225,9 @@ public class Game extends JFrame {
 
     private void redrawPreviousTile() {
         if (dungeon.isDoor(player.getX(), player.getY())) {
-            dungeon.setTile(player.getX(), player.getY(), 'D'); // If so, redraw the door
+            dungeon.setTile(player.getX(), player.getY(), Tile.DOOR); // If so, redraw the door
         } else {
-            dungeon.setTile(player.getX(), player.getY(), '.'); // Otherwise, redraw the floor
+            dungeon.setTile(player.getX(), player.getY(), Tile.FLOOR); // Otherwise, redraw the floor
         }
     }
 
@@ -238,7 +239,7 @@ public class Game extends JFrame {
         if (dungeon.isDoor(targetX, targetY)) {
             moveToAdjacentRoom(targetX, targetY);
         }
-        dungeon.setTile(player.getX(), player.getY(), 'P'); // Draw the player at the new position
+        dungeon.setTile(player.getX(), player.getY(), Tile.PLAYER); // Draw the player at the new position
         repaint();
     }
 
@@ -283,7 +284,7 @@ public class Game extends JFrame {
         if (!dungeon.doesHaveExit) {
             dungeon.setExitX(dungeon.getWidth() - 1);
             dungeon.setExitY(dungeon.getHeight() - 1);
-            dungeon.setTile(dungeon.getWidth() - 1, dungeon.getHeight() - 1, '#'); // Set invalid exit tile to a wall to prevent an invalid exit
+            dungeon.setTile(dungeon.getWidth() - 1, dungeon.getHeight() - 1, Tile.WALL); // Set invalid exit tile to a wall to prevent an invalid exit
         }
     }
 
@@ -299,8 +300,8 @@ public class Game extends JFrame {
 
     // Preload images into image cache
     private void preloadImages() {
-        if (imageCache == null) { // Preload images only if the cache is empty
-            imageCache = new HashMap<>();
+        if (this.imageCache == null) { // Preload images only if the cache is empty
+            this.imageCache = new HashMap<>();
             List<String> imagePaths = List.of(characterImage, "/images/wall.png", "/images/floor.png", "/images/ciri.png", "/images/door.png");
 
             ExecutorService executor = Executors.newFixedThreadPool(5);
@@ -327,7 +328,7 @@ public class Game extends JFrame {
     private void loadAndCacheImage(String path) {
         try {
             Image image = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
-            imageCache.put(path, image);
+            this.imageCache.put(path, image);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "An exception occurred", e);
         }
@@ -335,7 +336,7 @@ public class Game extends JFrame {
 
     // Generate a new level
     private void generateNewLevel() {
-        dungeon.setTile(player.getX(), player.getY(), '.'); // Clear the player's previous position
+        dungeon.setTile(player.getX(), player.getY(), Tile.FLOOR); // Clear the player's previous position
         generateMap(); // Call synchronously, because asynchronous generation is slower in this case
         initializePlayer();
     }
@@ -355,7 +356,7 @@ public class Game extends JFrame {
     // Initialize the player
     private void initializePlayer() {
         player = new Player(0, 0);
-        dungeon.setTile(player.getX(), player.getY(), 'P'); // Set the player's initial position
+        dungeon.setTile(player.getX(), player.getY(), Tile.PLAYER); // Set the player's initial position
     }
 
     // Generate map
@@ -459,7 +460,7 @@ public class Game extends JFrame {
         // Randomly select a dungeon from the list to be the exit dungeon
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
         exitDungeon.doesHaveExit = true; // Set the exit flag
-        exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), 'E'); // Set the exit in the selected dungeon
+        exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), Tile.EXIT); // Set the exit in the selected dungeon
     }
 
     // Check if a dungeons exists at adjacent positions
@@ -530,13 +531,13 @@ public class Game extends JFrame {
     private void drawTiles(Graphics g) {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
-                char tile = dungeon.getTile(x, y);
+                Tile tile = dungeon.getTile(x, y);
                 Image imageToDraw = switch (tile) {
-                    case '#' -> getImageFromCache("/images/wall.png");
-                    case '.' -> getImageFromCache("/images/floor.png");
-                    case 'P' -> getImageFromCache(characterImage);
-                    case 'E' -> getImageFromCache("/images/ciri.png");
-                    case 'D' -> getImageFromCache("/images/door.png");
+                    case Tile.WALL -> getImageFromCache("/images/wall.png");
+                    case Tile.FLOOR -> getImageFromCache("/images/floor.png");
+                    case Tile.PLAYER -> getImageFromCache(characterImage);
+                    case Tile.EXIT -> getImageFromCache("/images/ciri.png");
+                    case Tile.DOOR -> getImageFromCache("/images/door.png");
                     default -> null;
                 };
                 if (imageToDraw != null) {
@@ -548,7 +549,8 @@ public class Game extends JFrame {
 
     // Retrieve image from cache
     private Image getImageFromCache(String path) {
-        return imageCache.get(path);
+        if (Objects.equals(path, "/images/yen.png") || Objects.equals(path, "/images/geralt.png")) System.out.println(this.imageCache.get(path));
+        return this.imageCache.get(path);
     }
 
     // Show announcement message for a specified duration

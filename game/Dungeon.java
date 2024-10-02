@@ -19,7 +19,7 @@ public class Dungeon {
     private final List<Point> doorPositions = new ArrayList<>();
 
     // Dungeon objects
-    public final char[][] map; // 2D array to represent the dungeon map
+    public final Tile[][] map; // 2D array to represent the dungeon map
     private final Random random = new Random();
 
     public Dungeon(int width, int height, int x, int y) {
@@ -27,7 +27,7 @@ public class Dungeon {
         this.height = height;
         this.gridX = x;
         this.gridY = y;
-        this.map = new char[height][width];
+        this.map = new Tile[height][width];
 
         // Select a tile where the exit might be placed
         int[] exit = getPossibleExitTile();
@@ -60,9 +60,9 @@ public class Dungeon {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (random.nextDouble() < 0.4) { // Increased chance for walls
-                    map[y][x] = '#'; // Wall
+                    map[y][x] = Tile.WALL; // Wall
                 } else {
-                    map[y][x] = '.'; // Floor
+                    map[y][x] = Tile.FLOOR; // Floor
                 }
             }
         }
@@ -72,23 +72,23 @@ public class Dungeon {
     private void ensureAdjacentWalls() {
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
-                if (map[y][x] == '#') { // If current tile is wall
+                if (map[y][x] == Tile.WALL) { // If current tile is wall
                     // Check surrounding tiles
-                    if (map[y - 1][x] == '.' && map[y][x - 1] == '.' && map[y + 1][x] == '.' && map[y][x + 1] == '.') {
+                    if (map[y - 1][x] == Tile.FLOOR && map[y][x - 1] == Tile.FLOOR && map[y + 1][x] == Tile.FLOOR && map[y][x + 1] == Tile.FLOOR) {
                         // If no adjacent walls, make one adjacent wall
                         int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
                         switch (direction) {
                             case 0:
-                                map[y - 1][x] = '#';
+                                map[y - 1][x] = Tile.WALL;
                                 break;
                             case 1:
-                                map[y][x - 1] = '#';
+                                map[y][x - 1] = Tile.WALL;
                                 break;
                             case 2:
-                                map[y + 1][x] = '#';
+                                map[y + 1][x] = Tile.WALL;
                                 break;
                             case 3:
-                                map[y][x + 1] = '#';
+                                map[y][x + 1] = Tile.WALL;
                                 break;
                         }
                     }
@@ -105,8 +105,8 @@ public class Dungeon {
         // Fill any area that is not accessible with walls
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (!accessible[y][x] && map[y][x] != 'E') { // Don't fill the exit with a wall
-                    map[y][x] = '#';
+                if (!accessible[y][x] && map[y][x] != Tile.EXIT) { // Don't fill the exit with a wall
+                    map[y][x] = Tile.WALL;
                 }
             }
         }
@@ -117,7 +117,7 @@ public class Dungeon {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return; // Out of bounds
         }
-        if (map[y][x] == '#' || accessible[y][x]) {
+        if (map[y][x] == Tile.WALL || accessible[y][x]) {
             return; // Wall or already visited
         }
 
@@ -182,15 +182,15 @@ public class Dungeon {
 
     // Check if a tile is valid (within bounds and not a wall)
     private boolean isValidTile(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#';
+        return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != Tile.WALL;
     }
 
     // Check if a tile is valid for the pathfinder
     private boolean isValidTileForPathfinder(int x, int y) {
         if (Game.isBulldozerMode()) {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != 'E' && map[y][x] != 'D';
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != Tile.EXIT && map[y][x] != Tile.DOOR;
         } else {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != '#' && map[y][x] != 'E' && map[y][x] != 'D';
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != Tile.WALL && map[y][x] != Tile.EXIT && map[y][x] != Tile.DOOR;
         }
     }
     
@@ -253,7 +253,7 @@ public class Dungeon {
 
     // Add a door at a given position
     public void addDoor(int x, int y) {
-        map[y][x] = 'D'; // 'D' represents a door
+        map[y][x] = Tile.DOOR; // 'D' represents a door
         doorPositions.add(new Point(x, y)); // Add the door position to the list
     }
 
@@ -271,12 +271,12 @@ public class Dungeon {
     }
 
     // Get the tile type at a given position
-    public char getTile(int x, int y) {
+    public Tile getTile(int x, int y) {
         return map[y][x];
     }
 
     // set the tile type at a given position
-    public void setTile(int x, int y, char tile) {
+    public void setTile(int x, int y, Tile tile) {
         map[y][x] = tile;
     }
 
