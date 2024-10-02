@@ -69,11 +69,11 @@ public class StartMenu extends Menu {
     // Create the selection panel
     public JPanel getSelectionPanel() {
         JPanel panel = getBackgroundPanel();
-        char[][] layout = {
-                { '.', '.', '.', '.' },
-                { '.', 'G', 'Y', '.' },
-                { '.', 'g', 'y', '.' },
-                { '.', '.', '.', '.' }
+        Tile[][] layout = {
+                { Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND },
+                { Tile.BACKGROUND, Tile.GERALT_IMG, Tile.YENNEFER_IMG, Tile.BACKGROUND },
+                { Tile.BACKGROUND, Tile.GERALT_TEXT, Tile.YENNEFER_TEXT, Tile.BACKGROUND },
+                { Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND }
         };
         fillSelectionPanel(panel, layout);
         return panel;
@@ -103,7 +103,7 @@ public class StartMenu extends Menu {
     }
 
     // Populate the selection panel with floor tiles
-    private void fillSelectionPanel(JPanel panel, char[][] layout) {
+    private void fillSelectionPanel(JPanel panel, Tile[][] layout) {
         for (int y = 0; y < WINDOW_HEIGHT; y++) {
             for (int x = 0; x < WINDOW_WIDTH; x++) {
                 JLabel label = createSelectionTiles(layout[y][x]);
@@ -123,12 +123,12 @@ public class StartMenu extends Menu {
     }
 
     // Create character image tiles and selection buttons
-    private JLabel createSelectionTiles(char tile) {
+    private JLabel createSelectionTiles(Tile tile) {
         return switch (tile) {
-            case 'G' -> getCharacterLabel("/images/geralt.png");
-            case 'Y' -> getCharacterLabel("/images/yen.png");
-            case 'g' -> getSelectionButton("Select Geralt", "/images/geralt.png", 4, 2);
-            case 'y' -> getSelectionButton("Select Yennefer", "/images/yen.png", 2, 4);
+            case Tile.GERALT_IMG -> getCharacterLabel("/images/geralt.png");
+            case Tile.YENNEFER_IMG -> getCharacterLabel("/images/yen.png");
+            case Tile.GERALT_TEXT -> getSelectionButton("Select Geralt", "/images/geralt.png", 4, 2);
+            case Tile.YENNEFER_TEXT -> getSelectionButton("Select Yennefer", "/images/yen.png", 2, 4);
             default -> new JLabel();
         };
     }
