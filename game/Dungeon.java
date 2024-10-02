@@ -2,25 +2,26 @@ package game;
 
 import java.awt.*;
 import java.util.List;
-import java.util.Random;
-import java.util.Stack;
+import java.util.Queue;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Dungeon {
+    // Dungeon objects
+    public final Tile[][] map; // 2D array to represent the dungeon map
     // Dungeon properties
     private final int width;
     private final int height;
     private final int gridX;
     private final int gridY;
+    private final List<Point> doorPositions = new ArrayList<>();
+    private final Random random = new Random();
+    public boolean doesHaveExit = false;
     private int exitX;
     private int exitY;
-    public boolean doesHaveExit = false;
-    private final List<Point> doorPositions = new ArrayList<>();
-
-    // Dungeon objects
-    public final Tile[][] map; // 2D array to represent the dungeon map
-    private final Random random = new Random();
 
     public Dungeon(int width, int height, int x, int y) {
         this.width = width;
@@ -67,7 +68,7 @@ public class Dungeon {
             }
         }
     }
-    
+
     // Ensure each wall has at least one adjacent wall
     private void ensureAdjacentWalls() {
         for (int y = 1; y < height - 1; y++) {
@@ -111,7 +112,7 @@ public class Dungeon {
             }
         }
     }
-    
+
     // Mark all accessible tiles from a given position using DFS
     private void floodFill(boolean[][] accessible, int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
@@ -129,7 +130,7 @@ public class Dungeon {
         floodFill(accessible, x, y - 1); // Up
         floodFill(accessible, x, y + 1); // Down
     }
-    
+
     // Method to check if the exit and all doors are reachable
     private boolean areExitsAndDoorsReachable() {
         boolean allEdgeMiddlesReachable;
@@ -148,7 +149,7 @@ public class Dungeon {
         }
         return allEdgeMiddlesReachable;
     }
-    
+
     // Check if a tile is reachable from the start position using DFS
     private boolean isTileReachable(int tileX, int tileY) {
         boolean[][] visited = new boolean[height][width];
@@ -193,7 +194,7 @@ public class Dungeon {
             return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != Tile.WALL && map[y][x] != Tile.EXIT && map[y][x] != Tile.DOOR;
         }
     }
-    
+
     // Breadth-first search algorithm to find the shortest path between two points
     public List<Point> findPath(int startX, int startY, int goalX, int goalY) throws InterruptedException, ExecutionException, TimeoutException {
         // Run BFS in a separate thread with a timeout

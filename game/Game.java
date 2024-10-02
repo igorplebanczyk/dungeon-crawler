@@ -2,47 +2,43 @@ package game;
 
 import game.menu.PauseMenu;
 
+import javax.imageio.ImageIO;
+import javax.swing.Timer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.io.IOException;
-import java.util.*;
-import javax.imageio.ImageIO;
-import javax.swing.Timer;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
-import java.awt.event.KeyEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 public class Game extends JFrame {
-    // Game parameters
-    private final String characterImage;
     private static final int TILE_SIZE = 45; // Safe to modify; must always be a multiple of 15
     private static final int WIDTH = 15;
     private static final int HEIGHT = 15;
     private static final int Y_OFFSET = 70;
     private static final int GRID_SIZE = 4;
-
+    private static final Logger LOGGER = Logger.getLogger(Game.class.getName()); // Logger for error messages
+    private static boolean bulldozerMode = false;
+    // Game parameters
+    private final String characterImage;
     // Game objects
     private final Dungeon[][] grid;
+    private final BufferStrategy bufferStrategy; // Buffer strategy for rendering
     private Dungeon dungeon; // Current dungeon
     private Dungeon startingDungeon;
     private Player player;
     private String message;
     private Timer messageTimer; // Timer to clear the message after a certain duration
-
     private Map<String, Image> imageCache; // Cache for images
-    private final BufferStrategy bufferStrategy; // Buffer strategy for rendering
-    private static final Logger LOGGER = Logger.getLogger(Game.class.getName()); // Logger for error messages
-
     // Game state variables
     private int level = 1;
     private boolean isTimerRunning = false;
     private boolean isPaused = false;
-    private static boolean bulldozerMode = false;
 
     public Game(String characterImage) {
         // Initialize game parameters
@@ -78,6 +74,10 @@ public class Game extends JFrame {
 
         long endTime = System.nanoTime(); // End time for measuring initialization time
         System.out.println("Game initialized in " + (endTime - startTime) / 1e6 + "ms");
+    }
+
+    public static boolean isBulldozerMode() {
+        return bulldozerMode;
     }
 
     // Add a keyListener to handle player movement
@@ -158,8 +158,7 @@ public class Game extends JFrame {
         if (dungeon.getTile(gridX, gridY) == Tile.WALL) {
             showAnnouncement("Can't walk through walls", 500);
             return;
-        }
-        else if (dungeon.getTile(gridX, gridY) == Tile.EXIT) {
+        } else if (dungeon.getTile(gridX, gridY) == Tile.EXIT) {
             showAnnouncement("It ain't that easy", 500);
             return;
         }
@@ -168,10 +167,6 @@ public class Game extends JFrame {
         List<Point> path = getPath(gridX, gridY);
         if (path == null) return;
         animateAutoMovement(path); // Animate the player movement
-    }
-
-    public static boolean isBulldozerMode() {
-        return bulldozerMode;
     }
 
     // Call the BFS algorithm to find the shortest path
@@ -185,7 +180,9 @@ public class Game extends JFrame {
                 return null;
             }
             throw new RuntimeException(ex);
-        } catch (TimeoutException ex) { throw new RuntimeException(ex); }
+        } catch (TimeoutException ex) {
+            throw new RuntimeException(ex);
+        }
         return path;
     }
 
@@ -353,6 +350,7 @@ public class Game extends JFrame {
 
         showAnnouncement("Find Ciri to advance to next level", 1500);
     }
+
     // Initialize the player
     private void initializePlayer() {
         player = new Player(0, 0);
@@ -548,7 +546,8 @@ public class Game extends JFrame {
 
     // Retrieve image from cache
     private Image getImageFromCache(String path) {
-        if (Objects.equals(path, "/images/yen.png") || Objects.equals(path, "/images/geralt.png")) System.out.println(this.imageCache.get(path));
+        if (Objects.equals(path, "/images/yen.png") || Objects.equals(path, "/images/geralt.png"))
+            System.out.println(this.imageCache.get(path));
         return this.imageCache.get(path);
     }
 

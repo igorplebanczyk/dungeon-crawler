@@ -8,11 +8,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class PauseMenu extends Menu {
-    private final Game game;
-
     private static final int TILE_SIZE = 150;
     private static final int WINDOW_WIDTH = 3;
     private static final int WINDOW_HEIGHT = 3;
+    private final Game game;
 
     public PauseMenu(JFrame parent) {
         setTitle("Pause Menu");

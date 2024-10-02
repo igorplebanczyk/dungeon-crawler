@@ -70,10 +70,10 @@ public class StartMenu extends Menu {
     public JPanel getSelectionPanel() {
         JPanel panel = getBackgroundPanel();
         Tile[][] layout = {
-                { Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND },
-                { Tile.BACKGROUND, Tile.GERALT_IMG, Tile.YENNEFER_IMG, Tile.BACKGROUND },
-                { Tile.BACKGROUND, Tile.GERALT_TEXT, Tile.YENNEFER_TEXT, Tile.BACKGROUND },
-                { Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND }
+                {Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND},
+                {Tile.BACKGROUND, Tile.GERALT_IMG, Tile.YENNEFER_IMG, Tile.BACKGROUND},
+                {Tile.BACKGROUND, Tile.GERALT_TEXT, Tile.YENNEFER_TEXT, Tile.BACKGROUND},
+                {Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND}
         };
         fillSelectionPanel(panel, layout);
         return panel;
