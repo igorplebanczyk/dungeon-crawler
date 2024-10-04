@@ -44,7 +44,6 @@ public class Game extends JFrame {
         // Initialize game parameters
         long startTime = System.nanoTime(); // Start time for measuring initialization time
         this.characterImage = characterImage;
-        System.out.println(characterImage);
         grid = new Dungeon[GRID_SIZE][GRID_SIZE];
 
         // Set up JFrame properties
@@ -545,9 +544,7 @@ public class Game extends JFrame {
     }
 
     // Retrieve image from cache
-    private Image getImageFromCache(String path) {
-        if (Objects.equals(path, "/images/yen.png") || Objects.equals(path, "/images/geralt.png"))
-            System.out.println(this.imageCache.get(path));
+    private Image getImageFromCache(String path) {;
         return this.imageCache.get(path);
     }
 
