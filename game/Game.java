@@ -14,37 +14,37 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.IntStream;
 
 public class Game extends JFrame {
     private static final int TILE_SIZE = 45; // Safe to modify; must always be a multiple of 15
     private static final int WIDTH = 15;
     private static final int HEIGHT = 15;
     private static final int Y_OFFSET = 70;
-    private static final int GRID_SIZE = 4;
-    private static final Logger LOGGER = Logger.getLogger(Game.class.getName()); // Logger for error messages
-    private static boolean bulldozerMode = false;
+    private static final int GRID_SIZE = 5;
+    private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
+
     // Game parameters
     private final String characterImage;
+
     // Game objects
-    private Dungeon[][] grid;
-    private final BufferStrategy bufferStrategy; // Buffer strategy for rendering
-    private Dungeon dungeon; // Current dungeon
-    private Dungeon startingDungeon;
+    private Map map;
     private Player player;
     private String message;
     private Timer messageTimer; // Timer to clear the message after a certain duration
-    private Map<String, Image> imageCache; // Cache for images
+    private java.util.Map<String, Image> imageCache; // Cache for images
+    private final BufferStrategy bufferStrategy;
+
     // Game state variables
+    private Dungeon currentDungeon;
     private int level = 1;
     private boolean isTimerRunning = false;
     private boolean isPaused = false;
+    private static boolean bulldozerMode = false;
 
     public Game(String characterImage) {
         // Initialize game parameters
         long startTime = System.nanoTime(); // Start time for measuring initialization time
         this.characterImage = characterImage;
-        grid = new Dungeon[GRID_SIZE][GRID_SIZE];
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
@@ -125,13 +125,13 @@ public class Game extends JFrame {
 
         // Check for valid movement and update player position
         if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
-                (dungeon.getTile(newX, newY) == Tile.FLOOR || dungeon.getTile(newX, newY) == Tile.EXIT || dungeon.getTile(newX, newY) == Tile.DOOR)) {
+                (currentDungeon.getTile(newX, newY) == Tile.FLOOR || currentDungeon.getTile(newX, newY) == Tile.EXIT || currentDungeon.getTile(newX, newY) == Tile.DOOR)) {
             movePlayer(dx, dy, newX, newY);
         }
 
         // Check for reaching the exit and advance to the next level
         int[] playerPos = player.getPosition();
-        if (playerPos[0] == dungeon.getExitX() && playerPos[1] == dungeon.getExitY()) {
+        if (playerPos[0] == currentDungeon.getExitX() && playerPos[1] == currentDungeon.getExitY()) {
             advanceToNextLevel();
         }
     }
@@ -154,10 +154,10 @@ public class Game extends JFrame {
         int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
 
         // Check if the clicked tile is a wall or exit
-        if (dungeon.getTile(gridX, gridY) == Tile.WALL) {
+        if (currentDungeon.getTile(gridX, gridY) == Tile.WALL) {
             showAnnouncement("Can't walk through walls", 500);
             return;
-        } else if (dungeon.getTile(gridX, gridY) == Tile.EXIT) {
+        } else if (currentDungeon.getTile(gridX, gridY) == Tile.EXIT) {
             showAnnouncement("It ain't that easy", 500);
             return;
         }
@@ -172,7 +172,7 @@ public class Game extends JFrame {
     private List<Point> getPath(int gridX, int gridY) {
         List<Point> path;
         try {
-            path = dungeon.findPath(player.getX(), player.getY(), gridX, gridY);
+            path = currentDungeon.findPath(player.getX(), player.getY(), gridX, gridY);
         } catch (InterruptedException | ExecutionException ex) {
             if (ex.getCause() instanceof TimeoutException) {
                 System.out.println("Pathfinding took too long and was cancelled.");
@@ -203,7 +203,7 @@ public class Game extends JFrame {
                     player.move(position.x - player.getX(), position.y - player.getY());
 
                     // Set the new player position
-                    dungeon.setTile(player.getX(), player.getY(), Tile.PLAYER);
+                    currentDungeon.setTile(player.getX(), player.getY(), Tile.PLAYER);
 
                     Game.this.revalidate(); // Re-layout the components
                     Game.this.repaint(); // Refresh the screen
@@ -220,10 +220,10 @@ public class Game extends JFrame {
     }
 
     private void redrawPreviousTile() {
-        if (dungeon.isDoor(player.getX(), player.getY())) {
-            dungeon.setTile(player.getX(), player.getY(), Tile.DOOR); // If so, redraw the door
+        if (currentDungeon.isDoor(player.getX(), player.getY())) {
+            currentDungeon.setTile(player.getX(), player.getY(), Tile.DOOR); // If so, redraw the door
         } else {
-            dungeon.setTile(player.getX(), player.getY(), Tile.FLOOR); // Otherwise, redraw the floor
+            currentDungeon.setTile(player.getX(), player.getY(), Tile.FLOOR); // Otherwise, redraw the floor
         }
     }
 
@@ -232,26 +232,26 @@ public class Game extends JFrame {
         redrawPreviousTile(); // Clear the previous player position and redraw either a door or floor
 
         player.move(dx, dy);
-        if (dungeon.isDoor(targetX, targetY)) {
+        if (currentDungeon.isDoor(targetX, targetY)) {
             moveToAdjacentRoom(targetX, targetY);
         }
-        dungeon.setTile(player.getX(), player.getY(), Tile.PLAYER); // Draw the player at the new position
+        currentDungeon.setTile(player.getX(), player.getY(), Tile.PLAYER); // Draw the player at the new position
         repaint();
     }
 
     // Move to the corresponding adjacent dungeon
     private void moveToAdjacentRoom(int newX, int newY) {
         if (newX == 0) {
-            dungeon = grid[dungeon.getGridX() - 1][dungeon.getGridY()]; // Left edge
+            currentDungeon = map.getGrid()[currentDungeon.getGridX() - 1][currentDungeon.getGridY()]; // Left edge
             player.setX(WIDTH - 1);
         } else if (newX == WIDTH - 1) {
-            dungeon = grid[dungeon.getGridX() + 1][dungeon.getGridY()]; // Right edge
+            currentDungeon = map.getGrid()[currentDungeon.getGridX() + 1][currentDungeon.getGridY()]; // Right edge
             player.setX(0);
         } else if (newY == 0) {
-            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() - 1]; // Top edge
+            currentDungeon = map.getGrid()[currentDungeon.getGridX()][currentDungeon.getGridY() - 1]; // Top edge
             player.setY(HEIGHT - 1);
         } else if (newY == HEIGHT - 1) {
-            dungeon = grid[dungeon.getGridX()][dungeon.getGridY() + 1]; // Bottom edge
+            currentDungeon = map.getGrid()[currentDungeon.getGridX()][currentDungeon.getGridY() + 1]; // Bottom edge
             player.setY(0);
         }
     }
@@ -277,10 +277,10 @@ public class Game extends JFrame {
 
     // Prevent being able to exit the dungeon from an invalid position
     private void preventInvalidExit() {
-        if (!dungeon.doesHaveExit) {
-            dungeon.setExitX(dungeon.getWidth() - 1);
-            dungeon.setExitY(dungeon.getHeight() - 1);
-            dungeon.setTile(dungeon.getWidth() - 1, dungeon.getHeight() - 1, Tile.WALL); // Set invalid exit tile to a wall to prevent an invalid exit
+        if (!currentDungeon.doesHaveExit) {
+            currentDungeon.setExitX(currentDungeon.getWidth() - 1);
+            currentDungeon.setExitY(currentDungeon.getHeight() - 1);
+            currentDungeon.setTile(currentDungeon.getWidth() - 1, currentDungeon.getHeight() - 1, Tile.WALL); // Set invalid exit tile to a wall to prevent an invalid exit
         }
     }
 
@@ -332,21 +332,19 @@ public class Game extends JFrame {
 
     // Generate a new level
     private void generateNewLevel() {
-        dungeon.setTile(player.getX(), player.getY(), Tile.FLOOR); // Clear the player's previous position
-        MapGenerator mapGenerator = new MapGenerator(WIDTH, HEIGHT, GRID_SIZE);
-        this.grid = mapGenerator.generateMap();
-        this.startingDungeon = mapGenerator.getStartingDungeon();
-        this.dungeon = startingDungeon;
+        currentDungeon.setTile(player.getX(), player.getY(), Tile.FLOOR);// Clear the player's previous position
+
+        this.map = new Map(WIDTH, HEIGHT, GRID_SIZE);
+        this.currentDungeon = map.getStartingDungeon();
+
         initializePlayer();
     }
 
     private void initializeGame() {
-        MapGenerator mapGenerator = new MapGenerator(WIDTH, HEIGHT, GRID_SIZE);
         // Generate map asynchronously
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            this.grid = mapGenerator.generateMap();
-            this.startingDungeon = mapGenerator.getStartingDungeon();
-            this.dungeon = startingDungeon;
+            this.map = new Map(WIDTH, HEIGHT, GRID_SIZE);
+            this.currentDungeon = map.getStartingDungeon();
         });
 
         // Preload images and initialize player after map generation
@@ -361,7 +359,7 @@ public class Game extends JFrame {
     // Initialize the player
     private void initializePlayer() {
         player = new Player(0, 0);
-        dungeon.setTile(player.getX(), player.getY(), Tile.PLAYER); // Set the player's initial position
+        currentDungeon.setTile(player.getX(), player.getY(), Tile.PLAYER); // Set the player's initial position
     }
 
     // Override the paint method to render directly to the buffer strategy
@@ -417,7 +415,7 @@ public class Game extends JFrame {
     private void drawTiles(Graphics g) {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
-                Tile tile = dungeon.getTile(x, y);
+                Tile tile = currentDungeon.getTile(x, y);
                 Image imageToDraw = switch (tile) {
                     case Tile.WALL -> getImageFromCache("/images/wall.png");
                     case Tile.FLOOR -> getImageFromCache("/images/floor.png");
@@ -433,7 +431,7 @@ public class Game extends JFrame {
     }
 
     // Retrieve image from cache
-    private Image getImageFromCache(String path) {;
+    private Image getImageFromCache(String path) {
         return this.imageCache.get(path);
     }
 

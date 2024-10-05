@@ -7,33 +7,34 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
-public class MapGenerator {
-    private static final Logger LOGGER = Logger.getLogger(MapGenerator.class.getName());
-
-    private final int WIDTH, HEIGHT, GRID_SIZE;
+public class Map {
+    private final int DUNGEON_WIDTH, DUNGEON_HEIGHT, GRID_SIZE;
     private final Dungeon[][] grid;
     private Dungeon startingDungeon;
 
-    public MapGenerator(int width, int height, int gridSize) {
-        WIDTH = width;
-        HEIGHT = height;
-        GRID_SIZE = gridSize;
-        grid = new Dungeon[GRID_SIZE][GRID_SIZE];
+    private static final Logger LOGGER = Logger.getLogger(Map.class.getName());
+
+    public Map(int width, int height, int gridSize) {
+        this.DUNGEON_WIDTH = width;
+        this.DUNGEON_HEIGHT = height;
+        this.GRID_SIZE = gridSize;
+
+        this.grid = new Dungeon[GRID_SIZE][GRID_SIZE];
+        generateMap();
     }
 
-    public Dungeon[][] generateMap() {
+    private void generateMap() {
         Random random = new Random();
 
         createDungeons(random);
         addDoors();
         selectStartingDungeon();
         selectExitDungeon(random);
-
-        return grid;
     }
 
     // Create dungeons on the grid
@@ -57,22 +58,24 @@ public class MapGenerator {
     private void createInitialDungeon(Random random) {
         int firstDungeonX = random.nextInt(1, 2);
         int firstDungeonY = random.nextInt(1, 2);
-        grid[firstDungeonX][firstDungeonY] = new Dungeon(WIDTH, HEIGHT, firstDungeonX, firstDungeonY);
+        grid[firstDungeonX][firstDungeonY] = new Dungeon(DUNGEON_WIDTH, DUNGEON_HEIGHT, firstDungeonX, firstDungeonY);
     }
 
     // Populate the grid with more dungeons
     private void createMoreDungeons(Random random) {
-        IntStream.range(0, 2).parallel().forEach(_ -> { // Iterate twice to increase the number of dungeons
-            IntStream.range(0, GRID_SIZE).parallel().forEach(i -> IntStream.range(0, GRID_SIZE).parallel().forEach(j -> {
+        AtomicInteger dungeonCount = new AtomicInteger(1); // Starting dungeon already placed, use atomic because it allows the variable to mutated inside a lambda
+        int targetDungeonCount = (int) (GRID_SIZE * GRID_SIZE * 0.5); // 50% of the grid
+        while (dungeonCount.get() < targetDungeonCount) {
+            IntStream.range(0, GRID_SIZE).forEach(i -> IntStream.range(0, GRID_SIZE).forEach(j -> {
                 if (grid[i][j] == null && hasAdjacentDungeon(i, j)) {
-                    // Randomly decide whether to create a dungeon
-                    boolean shouldCreateDungeon = random.nextBoolean();
+                    boolean shouldCreateDungeon = random.nextDouble() < 0.67; // 2/3 chance
                     if (shouldCreateDungeon) {
-                        grid[i][j] = new Dungeon(WIDTH, HEIGHT, i, j);
+                        grid[i][j] = new Dungeon(DUNGEON_WIDTH, DUNGEON_HEIGHT, i, j);
+                        dungeonCount.incrementAndGet(); // Increment the count safely
                     }
                 }
             }));
-        });
+        }
     }
 
     private void addDoors() {
@@ -82,16 +85,16 @@ public class MapGenerator {
                 Dungeon d = grid[i][j];
                 if (d != null) {
                     if (i > 0 && grid[i - 1][j] != null) { // Check left
-                        d.addDoor(0, HEIGHT / 2);
+                        d.addDoor(0, DUNGEON_HEIGHT / 2);
                     }
                     if (j > 0 && grid[i][j - 1] != null) { // Check up
-                        d.addDoor(WIDTH / 2, 0);
+                        d.addDoor(DUNGEON_WIDTH / 2, 0);
                     }
                     if (i < GRID_SIZE - 1 && grid[i + 1][j] != null) { // Check right
-                        d.addDoor(WIDTH - 1, HEIGHT / 2);
+                        d.addDoor(DUNGEON_WIDTH - 1, DUNGEON_HEIGHT / 2);
                     }
                     if (j < GRID_SIZE - 1 && grid[i][j + 1] != null) { // Check down
-                        d.addDoor(WIDTH / 2, HEIGHT - 1);
+                        d.addDoor(DUNGEON_WIDTH / 2, DUNGEON_HEIGHT - 1);
                     }
                 }
             }
@@ -132,14 +135,17 @@ public class MapGenerator {
         if (y > 0 && grid[x][y - 1] != null) { // Check up
             return true;
         }
-        if (x < 3 && grid[x + 1][y] != null) { // Check right
+        if (x < GRID_SIZE - 1 && grid[x + 1][y] != null) { // Check right
             return true;
         }
-        // Check down
-        return y < 3 && grid[x][y + 1] != null;
+        return y < GRID_SIZE - 1 && grid[x][y + 1] != null; // Check down
     }
 
     public Dungeon getStartingDungeon() {
         return startingDungeon;
+    }
+
+    public Dungeon[][] getGrid() {
+        return grid;
     }
 }
