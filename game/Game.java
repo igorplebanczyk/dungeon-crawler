@@ -126,7 +126,7 @@ public class Game extends JFrame {
 
         // Check for valid movement and update player position
         if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
-                (currentDungeon.getTile(newX, newY).getType() == Tile.FLOOR || currentDungeon.getTile(newX, newY).getType() == Tile.EXIT || currentDungeon.getTile(newX, newY).getType() == Tile.DOOR)) {
+                (currentDungeon.getTile(newX, newY).getType() == GameObjectType.FLOOR || currentDungeon.getTile(newX, newY).getType() == GameObjectType.EXIT || currentDungeon.getTile(newX, newY).getType() == GameObjectType.DOOR)) {
             movePlayer(dx, dy, newX, newY);
         }
 
@@ -155,10 +155,10 @@ public class Game extends JFrame {
         int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
 
         // Check if the clicked tile is a wall or exit
-        if (currentDungeon.getTile(gridX, gridY).getType() == Tile.WALL) {
+        if (currentDungeon.getTile(gridX, gridY).getType() == GameObjectType.WALL) {
             showAnnouncement("Can't walk through walls", 500);
             return;
-        } else if (currentDungeon.getTile(gridX, gridY).getType() == Tile.EXIT) {
+        } else if (currentDungeon.getTile(gridX, gridY).getType() == GameObjectType.EXIT) {
             showAnnouncement("It ain't that easy", 500);
             return;
         }

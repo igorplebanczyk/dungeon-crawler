@@ -1,7 +1,6 @@
 package game;
 
 import game.objects.Exit;
-import game.objects.Tile;
 
 import java.util.ArrayList;
 import java.util.List;

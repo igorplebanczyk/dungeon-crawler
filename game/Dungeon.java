@@ -75,9 +75,9 @@ public class Dungeon {
     private void ensureAdjacentWalls() {
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
-                if (map[y][x].getType() == Tile.WALL) { // If current tile is wall
+                if (map[y][x].getType() == GameObjectType.WALL) { // If current tile is wall
                     // Check surrounding tiles
-                    if (map[y - 1][x].getType() == Tile.FLOOR && map[y][x - 1].getType() == Tile.FLOOR && map[y + 1][x].getType() == Tile.FLOOR && map[y][x + 1].getType() == Tile.FLOOR) {
+                    if (map[y - 1][x].getType() == GameObjectType.FLOOR && map[y][x - 1].getType() == GameObjectType.FLOOR && map[y + 1][x].getType() == GameObjectType.FLOOR && map[y][x + 1].getType() == GameObjectType.FLOOR) {
                         // If no adjacent walls, make one adjacent wall
                         int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
                         switch (direction) {
@@ -108,7 +108,7 @@ public class Dungeon {
         // Fill any area that is not accessible with walls
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (!accessible[y][x] && map[y][x].getType() != Tile.EXIT) { // Don't fill the exit with a wall
+                if (!accessible[y][x] && map[y][x].getType() != GameObjectType.EXIT) { // Don't fill the exit with a wall
                     setTile(x, y, new Wall()); // Fill with a wall
                 }
             }
@@ -120,7 +120,7 @@ public class Dungeon {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return; // Out of bounds
         }
-        if (map[y][x].getType() == Tile.WALL || accessible[y][x]) {
+        if (map[y][x].getType() == GameObjectType.WALL || accessible[y][x]) {
             return; // Wall or already visited
         }
 
@@ -185,15 +185,15 @@ public class Dungeon {
 
     // Check if a tile is valid (within bounds and not a wall)
     private boolean isValidTile(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != Tile.WALL;
+        return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != GameObjectType.WALL;
     }
 
     // Check if a tile is valid for the pathfinder
     private boolean isValidTileForPathfinder(int x, int y) {
         if (Game.isBulldozerMode()) {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != Tile.EXIT && map[y][x].getType() != Tile.DOOR;
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != GameObjectType.EXIT && map[y][x].getType() != GameObjectType.DOOR;
         } else {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != Tile.WALL && map[y][x].getType() != Tile.EXIT && map[y][x].getType() != Tile.DOOR;
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != GameObjectType.WALL && map[y][x].getType() != GameObjectType.EXIT && map[y][x].getType() != GameObjectType.DOOR;
         }
     }
 
@@ -260,7 +260,6 @@ public class Dungeon {
         doorPositions.add(new Point(x, y)); // Add the door position to the list
     }
 
-    // Check if a tile is a door
     public boolean isDoor(int x, int y) {
         return doorPositions.contains(new Point(x, y));
     }
@@ -273,14 +272,12 @@ public class Dungeon {
         return gridY;
     }
 
-    // Get the tile type at a given position
     public GameObject getTile(int x, int y) {
         return map[y][x];
     }
 
-    // set the tile type at a given position
-    public void setTile(int x, int y, GameObject tile) {
-        map[y][x] = tile;
+    public void setTile(int x, int y, GameObject object) {
+        map[y][x] = object;
     }
 
     public int getExitY() {

@@ -1,6 +1,6 @@
 package game.objects;
 
-public enum Tile {
+public enum GameObjectType {
     WALL,
     FLOOR,
     DOOR,

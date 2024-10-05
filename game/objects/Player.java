@@ -8,7 +8,7 @@ public class Player extends GameObject {
         this.x = x;
         this.y = y;
         this.imagePath = imagePath;
-        this.type = Tile.PLAYER;
+        this.type = GameObjectType.PLAYER;
     }
 
     public int getX() {

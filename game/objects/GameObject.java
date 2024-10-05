@@ -2,17 +2,13 @@ package game.objects;
 
 public abstract class GameObject {
     protected String imagePath;
-    protected Tile type;
+    protected GameObjectType type;
 
     public String getImagePath() {
         return imagePath;
     }
 
-    public Tile getType() {
+    public GameObjectType getType() {
         return type;
-    }
-
-    public void setType(Tile type) {
-        this.type = type;
     }
 }
