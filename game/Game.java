@@ -131,8 +131,7 @@ public class Game extends JFrame {
         }
 
         // Check for reaching the exit and advance to the next level
-        int[] playerPos = player.getPosition();
-        if (playerPos[0] == currentDungeon.getExitX() && playerPos[1] == currentDungeon.getExitY()) {
+        if (player.getX() == currentDungeon.getExitX() && player.getY() == currentDungeon.getExitY()) {
             advanceToNextLevel();
         }
     }
