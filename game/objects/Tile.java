@@ -1,4 +1,4 @@
-package game;
+package game.objects;
 
 public enum Tile {
     WALL,
@@ -7,3 +7,4 @@ public enum Tile {
     EXIT,
     PLAYER
 }
+

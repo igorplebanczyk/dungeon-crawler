@@ -1,5 +1,8 @@
 package game;
 
+import game.objects.Exit;
+import game.objects.Tile;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -12,14 +15,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
-public class Map {
+public class GameMap {
     private final int DUNGEON_WIDTH, DUNGEON_HEIGHT, GRID_SIZE;
     private final Dungeon[][] grid;
     private Dungeon startingDungeon;
 
-    private static final Logger LOGGER = Logger.getLogger(Map.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GameMap.class.getName());
 
-    public Map(int width, int height, int gridSize) {
+    public GameMap(int width, int height, int gridSize) {
         this.DUNGEON_WIDTH = width;
         this.DUNGEON_HEIGHT = height;
         this.GRID_SIZE = gridSize;
@@ -125,7 +128,7 @@ public class Map {
         // Randomly select a dungeon from the list to be the exit dungeon
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
         exitDungeon.doesHaveExit = true; // Set the exit flag
-        exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), Tile.EXIT); // Set the exit in the selected dungeon
+        exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), new Exit()); // Set the exit in the selected dungeon
     }
 
     private boolean hasAdjacentDungeon(int x, int y) {

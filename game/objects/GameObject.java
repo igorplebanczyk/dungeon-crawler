@@ -1,20 +1,18 @@
 package game.objects;
 
 public abstract class GameObject {
-    protected int x;
-    protected int y;
     protected String imagePath;
+    protected Tile type;
 
-    protected int[] getPosition() {
-        return new int[]{x, y};
-    }
-
-    protected void setPosition(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    protected String getImagePath() {
+    public String getImagePath() {
         return imagePath;
+    }
+
+    public Tile getType() {
+        return type;
+    }
+
+    public void setType(Tile type) {
+        this.type = type;
     }
 }

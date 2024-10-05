@@ -1,5 +1,7 @@
 package game;
 
+import game.objects.*;
+
 import java.awt.*;
 import java.util.List;
 import java.util.Queue;
@@ -11,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 
 public class Dungeon {
     // Dungeon objects
-    public final Tile[][] map; // 2D array to represent the dungeon map
+    public final GameObject[][] map; // 2D array to represent the dungeon map
     // Dungeon properties
     private final int width;
     private final int height;
@@ -28,7 +30,7 @@ public class Dungeon {
         this.height = height;
         this.gridX = x;
         this.gridY = y;
-        this.map = new Tile[height][width];
+        this.map = new GameObject[height][width];
 
         // Select a tile where the exit might be placed
         int[] exit = getPossibleExitTile();
@@ -61,9 +63,9 @@ public class Dungeon {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (random.nextDouble() < 0.4) { // Increased chance for walls
-                    map[y][x] = Tile.WALL; // Wall
+                    map[y][x] = new Wall(); // Wall
                 } else {
-                    map[y][x] = Tile.FLOOR; // Floor
+                    map[y][x] = new Floor(); // Floor
                 }
             }
         }
@@ -73,23 +75,23 @@ public class Dungeon {
     private void ensureAdjacentWalls() {
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
-                if (map[y][x] == Tile.WALL) { // If current tile is wall
+                if (map[y][x].getType() == Tile.WALL) { // If current tile is wall
                     // Check surrounding tiles
-                    if (map[y - 1][x] == Tile.FLOOR && map[y][x - 1] == Tile.FLOOR && map[y + 1][x] == Tile.FLOOR && map[y][x + 1] == Tile.FLOOR) {
+                    if (map[y - 1][x].getType() == Tile.FLOOR && map[y][x - 1].getType() == Tile.FLOOR && map[y + 1][x].getType() == Tile.FLOOR && map[y][x + 1].getType() == Tile.FLOOR) {
                         // If no adjacent walls, make one adjacent wall
                         int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
                         switch (direction) {
                             case 0:
-                                map[y - 1][x] = Tile.WALL;
+                                setTile(x, y - 1, new Wall());
                                 break;
                             case 1:
-                                map[y][x - 1] = Tile.WALL;
+                                setTile(x - 1, y, new Wall());
                                 break;
                             case 2:
-                                map[y + 1][x] = Tile.WALL;
+                                setTile(x, y + 1, new Wall());
                                 break;
                             case 3:
-                                map[y][x + 1] = Tile.WALL;
+                                setTile(x + 1, y, new Wall());
                                 break;
                         }
                     }
@@ -106,8 +108,8 @@ public class Dungeon {
         // Fill any area that is not accessible with walls
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (!accessible[y][x] && map[y][x] != Tile.EXIT) { // Don't fill the exit with a wall
-                    map[y][x] = Tile.WALL;
+                if (!accessible[y][x] && map[y][x].getType() != Tile.EXIT) { // Don't fill the exit with a wall
+                    setTile(x, y, new Wall()); // Fill with a wall
                 }
             }
         }
@@ -118,7 +120,7 @@ public class Dungeon {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return; // Out of bounds
         }
-        if (map[y][x] == Tile.WALL || accessible[y][x]) {
+        if (map[y][x].getType() == Tile.WALL || accessible[y][x]) {
             return; // Wall or already visited
         }
 
@@ -183,15 +185,15 @@ public class Dungeon {
 
     // Check if a tile is valid (within bounds and not a wall)
     private boolean isValidTile(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != Tile.WALL;
+        return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != Tile.WALL;
     }
 
     // Check if a tile is valid for the pathfinder
     private boolean isValidTileForPathfinder(int x, int y) {
         if (Game.isBulldozerMode()) {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != Tile.EXIT && map[y][x] != Tile.DOOR;
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != Tile.EXIT && map[y][x].getType() != Tile.DOOR;
         } else {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x] != Tile.WALL && map[y][x] != Tile.EXIT && map[y][x] != Tile.DOOR;
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != Tile.WALL && map[y][x].getType() != Tile.EXIT && map[y][x].getType() != Tile.DOOR;
         }
     }
 
@@ -254,7 +256,7 @@ public class Dungeon {
 
     // Add a door at a given position
     public void addDoor(int x, int y) {
-        map[y][x] = Tile.DOOR; // 'D' represents a door
+        setTile(x, y, new Door()); // 'D' represents a door
         doorPositions.add(new Point(x, y)); // Add the door position to the list
     }
 
@@ -272,12 +274,12 @@ public class Dungeon {
     }
 
     // Get the tile type at a given position
-    public Tile getTile(int x, int y) {
+    public GameObject getTile(int x, int y) {
         return map[y][x];
     }
 
     // set the tile type at a given position
-    public void setTile(int x, int y, Tile tile) {
+    public void setTile(int x, int y, GameObject tile) {
         map[y][x] = tile;
     }
 

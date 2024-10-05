@@ -1,9 +1,8 @@
 package game.objects;
 
 public class Exit extends GameObject {
-    public Exit(int x, int y) {
-        this.x = x;
-        this.y = y;
-        this.imagePath = "/images/exit.png";
+    public Exit() {
+        this.imagePath = "/images/ciri.png";
+        this.type = Tile.EXIT;
     }
 }

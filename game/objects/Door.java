@@ -1,9 +1,8 @@
 package game.objects;
 
 public class Door extends GameObject {
-    public Door(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public Door() {
         this.imagePath = "/images/door.png";
+        this.type = Tile.DOOR;
     }
 }

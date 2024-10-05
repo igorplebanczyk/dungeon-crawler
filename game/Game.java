@@ -1,6 +1,7 @@
 package game;
 
 import game.menu.PauseMenu;
+import game.objects.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.Timer;
@@ -20,14 +21,14 @@ public class Game extends JFrame {
     private static final int WIDTH = 15;
     private static final int HEIGHT = 15;
     private static final int Y_OFFSET = 70;
-    private static final int GRID_SIZE = 5;
+    private static final int GRID_SIZE = 2;
     private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
     // Game parameters
     private final String characterImage;
 
     // Game objects
-    private Map map;
+    private GameMap map;
     private Player player;
     private String message;
     private Timer messageTimer; // Timer to clear the message after a certain duration
@@ -125,7 +126,7 @@ public class Game extends JFrame {
 
         // Check for valid movement and update player position
         if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
-                (currentDungeon.getTile(newX, newY) == Tile.FLOOR || currentDungeon.getTile(newX, newY) == Tile.EXIT || currentDungeon.getTile(newX, newY) == Tile.DOOR)) {
+                (currentDungeon.getTile(newX, newY).getType() == Tile.FLOOR || currentDungeon.getTile(newX, newY).getType() == Tile.EXIT || currentDungeon.getTile(newX, newY).getType() == Tile.DOOR)) {
             movePlayer(dx, dy, newX, newY);
         }
 
@@ -154,10 +155,10 @@ public class Game extends JFrame {
         int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
 
         // Check if the clicked tile is a wall or exit
-        if (currentDungeon.getTile(gridX, gridY) == Tile.WALL) {
+        if (currentDungeon.getTile(gridX, gridY).getType() == Tile.WALL) {
             showAnnouncement("Can't walk through walls", 500);
             return;
-        } else if (currentDungeon.getTile(gridX, gridY) == Tile.EXIT) {
+        } else if (currentDungeon.getTile(gridX, gridY).getType() == Tile.EXIT) {
             showAnnouncement("It ain't that easy", 500);
             return;
         }
@@ -203,7 +204,7 @@ public class Game extends JFrame {
                     player.move(position.x - player.getX(), position.y - player.getY());
 
                     // Set the new player position
-                    currentDungeon.setTile(player.getX(), player.getY(), Tile.PLAYER);
+                    currentDungeon.setTile(player.getX(), player.getY(), player);
 
                     Game.this.revalidate(); // Re-layout the components
                     Game.this.repaint(); // Refresh the screen
@@ -221,9 +222,9 @@ public class Game extends JFrame {
 
     private void redrawPreviousTile() {
         if (currentDungeon.isDoor(player.getX(), player.getY())) {
-            currentDungeon.setTile(player.getX(), player.getY(), Tile.DOOR); // If so, redraw the door
+            currentDungeon.setTile(player.getX(), player.getY(), new Door()); // If so, redraw the door
         } else {
-            currentDungeon.setTile(player.getX(), player.getY(), Tile.FLOOR); // Otherwise, redraw the floor
+            currentDungeon.setTile(player.getX(), player.getY(), new Floor()); // Otherwise, redraw the floor
         }
     }
 
@@ -235,7 +236,7 @@ public class Game extends JFrame {
         if (currentDungeon.isDoor(targetX, targetY)) {
             moveToAdjacentRoom(targetX, targetY);
         }
-        currentDungeon.setTile(player.getX(), player.getY(), Tile.PLAYER); // Draw the player at the new position
+        currentDungeon.setTile(player.getX(), player.getY(), this.player); // Draw the player at the new position
         repaint();
     }
 
@@ -280,7 +281,7 @@ public class Game extends JFrame {
         if (!currentDungeon.doesHaveExit) {
             currentDungeon.setExitX(currentDungeon.getWidth() - 1);
             currentDungeon.setExitY(currentDungeon.getHeight() - 1);
-            currentDungeon.setTile(currentDungeon.getWidth() - 1, currentDungeon.getHeight() - 1, Tile.WALL); // Set invalid exit tile to a wall to prevent an invalid exit
+            currentDungeon.setTile(currentDungeon.getWidth() - 1, currentDungeon.getHeight() - 1, new Wall()); // Set invalid exit tile to a wall to prevent an invalid exit
         }
     }
 
@@ -332,9 +333,9 @@ public class Game extends JFrame {
 
     // Generate a new level
     private void generateNewLevel() {
-        currentDungeon.setTile(player.getX(), player.getY(), Tile.FLOOR);// Clear the player's previous position
+        currentDungeon.setTile(player.getX(), player.getY(), new Floor());// Clear the player's previous position
 
-        this.map = new Map(WIDTH, HEIGHT, GRID_SIZE);
+        this.map = new GameMap(WIDTH, HEIGHT, GRID_SIZE);
         this.currentDungeon = map.getStartingDungeon();
 
         initializePlayer();
@@ -343,7 +344,7 @@ public class Game extends JFrame {
     private void initializeGame() {
         // Generate map asynchronously
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            this.map = new Map(WIDTH, HEIGHT, GRID_SIZE);
+            this.map = new GameMap(WIDTH, HEIGHT, GRID_SIZE);
             this.currentDungeon = map.getStartingDungeon();
         });
 
@@ -358,8 +359,8 @@ public class Game extends JFrame {
 
     // Initialize the player
     private void initializePlayer() {
-        player = new Player(0, 0);
-        currentDungeon.setTile(player.getX(), player.getY(), Tile.PLAYER); // Set the player's initial position
+        player = new Player(0, 0, characterImage);
+        currentDungeon.setTile(player.getX(), player.getY(), this.player); // Set the player's initial position
     }
 
     // Override the paint method to render directly to the buffer strategy
@@ -415,14 +416,8 @@ public class Game extends JFrame {
     private void drawTiles(Graphics g) {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
-                Tile tile = currentDungeon.getTile(x, y);
-                Image imageToDraw = switch (tile) {
-                    case Tile.WALL -> getImageFromCache("/images/wall.png");
-                    case Tile.FLOOR -> getImageFromCache("/images/floor.png");
-                    case Tile.PLAYER -> getImageFromCache(characterImage);
-                    case Tile.EXIT -> getImageFromCache("/images/ciri.png");
-                    case Tile.DOOR -> getImageFromCache("/images/door.png");
-                };
+                GameObject tile = currentDungeon.getTile(x, y);
+                Image imageToDraw = getImageFromCache(tile.getImagePath());
                 if (imageToDraw != null) {
                     g.drawImage(imageToDraw, x * TILE_SIZE, Y_OFFSET - 8 + y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
                 }
