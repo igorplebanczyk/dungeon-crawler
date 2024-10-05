@@ -17,12 +17,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Game extends JFrame {
+    // Game constants
     private static final int TILE_SIZE = 45; // Safe to modify; must always be a multiple of 15
-    private static final int WIDTH = 15;
-    private static final int HEIGHT = 15;
+    private static final int WIDTH = 15; // Amount of tiles in the x direction
+    private static final int HEIGHT = 15; // Amount of tiles in the y direction
     private static final int Y_OFFSET = 70;
     private static final int GRID_SIZE = 2;
-    private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
     // Game parameters
     private final String characterImage;
@@ -34,6 +34,7 @@ public class Game extends JFrame {
     private Timer messageTimer; // Timer to clear the message after a certain duration
     private java.util.Map<String, Image> imageCache; // Cache for images
     private final BufferStrategy bufferStrategy;
+    private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
     // Game state variables
     private Dungeon currentDungeon;
@@ -74,10 +75,6 @@ public class Game extends JFrame {
 
         long endTime = System.nanoTime(); // End time for measuring initialization time
         System.out.println("Game initialized in " + (endTime - startTime) / 1e6 + "ms");
-    }
-
-    public static boolean isBulldozerMode() {
-        return bulldozerMode;
     }
 
     // Add a keyListener to handle player movement
@@ -163,13 +160,13 @@ public class Game extends JFrame {
         }
 
         // Use BFS to find the shortest path
-        List<Point> path = getPath(gridX, gridY);
+        List<Point> path = getAutoMovementPath(gridX, gridY);
         if (path == null) return;
         animateAutoMovement(path); // Animate the player movement
     }
 
     // Call the BFS algorithm to find the shortest path
-    private List<Point> getPath(int gridX, int gridY) {
+    private List<Point> getAutoMovementPath(int gridX, int gridY) {
         List<Point> path;
         try {
             path = currentDungeon.findPath(player.getX(), player.getY(), gridX, gridY);
@@ -267,6 +264,10 @@ public class Game extends JFrame {
         }
     }
 
+    public static boolean isBulldozerMode() {
+        return bulldozerMode;
+    }
+
     // Advance to the next level
     private void advanceToNextLevel() {
         level++;
@@ -291,42 +292,6 @@ public class Game extends JFrame {
         if (isPaused) {
             PauseMenu pauseMenu = new PauseMenu(this);
             pauseMenu.setVisible(true);
-        }
-    }
-
-    // Preload images into image cache
-    private void preloadImages() {
-        if (this.imageCache == null) { // Preload images only if the cache is empty
-            this.imageCache = new HashMap<>();
-            List<String> imagePaths = List.of(characterImage, "/images/wall.png", "/images/floor.png", "/images/ciri.png", "/images/door.png");
-
-            ExecutorService executor = Executors.newFixedThreadPool(5);
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
-
-            for (String path : imagePaths) {
-                // Submit a task to load and cache each image
-                CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-                    loadAndCacheImage(path);
-                    return null;
-                }, executor);
-
-                futures.add(future);
-            }
-
-            // A CompletableFuture that completes when all image loading tasks are done
-            CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-            allFutures.thenRun(() -> System.out.println("All images preloaded")); // Attach a callback to handle post-loading logic
-            executor.shutdown();
-        }
-    }
-
-    // Load and cache image from file
-    private void loadAndCacheImage(String path) {
-        try {
-            Image image = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
-            this.imageCache.put(path, image);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "An exception occurred", e);
         }
     }
 
@@ -421,6 +386,42 @@ public class Game extends JFrame {
                     g.drawImage(imageToDraw, x * TILE_SIZE, Y_OFFSET - 8 + y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
                 }
             }
+        }
+    }
+
+    // Preload images into image cache
+    private void preloadImages() {
+        if (this.imageCache == null) { // Preload images only if the cache is empty
+            this.imageCache = new HashMap<>();
+            List<String> imagePaths = List.of(characterImage, "/images/wall.png", "/images/floor.png", "/images/ciri.png", "/images/door.png");
+
+            ExecutorService executor = Executors.newFixedThreadPool(5);
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+            for (String path : imagePaths) {
+                // Submit a task to load and cache each image
+                CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+                    loadAndCacheImage(path);
+                    return null;
+                }, executor);
+
+                futures.add(future);
+            }
+
+            // A CompletableFuture that completes when all image loading tasks are done
+            CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            allFutures.thenRun(() -> System.out.println("All images preloaded")); // Attach a callback to handle post-loading logic
+            executor.shutdown();
+        }
+    }
+
+    // Load and cache image from file
+    private void loadAndCacheImage(String path) {
+        try {
+            Image image = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
+            this.imageCache.put(path, image);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "An exception occurred", e);
         }
     }
 
