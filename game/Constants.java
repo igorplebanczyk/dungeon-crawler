@@ -30,4 +30,6 @@ public abstract class Constants {
         OBJECT_IMAGE_MAP.put(GameObjectType.FLOOR, "/images/floor.png");
         OBJECT_IMAGE_MAP.put(GameObjectType.WALL, "/images/wall.png");
     }
+
+    public static final int IMAGE_CACHE_THREAD_NUM = 5;
 }

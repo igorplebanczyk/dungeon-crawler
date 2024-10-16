@@ -3,17 +3,14 @@ package game;
 import game.menu.PauseMenu;
 import game.objects.*;
 
-import javax.imageio.ImageIO;
 import javax.swing.Timer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
-import java.io.IOException;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Game extends JFrame {
@@ -25,7 +22,7 @@ public class Game extends JFrame {
     private Player player;
     private String message;
     private Timer messageTimer; // Timer to clear the message after a certain duration
-    private java.util.Map<String, Image> imageCache; // Cache for images
+    private final ImageCache imageCache = new ImageCache();
     private final BufferStrategy bufferStrategy;
     private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
@@ -307,7 +304,7 @@ public class Game extends JFrame {
 
         // Preload images and initialize player after map generation
         future.thenRun(() -> {
-            preloadImages();
+            imageCache.cacheImages(characterImage);
             initializePlayer();
         });
 
@@ -374,53 +371,12 @@ public class Game extends JFrame {
         for (int y = 0; y < Constants.GAME_TILE_NUM; y++) {
             for (int x = 0; x < Constants.GAME_TILE_NUM; x++) {
                 GameObject tile = currentDungeon.getTile(x, y);
-                Image imageToDraw = getImageFromCache(tile.getImagePath());
+                Image imageToDraw = imageCache.getImage(tile.getImagePath());
                 if (imageToDraw != null) {
                     g.drawImage(imageToDraw, x * Constants.GAME_TILE_SIZE, Constants.Y_OFFSET - 8 + y * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, this);
                 }
             }
         }
-    }
-
-    // Preload images into image cache
-    private void preloadImages() {
-        if (this.imageCache == null) { // Preload images only if the cache is empty
-            this.imageCache = new HashMap<>();
-            List<String> imagePaths = List.of(characterImage, "/images/wall.png", "/images/floor.png", "/images/ciri.png", "/images/door.png");
-
-            ExecutorService executor = Executors.newFixedThreadPool(5);
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
-
-            for (String path : imagePaths) {
-                // Submit a task to load and cache each image
-                CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-                    loadAndCacheImage(path);
-                    return null;
-                }, executor);
-
-                futures.add(future);
-            }
-
-            // A CompletableFuture that completes when all image loading tasks are done
-            CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-            allFutures.thenRun(() -> System.out.println("All images preloaded")); // Attach a callback to handle post-loading logic
-            executor.shutdown();
-        }
-    }
-
-    // Load and cache image from file
-    private void loadAndCacheImage(String path) {
-        try {
-            Image image = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
-            this.imageCache.put(path, image);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "An exception occurred", e);
-        }
-    }
-
-    // Retrieve image from cache
-    private Image getImageFromCache(String path) {
-        return this.imageCache.get(path);
     }
 
     // Show announcement message for a specified duration
