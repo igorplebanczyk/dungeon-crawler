@@ -6,11 +6,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import game.Constants;
 
 public class PauseMenu extends Menu {
-    private static final int TILE_SIZE = 150;
-    private static final int WINDOW_WIDTH = 3;
-    private static final int WINDOW_HEIGHT = 3;
     private final Game game;
 
     public PauseMenu(JFrame parent) {
@@ -18,7 +16,7 @@ public class PauseMenu extends Menu {
         this.game = (Game) parent;
 
         setUndecorated(true);
-        setSize(WINDOW_WIDTH * TILE_SIZE, WINDOW_HEIGHT * TILE_SIZE);
+        setSize(Constants.PAUSE_WINDOW_WIDTH * Constants.PAUSE_TILE_SIZE, Constants.PAUSE_WINDOW_HEIGHT * Constants.PAUSE_TILE_SIZE);
         getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 6));
 
         this.addKeyListener(new KeyAdapter() {
@@ -44,14 +42,14 @@ public class PauseMenu extends Menu {
         addButton(getResumeButton(), mainPanel, 0, 200);
         addButton(getRefreshButton(), mainPanel, 0, 0);
         addButton(getQuitButton(), mainPanel, 200, 0);
-        addFloorTiles(mainPanel, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
+        addFloorTiles(mainPanel, Constants.PAUSE_TILE_SIZE, Constants.PAUSE_WINDOW_WIDTH, Constants.PAUSE_WINDOW_HEIGHT);
         return mainPanel;
     }
 
     // Add a button to the panel
     private void addButton(JButton button, JPanel panel, int offsetTop, int offsetBottom) {
-        GridBagConstraints gbc = createGridBagConstraints(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, offsetTop, offsetBottom);
-        configureButton(button, TILE_SIZE, TILE_SIZE / 2, 24, 4, 4);
+        GridBagConstraints gbc = createGridBagConstraints(0, 0, Constants.PAUSE_WINDOW_WIDTH, Constants.PAUSE_WINDOW_HEIGHT, offsetTop, offsetBottom);
+        configureButton(button, Constants.PAUSE_TILE_SIZE, Constants.PAUSE_TILE_SIZE / 2, 24, 4, 4);
         panel.add(button, gbc);
     }
 

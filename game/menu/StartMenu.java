@@ -7,18 +7,15 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import game.Constants;
 
 public class StartMenu extends Menu {
-    private static final int TILE_SIZE = 200;
-    private static final int WINDOW_WIDTH = 4;
-    private static final int WINDOW_HEIGHT = 4;
-
     private static final Logger LOGGER = Logger.getLogger(StartMenu.class.getName());
 
     public StartMenu() {
         setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(WINDOW_WIDTH * TILE_SIZE, WINDOW_HEIGHT * TILE_SIZE);
+        setSize(Constants.START_WINDOW_WIDTH * Constants.START_TILE_SIZE, Constants.START_WINDOW_HEIGHT * Constants.START_TILE_SIZE);
 
         add(getStartPanel());
         setVisible(true);
@@ -36,15 +33,15 @@ public class StartMenu extends Menu {
         JPanel panel = new JPanel(new GridBagLayout());
         addStartButton(panel);
         addTitleLabels(panel);
-        addFloorTiles(panel, TILE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
+        addFloorTiles(panel, Constants.START_TILE_SIZE, Constants.START_WINDOW_WIDTH, Constants.START_WINDOW_HEIGHT);
         return panel;
     }
 
     // Add the start button to the panel
     private void addStartButton(JPanel panel) {
-        JButton startButton = getButton("Start", TILE_SIZE * 2, 48, 4, 4);
+        JButton startButton = getButton("Start", Constants.START_TILE_SIZE * 2, 48, 4, 4);
         startButton.addActionListener(_ -> switchToSelectionPanel());
-        GridBagConstraints gbc = createGridBagConstraints(1, 1, 2, 2, TILE_SIZE / 3, 0);
+        GridBagConstraints gbc = createGridBagConstraints(1, 1, 2, 2, Constants.START_TILE_SIZE / 3, 0);
         panel.add(startButton, gbc);
     }
 
@@ -53,8 +50,8 @@ public class StartMenu extends Menu {
         JLabel topTitleLabel = getTitleLabel("Dungeon");
         JLabel bottomTitleLabel = getTitleLabel("Crawler");
 
-        GridBagConstraints gbcTopTitle = createGridBagConstraints(1, 0, 2, 1, 0, TILE_SIZE / 5);
-        GridBagConstraints gbcBottomTitle = createGridBagConstraints(1, 0, 2, 1, TILE_SIZE / 2, 0);
+        GridBagConstraints gbcTopTitle = createGridBagConstraints(1, 0, 2, 1, 0, Constants.START_TILE_SIZE / 5);
+        GridBagConstraints gbcBottomTitle = createGridBagConstraints(1, 0, 2, 1, Constants.START_TILE_SIZE / 2, 0);
 
         panel.add(topTitleLabel, gbcTopTitle);
         panel.add(bottomTitleLabel, gbcBottomTitle);
@@ -88,24 +85,24 @@ public class StartMenu extends Menu {
                 drawSelectionPanelFloorTiles(g);
             }
         };
-        panel.setLayout(new GridLayout(WINDOW_HEIGHT, WINDOW_WIDTH));
+        panel.setLayout(new GridLayout(Constants.START_WINDOW_HEIGHT, Constants.START_WINDOW_WIDTH));
         return panel;
     }
 
     // Draw the floor tiles
     private void drawSelectionPanelFloorTiles(Graphics g) {
         Image floorImage = loadFloorImage();
-        for (int y = 0; y < WINDOW_HEIGHT; y++) {
-            for (int x = 0; x < WINDOW_WIDTH; x++) {
-                g.drawImage(floorImage, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
+        for (int y = 0; y < Constants.START_WINDOW_HEIGHT; y++) {
+            for (int x = 0; x < Constants.START_WINDOW_WIDTH; x++) {
+                g.drawImage(floorImage, x * Constants.START_TILE_SIZE, y * Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, this);
             }
         }
     }
 
     // Populate the selection panel with floor tiles
     private void fillSelectionPanel(JPanel panel, Tile[][] layout) {
-        for (int y = 0; y < WINDOW_HEIGHT; y++) {
-            for (int x = 0; x < WINDOW_WIDTH; x++) {
+        for (int y = 0; y < Constants.START_WINDOW_HEIGHT; y++) {
+            for (int x = 0; x < Constants.START_WINDOW_WIDTH; x++) {
                 JLabel label = createSelectionTiles(layout[y][x]);
                 panel.add(label);
             }
@@ -135,13 +132,13 @@ public class StartMenu extends Menu {
 
     // Create a character image tile
     private JLabel getCharacterLabel(String imagePath) {
-        ImageIcon icon = createScaledIcon(imagePath, TILE_SIZE);
+        ImageIcon icon = createScaledIcon(imagePath, Constants.START_TILE_SIZE);
         return new JLabel(icon);
     }
 
     // Create a selection button
     private JLabel getSelectionButton(String text, String characterImagePath, int borderLeft, int borderRight) {
-        JButton button = getButton(text, TILE_SIZE, 16, borderLeft, borderRight);
+        JButton button = getButton(text, Constants.START_TILE_SIZE, 16, borderLeft, borderRight);
         button.addActionListener(_ -> launchGame(characterImagePath));
         JLabel label = new JLabel();
         label.setLayout(new BorderLayout());
@@ -152,7 +149,7 @@ public class StartMenu extends Menu {
     // Create a button
     private JButton getButton(String text, int width, int fontSize, int borderLeft, int borderRight) {
         JButton button = new JButton(text);
-        configureButton(button, width, TILE_SIZE, fontSize, borderLeft, borderRight);
+        configureButton(button, width, Constants.START_TILE_SIZE, fontSize, borderLeft, borderRight);
         return button;
     }
 

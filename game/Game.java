@@ -17,13 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Game extends JFrame {
-    // Game constants
-    private static final int TILE_SIZE = 45; // Safe to modify; must always be a multiple of 15
-    private static final int WIDTH = 15; // Amount of tiles in the x direction
-    private static final int HEIGHT = 15; // Amount of tiles in the y direction
-    private static final int Y_OFFSET = 70;
-    private static final int GRID_SIZE = 2;
-
     // Game parameters
     private final String characterImage;
 
@@ -60,7 +53,7 @@ public class Game extends JFrame {
         handleMouseInput(); // Add mouselistener to handle mouse input
 
         pack(); // Pack the frame first to calculate its preferred size
-        setSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE + Y_OFFSET); // Set the frame size
+        setSize(Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE + Constants.Y_OFFSET); // Set the frame size
 
         // Center the frame on the screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -122,7 +115,7 @@ public class Game extends JFrame {
         preventInvalidExit(); // Prevent stepping on an invalid exit by replacing it with a wall
 
         // Check for valid movement and update player position
-        if (newX >= 0 && newX < WIDTH && newY >= 0 && newY < HEIGHT &&
+        if (newX >= 0 && newX < Constants.GAME_TILE_NUM && newY >= 0 && newY < Constants.GAME_TILE_NUM &&
                 (currentDungeon.getTile(newX, newY).getType() == GameObjectType.FLOOR || currentDungeon.getTile(newX, newY).getType() == GameObjectType.EXIT || currentDungeon.getTile(newX, newY).getType() == GameObjectType.DOOR)) {
             movePlayer(dx, dy, newX, newY);
         }
@@ -147,8 +140,8 @@ public class Game extends JFrame {
     // Handle movement with pathfinder
     private void handleAutoMovement(MouseEvent e) {
         // Convert mouse coordinates to grid coordinates
-        int gridX = e.getX() / TILE_SIZE;
-        int gridY = (e.getY() - Y_OFFSET) / TILE_SIZE;
+        int gridX = e.getX() / Constants.GAME_TILE_SIZE;
+        int gridY = (e.getY() - Constants.Y_OFFSET) / Constants.GAME_TILE_SIZE;
 
         // Check if the clicked tile is a wall or exit
         if (currentDungeon.getTile(gridX, gridY).getType() == GameObjectType.WALL) {
@@ -240,8 +233,8 @@ public class Game extends JFrame {
     private void moveToAdjacentRoom(int newX, int newY) {
         if (newX == 0) {
             currentDungeon = map.getGrid()[currentDungeon.getGridX() - 1][currentDungeon.getGridY()]; // Left edge
-            player.setX(WIDTH - 1);
-        } else if (newX == WIDTH - 1) {
+            player.setX(Constants.GAME_TILE_NUM - 1);
+        } else if (newX == Constants.GAME_TILE_NUM - 1) {
             currentDungeon = map.getGrid()[currentDungeon.getGridX() + 1][currentDungeon.getGridY()]; // Right edge
             player.setX(0);
         } else if (newY == 0) {
@@ -299,7 +292,7 @@ public class Game extends JFrame {
     private void generateNewLevel() {
         currentDungeon.setTile(player.getX(), player.getY(), new Floor());// Clear the player's previous position
 
-        this.map = new GameMap(WIDTH, HEIGHT, GRID_SIZE);
+        this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
         this.currentDungeon = map.getStartingDungeon();
 
         initializePlayer();
@@ -308,7 +301,7 @@ public class Game extends JFrame {
     private void initializeGame() {
         // Generate map asynchronously
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            this.map = new GameMap(WIDTH, HEIGHT, GRID_SIZE);
+            this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
             this.currentDungeon = map.getStartingDungeon();
         });
 
@@ -351,16 +344,16 @@ public class Game extends JFrame {
     private void drawTopBar(Graphics g) {
         // Draw top bar background
         g.setColor(new Color(50, 50, 50)); // Dark gray color
-        g.fillRect(0, 0, getWidth(), Y_OFFSET - 8);
+        g.fillRect(0, 0, getWidth(), Constants.Y_OFFSET - 8);
 
         // Draw level and character name
         g.setColor(Color.WHITE);
         g.setFont(new Font("Times", Font.BOLD, 20));
-        g.drawString("Level " + level, 15, Y_OFFSET - 16);
+        g.drawString("Level " + level, 15, Constants.Y_OFFSET - 16);
         if (Objects.equals(characterImage, "/images/geralt.png")) {
-            g.drawString("Geralt", 825, Y_OFFSET - 16);
+            g.drawString("Geralt", 825, Constants.Y_OFFSET - 16);
         } else if (Objects.equals(characterImage, "/images/yen.png")) {
-            g.drawString("Yennefer", 800, Y_OFFSET - 16);
+            g.drawString("Yennefer", 800, Constants.Y_OFFSET - 16);
         }
     }
 
@@ -378,12 +371,12 @@ public class Game extends JFrame {
 
     // Draw tiles based on the dungeon map
     private void drawTiles(Graphics g) {
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int x = 0; x < WIDTH; x++) {
+        for (int y = 0; y < Constants.GAME_TILE_NUM; y++) {
+            for (int x = 0; x < Constants.GAME_TILE_NUM; x++) {
                 GameObject tile = currentDungeon.getTile(x, y);
                 Image imageToDraw = getImageFromCache(tile.getImagePath());
                 if (imageToDraw != null) {
-                    g.drawImage(imageToDraw, x * TILE_SIZE, Y_OFFSET - 8 + y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
+                    g.drawImage(imageToDraw, x * Constants.GAME_TILE_SIZE, Constants.Y_OFFSET - 8 + y * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, this);
                 }
             }
         }
