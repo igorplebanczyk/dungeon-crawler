@@ -25,19 +25,15 @@ public class ImageCache {
         imagePaths.add(characterImage);
         imagePaths.addAll(Constants.OBJECT_IMAGE_MAP.values());
 
-        ExecutorService executor = Executors.newFixedThreadPool(Constants.IMAGE_CACHE_THREAD_NUM);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        try (ExecutorService executor = Executors.newFixedThreadPool(Constants.IMAGE_CACHE_THREAD_NUM)) {
+            // Create a CompletableFuture for each image path
+            List<CompletableFuture<Void>> futures = imagePaths.stream()
+                    .map(path -> CompletableFuture.runAsync(() -> cacheImage(path), executor))
+                    .toList();
 
-        for (String path : imagePaths) {
-            CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-                cacheImage(path);
-                return null;
-                }, executor);
-            futures.add(future);
+            CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            allFutures.join(); // Wait for all tasks to complete
         }
-
-        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        executor.shutdown();
     }
 
     private void cacheImage(String path) {

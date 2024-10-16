@@ -22,7 +22,6 @@ public abstract class Constants {
     public static final int START_WINDOW_HEIGHT = 4;
 
     public static final Map<GameObjectType, String> OBJECT_IMAGE_MAP;
-
     static {
         OBJECT_IMAGE_MAP = new HashMap<>();
         OBJECT_IMAGE_MAP.put(GameObjectType.DOOR, "/images/door.png");
