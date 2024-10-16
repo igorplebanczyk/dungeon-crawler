@@ -19,7 +19,6 @@ public class ImageCache {
         this.cache = new HashMap<>();
     }
 
-    // Preload images into image cache
     public void cacheImages(String characterImage) {
         ArrayList<String> imagePaths = new ArrayList<>();
         imagePaths.add(characterImage);
@@ -45,7 +44,6 @@ public class ImageCache {
         }
     }
 
-    // Retrieve image from cache
     public Image getImage(String path) {
         return this.cache.get(path);
     }
