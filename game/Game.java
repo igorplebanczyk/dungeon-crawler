@@ -24,6 +24,7 @@ public class Game extends JFrame {
     private Timer messageTimer; // Timer to clear the message after a certain duration
     private final ImageCache imageCache = new ImageCache();
     private final BufferStrategy bufferStrategy;
+    private final Renderer renderer;
     private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
     // Game state variables
@@ -37,6 +38,7 @@ public class Game extends JFrame {
         // Initialize game parameters
         long startTime = System.nanoTime(); // Start time for measuring initialization time
         this.characterImage = characterImage;
+        this.renderer = new Renderer(this, this.characterImage, this.imageCache);
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
@@ -236,8 +238,8 @@ public class Game extends JFrame {
             player.setX(0);
         } else if (newY == 0) {
             currentDungeon = map.getGrid()[currentDungeon.getGridX()][currentDungeon.getGridY() - 1]; // Top edge
-            player.setY(HEIGHT - 1);
-        } else if (newY == HEIGHT - 1) {
+            player.setY(Constants.GAME_TILE_NUM - 1);
+        } else if (newY == Constants.GAME_TILE_NUM - 1) {
             currentDungeon = map.getGrid()[currentDungeon.getGridX()][currentDungeon.getGridY() + 1]; // Bottom edge
             player.setY(0);
         }
@@ -323,63 +325,13 @@ public class Game extends JFrame {
         do {
             do {
                 Graphics bufferGraphics = bufferStrategy.getDrawGraphics();
-                render(bufferGraphics);
+                renderer.render(bufferGraphics, this.level, this.currentDungeon, this.message);
                 bufferGraphics.dispose();
             } while (bufferStrategy.contentsRestored());
             bufferStrategy.show();
         } while (bufferStrategy.contentsLost());
     }
 
-    // Render the game
-    private void render(Graphics g) {
-        drawTopBar(g);
-        drawTiles(g);
-        if (message != null) drawMessage(g);
-    }
-
-    // Draw top bar
-    private void drawTopBar(Graphics g) {
-        // Draw top bar background
-        g.setColor(new Color(50, 50, 50)); // Dark gray color
-        g.fillRect(0, 0, getWidth(), Constants.Y_OFFSET - 8);
-
-        // Draw level and character name
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Times", Font.BOLD, 20));
-        g.drawString("Level " + level, 15, Constants.Y_OFFSET - 16);
-        if (Objects.equals(characterImage, "/images/geralt.png")) {
-            g.drawString("Geralt", 825, Constants.Y_OFFSET - 16);
-        } else if (Objects.equals(characterImage, "/images/yen.png")) {
-            g.drawString("Yennefer", 800, Constants.Y_OFFSET - 16);
-        }
-    }
-
-    // Draw a message
-    private void drawMessage(Graphics g) {
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Times ", Font.BOLD, 56));
-        FontMetrics fm = g.getFontMetrics();
-        int messageWidth = fm.stringWidth(message);
-        int messageHeight = fm.getHeight();
-        int x = (getWidth() - messageWidth) / 2;
-        int y = (getHeight() - messageHeight) / 2 + fm.getAscent();
-        g.drawString(message, x, y);
-    }
-
-    // Draw tiles based on the dungeon map
-    private void drawTiles(Graphics g) {
-        for (int y = 0; y < Constants.GAME_TILE_NUM; y++) {
-            for (int x = 0; x < Constants.GAME_TILE_NUM; x++) {
-                GameObject tile = currentDungeon.getTile(x, y);
-                Image imageToDraw = imageCache.getImage(tile.getImagePath());
-                if (imageToDraw != null) {
-                    g.drawImage(imageToDraw, x * Constants.GAME_TILE_SIZE, Constants.Y_OFFSET - 8 + y * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, this);
-                }
-            }
-        }
-    }
-
-    // Show announcement message for a specified duration
     private void showAnnouncement(String message, int duration) {
         this.message = message; // Set the message
         if (messageTimer != null) {
