@@ -126,7 +126,7 @@ public class GameMap {
 
         // Randomly select a dungeon from the list to be the exit dungeon
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
-        exitDungeon.doesHaveExit = true; // Set the exit flag
+        exitDungeon.setDoesHaveExit(true); // Set the exit flag
         exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), new Exit()); // Set the exit in the selected dungeon
     }
 

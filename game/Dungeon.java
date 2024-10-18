@@ -13,17 +13,19 @@ import java.util.concurrent.TimeoutException;
 
 public class Dungeon {
     // Dungeon objects
-    public final GameObject[][] map; // 2D array to represent the dungeon map
+    private final GameObject[][] map; // 2D array to represent the dungeon map
+    private final Random random = new Random();
+
     // Dungeon properties
     private final int width;
     private final int height;
     private final int gridX;
     private final int gridY;
-    private final List<Point> doorPositions = new ArrayList<>();
-    private final Random random = new Random();
-    public boolean doesHaveExit = false;
     private int exitX;
     private int exitY;
+    private final List<Point> doorPositions = new ArrayList<>();
+    private boolean doesHaveExit = false;
+
 
     public Dungeon(int width, int height, int x, int y) {
         this.width = width;
@@ -302,5 +304,13 @@ public class Dungeon {
 
     public int getHeight() {
         return height;
+    }
+
+    public boolean doesHaveExit() {
+        return doesHaveExit;
+    }
+
+    public void setDoesHaveExit(boolean doesHaveExit) {
+        this.doesHaveExit = doesHaveExit;
     }
 }

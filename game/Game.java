@@ -9,9 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.util.List;
-import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Logger;
 
 public class Game extends JFrame {
     // Game parameters
@@ -25,7 +23,6 @@ public class Game extends JFrame {
     private final ImageCache imageCache = new ImageCache();
     private final BufferStrategy bufferStrategy;
     private final Renderer renderer;
-    private static final Logger LOGGER = Logger.getLogger(Game.class.getName());
 
     // Game state variables
     private Dungeon currentDungeon;
@@ -270,7 +267,7 @@ public class Game extends JFrame {
 
     // Prevent being able to exit the dungeon from an invalid position
     private void preventInvalidExit() {
-        if (!currentDungeon.doesHaveExit) {
+        if (!currentDungeon.doesHaveExit()) {
             currentDungeon.setExitX(currentDungeon.getWidth() - 1);
             currentDungeon.setExitY(currentDungeon.getHeight() - 1);
             currentDungeon.setTile(currentDungeon.getWidth() - 1, currentDungeon.getHeight() - 1, new Wall()); // Set invalid exit tile to a wall to prevent an invalid exit
