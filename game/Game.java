@@ -157,17 +157,7 @@ public class Game extends JFrame {
     // Call the BFS algorithm to find the shortest path
     private List<Point> getAutoMovementPath(int gridX, int gridY) {
         List<Point> path;
-        try {
-            path = currentDungeon.findPath(player.getX(), player.getY(), gridX, gridY);
-        } catch (InterruptedException | ExecutionException ex) {
-            if (ex.getCause() instanceof TimeoutException) {
-                System.out.println("Pathfinding took too long and was cancelled.");
-                return null;
-            }
-            throw new RuntimeException(ex);
-        } catch (TimeoutException ex) {
-            throw new RuntimeException(ex);
-        }
+        path = currentDungeon.findPath(player.getX(), player.getY(), gridX, gridY);
         return path;
     }
 
