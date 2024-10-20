@@ -1,21 +1,17 @@
 package game;
 
-import game.object.entity.Actor;
-import game.object.entity.Door;
-import game.object.entity.Entity;
-import game.object.entity.Floor;
+import game.object.entity.*;
 
 import java.awt.*;
-import java.util.Objects;
 
 public class Renderer {
     private final Game game;
-    private final String characterImage;
+    private final PlayerCharacter character;
     private final ImageCache imageCache;
 
-    public Renderer(Game game, String characterImage, ImageCache imageCache) {
+    public Renderer(Game game, PlayerCharacter character, ImageCache imageCache) {
         this.game = game;
-        this.characterImage = characterImage;
+        this.character = character;
         this.imageCache = imageCache;
     }
 
@@ -35,11 +31,7 @@ public class Renderer {
         g.setFont(new Font("Times", Font.BOLD, 20));
         g.drawString("Level " + this.game.getGameState().getLevel(), 15, Constants.Y_OFFSET - 16);
 
-        if (Objects.equals(this.characterImage, "/images/geralt.png")) {
-            g.drawString("Geralt", 825, Constants.Y_OFFSET - 16);
-        } else if (Objects.equals(this.characterImage, "/images/yen.png")) {
-            g.drawString("Yennefer", 800, Constants.Y_OFFSET - 16);
-        }
+        g.drawString(character.getName(), 825, Constants.Y_OFFSET - 16);
     }
 
     private void renderMessage(Graphics g) {

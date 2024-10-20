@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import game.Constants;
+import game.object.entity.PlayerCharacter;
 
 public class StartMenu extends Menu {
     private static final Logger LOGGER = Logger.getLogger(StartMenu.class.getName());
@@ -122,10 +123,10 @@ public class StartMenu extends Menu {
     // Create character image tiles and selection buttons
     private JLabel createSelectionTiles(Tile tile) {
         return switch (tile) {
-            case Tile.GERALT_IMG -> getCharacterLabel("/images/geralt.png");
-            case Tile.YENNEFER_IMG -> getCharacterLabel("/images/yen.png");
-            case Tile.GERALT_TEXT -> getSelectionButton("Select Geralt", "/images/geralt.png", 4, 2);
-            case Tile.YENNEFER_TEXT -> getSelectionButton("Select Yennefer", "/images/yen.png", 2, 4);
+            case Tile.GERALT_IMG -> getCharacterLabel(Constants.PLAYER_IMAGE_MAP.get(PlayerCharacter.GERALT));
+            case Tile.YENNEFER_IMG -> getCharacterLabel(Constants.PLAYER_IMAGE_MAP.get(PlayerCharacter.YENNEFER));
+            case Tile.GERALT_TEXT -> getSelectionButton("Select Geralt", PlayerCharacter.GERALT, 4, 2);
+            case Tile.YENNEFER_TEXT -> getSelectionButton("Select Yennefer", PlayerCharacter.YENNEFER, 2, 4);
             default -> new JLabel();
         };
     }
@@ -137,9 +138,9 @@ public class StartMenu extends Menu {
     }
 
     // Create a selection button
-    private JLabel getSelectionButton(String text, String characterImagePath, int borderLeft, int borderRight) {
+    private JLabel getSelectionButton(String text, PlayerCharacter character, int borderLeft, int borderRight) {
         JButton button = getButton(text, Constants.START_TILE_SIZE, 16, borderLeft, borderRight);
-        button.addActionListener(_ -> launchGame(characterImagePath));
+        button.addActionListener(_ -> launchGame(character));
         JLabel label = new JLabel();
         label.setLayout(new BorderLayout());
         label.add(button);
@@ -162,8 +163,8 @@ public class StartMenu extends Menu {
     }
 
     // Launch the actual game
-    private void launchGame(String characterImagePath) {
+    private void launchGame(PlayerCharacter character) {
         dispose();
-        new Game(characterImagePath);
+        new Game(character);
     }
 }

@@ -15,7 +15,7 @@ import java.util.concurrent.*;
 
 public class Game extends JFrame {
     // Game parameters
-    private final String characterImage;
+    private final PlayerCharacter character;
 
     // Game objects
     private GameMap map;
@@ -25,13 +25,13 @@ public class Game extends JFrame {
     private final Renderer renderer;
     private final GameState state;
 
-    public Game(String characterImage) {
+    public Game(PlayerCharacter character) {
         this.state = new GameState();
         
         // Initialize game parameters
         long startTime = System.nanoTime(); // Start time for measuring initialization time
-        this.characterImage = characterImage;
-        this.renderer = new Renderer(this, this.characterImage, this.imageCache);
+        this.character = character;
+        this.renderer = new Renderer(this, this.character, this.imageCache);
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
@@ -198,11 +198,11 @@ public class Game extends JFrame {
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
             this.state.setCurrentDungeon(map.getStartingDungeon());
-            if (initial) imageCache.cacheImages(characterImage);
+            if (initial) imageCache.cacheImages(Constants.PLAYER_IMAGE_MAP.get(this.character));
         });
 
         future.thenRun(() -> {
-            this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage, this);
+            this.player = new Player(this.state.getCurrentDungeon(), 0, 0, Constants.PLAYER_IMAGE_MAP.get(this.character), this);
 
             if (initial) {
                 this.state.setMessage(new Message("Find Ciri to advance to next level", this));

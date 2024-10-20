@@ -1,6 +1,7 @@
 package game;
 
 import game.object.entity.EntityType;
+import game.object.entity.PlayerCharacter;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -30,6 +31,13 @@ public abstract class Constants {
         OBJECT_IMAGE_MAP.put(EntityType.EXIT, "/images/ciri.png");
         OBJECT_IMAGE_MAP.put(EntityType.FLOOR, "/images/floor.png");
         OBJECT_IMAGE_MAP.put(EntityType.WALL, "/images/wall.png");
+    }
+
+    public static final Map<PlayerCharacter, String> PLAYER_IMAGE_MAP;
+    static {
+        PLAYER_IMAGE_MAP = new HashMap<>();
+        PLAYER_IMAGE_MAP.put(PlayerCharacter.GERALT, "/images/geralt.png");
+        PLAYER_IMAGE_MAP.put(PlayerCharacter.YENNEFER, "/images/yen.png");
     }
 
     public static final int IMAGE_CACHE_THREAD_NUM = 5;
