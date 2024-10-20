@@ -2,6 +2,7 @@ package game;
 
 import game.object.entity.EntityType;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,4 +32,7 @@ public abstract class Constants {
     }
 
     public static final int IMAGE_CACHE_THREAD_NUM = 5;
+
+    public static final Font MESSAGE_FONT = new Font("Times", Font.BOLD, 56);
+    public static final Color MESSAGE_COLOR = Color.WHITE;
 }

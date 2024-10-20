@@ -24,8 +24,7 @@ public class Game extends JFrame {
     private Player player;
     private final ImageCache imageCache = new ImageCache();
     private final BufferStrategy bufferStrategy;
-    private final game.ui.Renderer renderer;
-
+    private final Renderer renderer;
     private final GameState state;
 
     public Game(String characterImage) {
@@ -112,7 +111,7 @@ public class Game extends JFrame {
         // Check for valid movement and update player position
         if (newX >= 0 && newX < Constants.GAME_TILE_NUM && newY >= 0 && newY < Constants.GAME_TILE_NUM &&
                 (this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.FLOOR || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.EXIT || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.DOOR)) {
-            movePlayer(dx, dy, newX, newY);
+            moveActor(this.player, dx, dy);
         }
 
         // Check for reaching the exit and advance to the next level
@@ -173,7 +172,7 @@ public class Game extends JFrame {
             @Override
             public void actionPerformed(ActionEvent event) {
                 if (index < path.size()) {
-                    redrawPreviousTile(); // Clear the previous player position and redraw either a door or floor
+                    redrawPreviousTile(Game.this.player); // Clear the previous player position and redraw either a door or floor
 
                     // Update the player's position
                     Point position = path.get(index);
@@ -196,23 +195,23 @@ public class Game extends JFrame {
         timer.start();
     }
 
-    private void redrawPreviousTile() {
-        if (this.state.getCurrentDungeon().isDoor(player.getX(), player.getY())) {
-            this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Door()); // If so, redraw the door
+    public void redrawPreviousTile(Actor actor) {
+        if (this.state.getCurrentDungeon().isDoor(actor.getX(), actor.getY())) {
+            this.state.getCurrentDungeon().setTile(actor.getX(), actor.getY(), new Door()); // If so, redraw the door
         } else {
-            this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor()); // Otherwise, redraw the floor
+            this.state.getCurrentDungeon().setTile(actor.getX(), actor.getY(), new Floor()); // Otherwise, redraw the floor
         }
     }
 
     // Move the player to the new position
-    private void movePlayer(int dx, int dy, int targetX, int targetY) {
-        redrawPreviousTile(); // Clear the previous player position and redraw either a door or floor
+    private void moveActor(Actor actor, int dx, int dy) {
+        redrawPreviousTile(actor); // Clear the previous player position and redraw either a door or floor
 
-        player.move(dx, dy);
-        if (this.state.getCurrentDungeon().isDoor(targetX, targetY)) {
-            moveToAdjacentRoom(targetX, targetY);
+        actor.move(dx, dy);
+        if (this.state.getCurrentDungeon().isDoor(actor.getX(), actor.getY())) {
+            moveToAdjacentRoom(actor.getX(), actor.getY());
         }
-        this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), this.player); // Draw the player at the new position
+        this.state.getCurrentDungeon().setTile(actor.getX(), actor.getY(), actor); // Draw the player at the new position
         repaint();
     }
 
@@ -307,10 +306,14 @@ public class Game extends JFrame {
         do {
             do {
                 Graphics bufferGraphics = bufferStrategy.getDrawGraphics();
-                renderer.render(bufferGraphics, this.state.getLevel(), this.state.getCurrentDungeon(), this.state.getMessage().getText());
+                renderer.render(bufferGraphics);
                 bufferGraphics.dispose();
             } while (bufferStrategy.contentsRestored());
             bufferStrategy.show();
         } while (bufferStrategy.contentsLost());
+    }
+
+    public GameState getGameState() {
+        return this.state;
     }
 }
