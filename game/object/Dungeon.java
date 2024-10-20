@@ -17,11 +17,9 @@ public class Dungeon {
     private final int height;
     private final int gridX;
     private final int gridY;
-    private int exitX;
-    private int exitY;
+    private final int exitX;
+    private final int exitY;
     private final List<Point> doorPositions = new ArrayList<>();
-    private boolean doesHaveExit = false;
-
 
     public Dungeon(int width, int height, int x, int y) {
         this.width = width;
@@ -32,10 +30,10 @@ public class Dungeon {
 
         // Select a tile where the exit might be placed
         int[] exit = getPossibleExitTile();
-        this.setExitX(exit[0]);
-        this.setExitY(exit[1]);
+        this.exitX = exit[0];
+        this.exitY = exit[1];
 
-        generateDungeon();// Generate the dungeon layout
+        generateDungeon();
     }
 
     // Select a random tile in the bottom right quadrant
@@ -303,35 +301,11 @@ public class Dungeon {
         map[y][x] = object;
     }
 
-    public int getExitY() {
-        return exitY;
-    }
-
-    public void setExitY(int exitY) {
-        this.exitY = exitY;
-    }
-
     public int getExitX() {
         return exitX;
     }
 
-    public void setExitX(int exitX) {
-        this.exitX = exitX;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public boolean doesHaveExit() {
-        return doesHaveExit;
-    }
-
-    public void setDoesHaveExit(boolean doesHaveExit) {
-        this.doesHaveExit = doesHaveExit;
+    public int getExitY() {
+        return exitY;
     }
 }

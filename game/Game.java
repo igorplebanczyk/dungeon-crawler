@@ -106,8 +106,6 @@ public class Game extends JFrame {
         int newX = player.getX() + dx;
         int newY = player.getY() + dy;
 
-        preventInvalidExit(); // Prevent stepping on an invalid exit by replacing it with a wall
-
         // Check for valid movement and update player position
         if (newX >= 0 && newX < Constants.GAME_TILE_NUM && newY >= 0 && newY < Constants.GAME_TILE_NUM &&
                 (this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.FLOOR || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.EXIT || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.DOOR)) {
@@ -190,15 +188,6 @@ public class Game extends JFrame {
             this.state.setMessage(new Message("Bulldozer mode activated ⛏", this));
             this.state.getMessage().display(750);
             GameState.setBulldozerMode(true);
-        }
-    }
-
-    // Prevent being able to exit the dungeon from an invalid position
-    private void preventInvalidExit() {
-        if (!this.state.getCurrentDungeon().doesHaveExit()) {
-            this.state.getCurrentDungeon().setExitX(this.state.getCurrentDungeon().getWidth() - 1);
-            this.state.getCurrentDungeon().setExitY(this.state.getCurrentDungeon().getHeight() - 1);
-            this.state.getCurrentDungeon().setTile(this.state.getCurrentDungeon().getWidth() - 1, this.state.getCurrentDungeon().getHeight() - 1, new Wall()); // Set invalid exit tile to a wall to prevent an invalid exit
         }
     }
 
