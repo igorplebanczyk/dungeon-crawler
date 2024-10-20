@@ -2,6 +2,9 @@ package game;
 
 import game.menu.PauseMenu;
 import game.objects.*;
+import game.ui.ImageCache;
+import game.ui.Message;
+import game.ui.Renderer;
 
 import javax.swing.Timer;
 import javax.swing.*;
@@ -18,11 +21,9 @@ public class Game extends JFrame {
     // Game objects
     private GameMap map;
     private Player player;
-    private String message;
-    private Timer messageTimer; // Timer to clear the message after a certain duration
     private final ImageCache imageCache = new ImageCache();
     private final BufferStrategy bufferStrategy;
-    private final Renderer renderer;
+    private final game.ui.Renderer renderer;
 
     private final GameState state;
 
@@ -138,10 +139,12 @@ public class Game extends JFrame {
 
         // Check if the clicked tile is a wall or exit
         if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == GameObjectType.WALL) {
-            showAnnouncement("Can't walk through walls", 500);
+            this.state.setMessage(new Message("Can't go through walls", this));
+            this.state.getMessage().display(750);
             return;
-        } else if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == GameObjectType.EXIT) {
-            showAnnouncement("It ain't that easy", 500);
+        } else if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == GameObjectType.EXIT || this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == GameObjectType.DOOR) {
+            this.state.setMessage(new Message("It ain't that easy", this));
+            this.state.getMessage().display(750);
             return;
         }
 
@@ -232,10 +235,12 @@ public class Game extends JFrame {
     // Toggle bulldozer mode
     private void toggleBulldozerMode() {
         if (GameState.isBulldozerMode()) {
-            showAnnouncement("Bulldozer mode deactivated ⛏", 750);
+            this.state.setMessage(new Message("Bulldozer mode deactivated ⛏", this));
+            this.state.getMessage().display(750);
             GameState.setBulldozerMode(false);
         } else {
-            showAnnouncement("Bulldozer mode activated ⛏", 750);
+            this.state.setMessage(new Message("Bulldozer mode activated ⛏", this));
+            this.state.getMessage().display(750);
             GameState.setBulldozerMode(true);
         }
     }
@@ -244,7 +249,8 @@ public class Game extends JFrame {
     private void advanceToNextLevel() {
         this.state.incLevel();
         generateNewLevel();
-        showAnnouncement("Welcome to level " + this.state.getLevel(), 750);
+        this.state.setMessage(new Message("Welcome to level " + this.state.getLevel(), this));
+        this.state.getMessage().display(750);
         repaint();
     }
 
@@ -290,7 +296,8 @@ public class Game extends JFrame {
             this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage);
         });
 
-        showAnnouncement("Find Ciri to advance to next level", 1500);
+        this.state.setMessage(new Message("Find Ciri to advance to next level", this));
+        this.state.getMessage().display(1500);
     }
 
     // Override the paint method to render directly to the buffer strategy
@@ -299,24 +306,10 @@ public class Game extends JFrame {
         do {
             do {
                 Graphics bufferGraphics = bufferStrategy.getDrawGraphics();
-                renderer.render(bufferGraphics, this.state.getLevel(), this.state.getCurrentDungeon(), this.message);
+                renderer.render(bufferGraphics, this.state.getLevel(), this.state.getCurrentDungeon(), this.state.getMessage().getText());
                 bufferGraphics.dispose();
             } while (bufferStrategy.contentsRestored());
             bufferStrategy.show();
         } while (bufferStrategy.contentsLost());
-    }
-
-    private void showAnnouncement(String message, int duration) {
-        this.message = message; // Set the message
-        if (messageTimer != null) {
-            messageTimer.stop();
-        }
-        messageTimer = new Timer(duration, _ -> {
-            this.message = null; // Clear the message after the duration
-            repaint();
-        });
-        messageTimer.setRepeats(false);
-        messageTimer.start();
-        repaint();
     }
 }

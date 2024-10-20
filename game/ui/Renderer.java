@@ -1,5 +1,8 @@
-package game;
+package game.ui;
 
+import game.Constants;
+import game.Dungeon;
+import game.Game;
 import game.objects.GameObject;
 
 import java.awt.*;

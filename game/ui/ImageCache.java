@@ -1,4 +1,6 @@
-package game;
+package game.ui;
+
+import game.Constants;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
