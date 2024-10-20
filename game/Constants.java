@@ -33,6 +33,6 @@ public abstract class Constants {
 
     public static final int IMAGE_CACHE_THREAD_NUM = 5;
 
-    public static final Font MESSAGE_FONT = new Font("Times", Font.BOLD, 56);
+    public static final Font MESSAGE_FONT = new Font("Times", Font.BOLD, 36);
     public static final Color MESSAGE_COLOR = Color.WHITE;
 }

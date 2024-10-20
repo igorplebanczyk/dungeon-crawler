@@ -41,7 +41,7 @@ public class Game extends JFrame {
         setIgnoreRepaint(true);
         setResizable(false);
 
-        initializeGame();
+        startLevel(true);
 
         handleKeyboardInput(); // Add keylistener to handle keyboard input
         handleMouseInput(); // Add mouselistener to handle mouse input
@@ -193,15 +193,6 @@ public class Game extends JFrame {
         }
     }
 
-    // Advance to the next level
-    private void advanceToNextLevel() {
-        this.state.incLevel();
-        generateNewLevel();
-        this.state.setMessage(new Message("Welcome to level " + this.state.getLevel(), this));
-        this.state.getMessage().display(750);
-        repaint();
-    }
-
     // Prevent being able to exit the dungeon from an invalid position
     private void preventInvalidExit() {
         if (!this.state.getCurrentDungeon().doesHaveExit()) {
@@ -221,31 +212,33 @@ public class Game extends JFrame {
         }
     }
 
-    // Generate a new level
-    private void generateNewLevel() {
-        this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor());// Clear the player's previous position
+    private void startLevel(boolean initial) {
+        if (!initial) this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor()); // Clear the player's previous position
 
-        this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
-        this.state.setCurrentDungeon(map.getStartingDungeon());
-
-        this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage, this);
-    }
-
-    private void initializeGame() {
-        // Generate map asynchronously
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
             this.state.setCurrentDungeon(map.getStartingDungeon());
+            if (initial) imageCache.cacheImages(characterImage);
         });
 
-        // Preload images and initialize player after map generation
         future.thenRun(() -> {
-            imageCache.cacheImages(characterImage);
             this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage, this);
-        });
 
-        this.state.setMessage(new Message("Find Ciri to advance to next level", this));
-        this.state.getMessage().display(1500);
+            if (initial) {
+                this.state.setMessage(new Message("Find Ciri to advance to next level", this));
+                this.state.getMessage().display(1500);
+            } else {
+                this.state.setMessage(new Message("Welcome to level " + this.state.getLevel(), this));
+                this.state.getMessage().display(750);
+            }
+        });
+    }
+
+    // Advance to the next level
+    private void advanceToNextLevel() {
+        this.state.incLevel();
+        startLevel(false);
+        repaint();
     }
 
     // Override the paint method to render directly to the buffer strategy
