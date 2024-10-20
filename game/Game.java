@@ -3,9 +3,7 @@ package game;
 import game.menu.PauseMenu;
 import game.object.*;
 import game.object.entity.*;
-import game.ui.ImageCache;
 import game.ui.Message;
-import game.ui.Renderer;
 
 import javax.swing.Timer;
 import javax.swing.*;
@@ -180,20 +178,20 @@ public class Game extends JFrame {
 
     // Toggle bulldozer mode
     private void toggleBulldozerMode() {
-        if (GameState.isBulldozerMode()) {
-            this.state.setMessage(new Message("Bulldozer mode deactivated ⛏", this));
-            this.state.getMessage().display(750);
-            GameState.setBulldozerMode(false);
-        } else {
+        this.state.toggleBulldozerMode();
+
+        if (this.state.isBulldozerMode()) {
             this.state.setMessage(new Message("Bulldozer mode activated ⛏", this));
-            this.state.getMessage().display(750);
-            GameState.setBulldozerMode(true);
+        } else {
+            this.state.setMessage(new Message("Bulldozer mode deactivated ⛏", this));
         }
+
+        this.state.getMessage().display(750);
     }
 
     // Pause the game
     public void pause() {
-        this.state.togglePause(); // Toggle the paused this.state
+        this.state.togglePause(); // Toggle the paused state
 
         if (this.state.isPaused()) {
             PauseMenu pauseMenu = new PauseMenu(this);

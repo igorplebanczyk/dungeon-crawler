@@ -1,7 +1,5 @@
-package game.ui;
+package game;
 
-import game.Constants;
-import game.Game;
 import game.object.entity.Actor;
 import game.object.entity.Door;
 import game.object.entity.Entity;
