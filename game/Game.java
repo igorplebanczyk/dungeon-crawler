@@ -281,7 +281,7 @@ public class Game extends JFrame {
         this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
         this.currentDungeon = map.getStartingDungeon();
 
-        initializePlayer();
+        this.player = new Player(currentDungeon, 0, 0, characterImage);
     }
 
     private void initializeGame() {
@@ -294,16 +294,10 @@ public class Game extends JFrame {
         // Preload images and initialize player after map generation
         future.thenRun(() -> {
             imageCache.cacheImages(characterImage);
-            initializePlayer();
+            this.player = new Player(currentDungeon, 0, 0, characterImage);
         });
 
         showAnnouncement("Find Ciri to advance to next level", 1500);
-    }
-
-    // Initialize the player
-    private void initializePlayer() {
-        player = new Player(0, 0, characterImage);
-        currentDungeon.setTile(player.getX(), player.getY(), this.player); // Set the player's initial position
     }
 
     // Override the paint method to render directly to the buffer strategy
