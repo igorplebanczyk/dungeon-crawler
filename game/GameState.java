@@ -2,7 +2,8 @@ package game;
 
 public class GameState {
     private int level;
-    private boolean isPaused = false;
+    private boolean paused = false;
+    private boolean movementInProgress = false;
     private static boolean bulldozerMode = false;
     private Dungeon currentDungeon;
 
@@ -27,11 +28,11 @@ public class GameState {
     }
 
     public boolean isPaused() {
-        return this.isPaused;
+        return this.paused;
     }
 
     public void togglePause() {
-        this.isPaused = !this.isPaused;
+        this.paused = !this.paused;
     }
 
     public static boolean isBulldozerMode() {
@@ -40,5 +41,13 @@ public class GameState {
 
     public static void setBulldozerMode(boolean mode) {
         bulldozerMode = mode;
+    }
+
+    public boolean isMovementInProgress() {
+        return movementInProgress;
+    }
+
+    public void setMovementInProgress(boolean movementInProgress) {
+        this.movementInProgress = movementInProgress;
     }
 }

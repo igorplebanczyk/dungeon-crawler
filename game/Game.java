@@ -26,8 +26,6 @@ public class Game extends JFrame {
 
     private final GameState state;
 
-    private boolean isTimerRunning = false;
-
     public Game(String characterImage) {
         this.state = new GameState();
         
@@ -70,7 +68,7 @@ public class Game extends JFrame {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (isTimerRunning) return; // If the timer is running, ignore the keyboard press
+                if (Game.this.state.isMovementInProgress()) return;
 
                 int key = e.getKeyCode(); // Get the pressed key code
                 int dx = 0, dy = 0; // Initialize the change in x and y
@@ -126,7 +124,7 @@ public class Game extends JFrame {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (isTimerRunning) return; // If the timer is running, ignore the mouse event
+                if (Game.this.state.isMovementInProgress()) return; // If the timer is running, ignore the mouse event
                 handleAutoMovement(e);
             }
         });
@@ -164,7 +162,7 @@ public class Game extends JFrame {
     private void animateAutoMovement(List<Point> path) {
         // Create a Timer to animate the movement
         Timer timer = new Timer(150, null); // 150ms delay between each move
-        isTimerRunning = true; // Set the timer running flag
+        this.state.setMovementInProgress(true);
         timer.addActionListener(new ActionListener() {
             int index = 0;
 
@@ -186,7 +184,7 @@ public class Game extends JFrame {
                 } else {
                     // Stop the timer when the player has reached the destination
                     timer.stop();
-                    isTimerRunning = false;
+                    Game.this.state.setMovementInProgress(false);
                 }
             }
 
