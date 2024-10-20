@@ -129,7 +129,6 @@ public class Dungeon {
         floodFill(accessible, x, y + 1); // Down
     }
 
-    // Method to check if the exit and all doors are reachable
     private boolean areExitsAndDoorsReachable() {
         boolean allEdgeMiddlesReachable;
         // Check if there exists a path from player's starting position to the exit
@@ -148,7 +147,7 @@ public class Dungeon {
         return allEdgeMiddlesReachable;
     }
 
-    // Check if a tile is reachable from the start position using
+    // Check if a tile is reachable from the start position
     private boolean isTileReachable(int tileX, int tileY) {
         boolean[][] visited = new boolean[height][width];
         Stack<int[]> stack = new Stack<>();

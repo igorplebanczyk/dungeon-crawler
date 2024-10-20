@@ -86,7 +86,7 @@ public class Game extends JFrame {
                         dx = 1;
                         break;
                     case KeyEvent.VK_B:
-                        toggleBulldozerMode();
+                        bulldozerMode();
                         break;
                     case KeyEvent.VK_ESCAPE:
                         pause();
@@ -171,7 +171,7 @@ public class Game extends JFrame {
     }
 
     // Toggle bulldozer mode
-    private void toggleBulldozerMode() {
+    private void bulldozerMode() {
         GameState.toggleBulldozerMode();
 
         if (GameState.isBulldozerMode()) {
