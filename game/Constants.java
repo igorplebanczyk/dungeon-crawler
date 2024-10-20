@@ -11,6 +11,7 @@ public abstract class Constants {
 
     public static final int GAME_TILE_SIZE = 45; // Safe to modify; must always be a multiple of 15
     public static final int GAME_TILE_NUM = 15; // Amount of tiles in the x and y directions
+    public static final int GAME_AUTO_MOVEMENT_DELAY = 150; // in milliseconds
 
     public static final int MAP_GRID_SIZE = 2; // Size of the grid which stores individual dungeon rooms
 

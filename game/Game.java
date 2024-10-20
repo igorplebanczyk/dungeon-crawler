@@ -146,14 +146,13 @@ public class Game extends JFrame {
 
         List<Point> path = this.state.getCurrentDungeon().findPath(player.getX(), player.getY(), gridX, gridY);
         if (path == null) return;
-        animateAutoMovement(path); // Animate the player movement
+        animateAutoMovement(path);
     }
 
-    // Animate the auto player movement
     private void animateAutoMovement(List<Point> path) {
-        // Create a Timer to animate the movement
-        Timer timer = new Timer(150, null); // 150ms delay between each move
+        Timer timer = new Timer(Constants.GAME_AUTO_MOVEMENT_DELAY, null);
         this.state.setMovementInProgress(true);
+
         timer.addActionListener(new ActionListener() {
             int index = 1; // Start at 1 to skip the player's current position
 
@@ -189,9 +188,8 @@ public class Game extends JFrame {
         this.state.getMessage().display(750);
     }
 
-    // Pause the game
     public void pause() {
-        this.state.togglePause(); // Toggle the paused state
+        this.state.togglePause();
 
         if (this.state.isPaused()) {
             PauseMenu pauseMenu = new PauseMenu(this);
@@ -221,7 +219,6 @@ public class Game extends JFrame {
         });
     }
 
-    // Advance to the next level
     private void advanceToNextLevel() {
         this.state.incLevel();
         startLevel(false);
