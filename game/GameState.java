@@ -7,7 +7,7 @@ public class GameState {
     private int level;
     private boolean paused = false;
     private boolean movementInProgress = false;
-    private boolean bulldozerMode = false;
+    private static boolean bulldozerMode = false;
     private Dungeon currentDungeon;
     private Message message;
 
@@ -39,12 +39,12 @@ public class GameState {
         this.movementInProgress = movementInProgress;
     }
 
-    public boolean isBulldozerMode() {
-        return this.bulldozerMode;
+    public static boolean isBulldozerMode() {
+        return bulldozerMode;
     }
 
-    public void toggleBulldozerMode() {
-        this.bulldozerMode = !this.bulldozerMode;
+    public static void toggleBulldozerMode() {
+        bulldozerMode = !bulldozerMode;
     }
 
     public Dungeon getCurrentDungeon() {

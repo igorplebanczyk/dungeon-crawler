@@ -133,12 +133,7 @@ public class Game extends JFrame {
         int gridX = e.getX() / Constants.GAME_TILE_SIZE;
         int gridY = (e.getY() - Constants.Y_OFFSET) / Constants.GAME_TILE_SIZE;
 
-        // Check if the clicked tile is a wall or exit
-        if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == EntityType.WALL) {
-            this.state.setMessage(new Message("Can't go through walls", this));
-            this.state.getMessage().display(750);
-            return;
-        } else if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == EntityType.EXIT || this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == EntityType.DOOR) {
+        if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() != EntityType.FLOOR) { // Cannot move to non-floor tiles
             this.state.setMessage(new Message("It ain't that easy", this));
             this.state.getMessage().display(750);
             return;
@@ -177,9 +172,9 @@ public class Game extends JFrame {
 
     // Toggle bulldozer mode
     private void toggleBulldozerMode() {
-        this.state.toggleBulldozerMode();
+        GameState.toggleBulldozerMode();
 
-        if (this.state.isBulldozerMode()) {
+        if (GameState.isBulldozerMode()) {
             this.state.setMessage(new Message("Bulldozer mode activated ⛏", this));
         } else {
             this.state.setMessage(new Message("Bulldozer mode deactivated ⛏", this));

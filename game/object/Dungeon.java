@@ -208,9 +208,9 @@ public class Dungeon {
 
     private boolean isValidTileForPathfinder(int x, int y) {
         if (GameState.isBulldozerMode()) {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != EntityType.EXIT && map[y][x].getType() != EntityType.DOOR;
+            return x >= 0 && x < width && y >= 0 && y < height && (map[y][x].getType() == EntityType.FLOOR || map[y][x].getType() == EntityType.WALL);
         } else {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != EntityType.WALL && map[y][x].getType() != EntityType.EXIT && map[y][x].getType() != EntityType.DOOR;
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() == EntityType.FLOOR;
         }
     }
 
