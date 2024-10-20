@@ -1,16 +1,16 @@
 package game.object.entity;
 
+import game.Game;
 import game.object.Dungeon;
 
 public class Player extends Actor {
-    private Dungeon dungeon;
 
-    public Player(Dungeon dungeon, int x, int y, String imagePath) {
+    public Player(Dungeon dungeon, int x, int y, String imagePath, Game game) {
         this.x = x;
         this.y = y;
         this.imagePath = imagePath;
         this.type = EntityType.PLAYER;
-        this.dungeon = dungeon;
-        this.dungeon.setTile(x, y, this);
+        this.game = game;
+        dungeon.setTile(x, y, this);
     }
 }

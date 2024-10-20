@@ -2,7 +2,10 @@ package game.ui;
 
 import game.Constants;
 import game.Game;
+import game.object.entity.Actor;
+import game.object.entity.Door;
 import game.object.entity.Entity;
+import game.object.entity.Floor;
 
 import java.awt.*;
 import java.util.Objects;
@@ -61,6 +64,14 @@ public class Renderer {
                     g.drawImage(imageToDraw, x * Constants.GAME_TILE_SIZE, Constants.Y_OFFSET - 8 + y * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, game);
                 }
             }
+        }
+    }
+
+    public void replacePreviousTile(Actor actor) {
+        if (this.game.getGameState().getCurrentDungeon().isDoor(actor.getX(), actor.getY())) {
+            this.game.getGameState().getCurrentDungeon().setTile(actor.getX(), actor.getY(), new Door());
+        } else {
+            this.game.getGameState().getCurrentDungeon().setTile(actor.getX(), actor.getY(), new Floor()); // Otherwise, redraw the floor
         }
     }
 }

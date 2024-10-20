@@ -111,7 +111,7 @@ public class Game extends JFrame {
         // Check for valid movement and update player position
         if (newX >= 0 && newX < Constants.GAME_TILE_NUM && newY >= 0 && newY < Constants.GAME_TILE_NUM &&
                 (this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.FLOOR || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.EXIT || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.DOOR)) {
-            moveActor(this.player, dx, dy);
+            player.move(dx, dy);
         }
 
         // Check for reaching the exit and advance to the next level
@@ -148,17 +148,9 @@ public class Game extends JFrame {
             return;
         }
 
-        // Use BFS to find the shortest path
-        List<Point> path = getAutoMovementPath(gridX, gridY);
+        List<Point> path = this.state.getCurrentDungeon().findPath(player.getX(), player.getY(), gridX, gridY);
         if (path == null) return;
         animateAutoMovement(path); // Animate the player movement
-    }
-
-    // Call the BFS algorithm to find the shortest path
-    private List<Point> getAutoMovementPath(int gridX, int gridY) {
-        List<Point> path;
-        path = this.state.getCurrentDungeon().findPath(player.getX(), player.getY(), gridX, gridY);
-        return path;
     }
 
     // Animate the auto player movement
@@ -167,22 +159,15 @@ public class Game extends JFrame {
         Timer timer = new Timer(150, null); // 150ms delay between each move
         this.state.setMovementInProgress(true);
         timer.addActionListener(new ActionListener() {
-            int index = 0;
+            int index = 1; // Start at 1 to skip the player's current position
 
             @Override
             public void actionPerformed(ActionEvent event) {
                 if (index < path.size()) {
-                    redrawPreviousTile(Game.this.player); // Clear the previous player position and redraw either a door or floor
-
-                    // Update the player's position
                     Point position = path.get(index);
-                    Game.this.player.move(position.x - player.getX(), position.y - player.getY());
 
-                    // Set the new player position
-                    Game.this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), player);
+                    player.move(position.x - player.getX(), position.y - player.getY());
 
-                    Game.this.revalidate(); // Re-layout the components
-                    Game.this.repaint(); // Refresh the screen
                     index++;
                 } else {
                     // Stop the timer when the player has reached the destination
@@ -193,43 +178,6 @@ public class Game extends JFrame {
 
         });
         timer.start();
-    }
-
-    public void redrawPreviousTile(Actor actor) {
-        if (this.state.getCurrentDungeon().isDoor(actor.getX(), actor.getY())) {
-            this.state.getCurrentDungeon().setTile(actor.getX(), actor.getY(), new Door()); // If so, redraw the door
-        } else {
-            this.state.getCurrentDungeon().setTile(actor.getX(), actor.getY(), new Floor()); // Otherwise, redraw the floor
-        }
-    }
-
-    // Move the player to the new position
-    private void moveActor(Actor actor, int dx, int dy) {
-        redrawPreviousTile(actor); // Clear the previous player position and redraw either a door or floor
-
-        actor.move(dx, dy);
-        if (this.state.getCurrentDungeon().isDoor(actor.getX(), actor.getY())) {
-            moveToAdjacentRoom(actor.getX(), actor.getY());
-        }
-        this.state.getCurrentDungeon().setTile(actor.getX(), actor.getY(), actor); // Draw the player at the new position
-        repaint();
-    }
-
-    // Move to the corresponding adjacent dungeon
-    private void moveToAdjacentRoom(int newX, int newY) {
-        if (newX == 0) {
-            this.state.setCurrentDungeon(map.getGrid()[this.state.getCurrentDungeon().getGridX() - 1][this.state.getCurrentDungeon().getGridY()]); // Left edge
-            player.setX(Constants.GAME_TILE_NUM - 1);
-        } else if (newX == Constants.GAME_TILE_NUM - 1) {
-            this.state.setCurrentDungeon(map.getGrid()[this.state.getCurrentDungeon().getGridX() + 1][this.state.getCurrentDungeon().getGridY()]); // Right edge
-            player.setX(0);
-        } else if (newY == 0) {
-            this.state.setCurrentDungeon(map.getGrid()[this.state.getCurrentDungeon().getGridX()][this.state.getCurrentDungeon().getGridY() - 1]); // Top edge
-            player.setY(Constants.GAME_TILE_NUM - 1);
-        } else if (newY == Constants.GAME_TILE_NUM - 1) {
-            this.state.setCurrentDungeon(map.getGrid()[this.state.getCurrentDungeon().getGridX()][this.state.getCurrentDungeon().getGridY() + 1]); // Bottom edge
-            player.setY(0);
-        }
     }
 
     // Toggle bulldozer mode
@@ -280,7 +228,7 @@ public class Game extends JFrame {
         this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
         this.state.setCurrentDungeon(map.getStartingDungeon());
 
-        this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage);
+        this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage, this);
     }
 
     private void initializeGame() {
@@ -293,7 +241,7 @@ public class Game extends JFrame {
         // Preload images and initialize player after map generation
         future.thenRun(() -> {
             imageCache.cacheImages(characterImage);
-            this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage);
+            this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage, this);
         });
 
         this.state.setMessage(new Message("Find Ciri to advance to next level", this));
@@ -315,5 +263,13 @@ public class Game extends JFrame {
 
     public GameState getGameState() {
         return this.state;
+    }
+
+    public Renderer getRenderer() {
+        return this.renderer;
+    }
+
+    public GameMap getMap() {
+        return this.map;
     }
 }
