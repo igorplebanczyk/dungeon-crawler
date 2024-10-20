@@ -1,14 +1,14 @@
-package game.objects;
+package game.object.entity;
 
-public abstract class GameObject {
+public abstract class Entity {
     protected String imagePath;
-    protected GameObjectType type;
+    protected EntityType type;
 
     public String getImagePath() {
         return imagePath;
     }
 
-    public GameObjectType getType() {
+    public EntityType getType() {
         return type;
     }
 }

@@ -1,9 +1,9 @@
 package game.ui;
 
 import game.Constants;
-import game.Dungeon;
+import game.object.Dungeon;
 import game.Game;
-import game.objects.GameObject;
+import game.object.entity.Entity;
 
 import java.awt.*;
 import java.util.Objects;
@@ -55,7 +55,7 @@ public class Renderer {
     private void drawTiles(Graphics g, Dungeon currentDungeon) {
         for (int y = 0; y < Constants.GAME_TILE_NUM; y++) {
             for (int x = 0; x < Constants.GAME_TILE_NUM; x++) {
-                GameObject tile = currentDungeon.getTile(x, y);
+                Entity tile = currentDungeon.getTile(x, y);
                 Image imageToDraw = imageCache.getImage(tile.getImagePath());
                 if (imageToDraw != null) {
                     g.drawImage(imageToDraw, x * Constants.GAME_TILE_SIZE, Constants.Y_OFFSET - 8 + y * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, game);

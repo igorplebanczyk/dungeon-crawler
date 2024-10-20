@@ -1,6 +1,6 @@
 package game;
 
-import game.objects.GameObjectType;
+import game.object.entity.EntityType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,13 +21,13 @@ public abstract class Constants {
     public static final int START_WINDOW_WIDTH = 4;
     public static final int START_WINDOW_HEIGHT = 4;
 
-    public static final Map<GameObjectType, String> OBJECT_IMAGE_MAP;
+    public static final Map<EntityType, String> OBJECT_IMAGE_MAP;
     static {
         OBJECT_IMAGE_MAP = new HashMap<>();
-        OBJECT_IMAGE_MAP.put(GameObjectType.DOOR, "/images/door.png");
-        OBJECT_IMAGE_MAP.put(GameObjectType.EXIT, "/images/ciri.png");
-        OBJECT_IMAGE_MAP.put(GameObjectType.FLOOR, "/images/floor.png");
-        OBJECT_IMAGE_MAP.put(GameObjectType.WALL, "/images/wall.png");
+        OBJECT_IMAGE_MAP.put(EntityType.DOOR, "/images/door.png");
+        OBJECT_IMAGE_MAP.put(EntityType.EXIT, "/images/ciri.png");
+        OBJECT_IMAGE_MAP.put(EntityType.FLOOR, "/images/floor.png");
+        OBJECT_IMAGE_MAP.put(EntityType.WALL, "/images/wall.png");
     }
 
     public static final int IMAGE_CACHE_THREAD_NUM = 5;

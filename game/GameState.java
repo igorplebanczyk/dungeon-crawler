@@ -1,5 +1,6 @@
 package game;
 
+import game.object.Dungeon;
 import game.ui.Message;
 
 public class GameState {

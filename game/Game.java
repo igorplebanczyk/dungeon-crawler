@@ -1,7 +1,8 @@
 package game;
 
 import game.menu.PauseMenu;
-import game.objects.*;
+import game.object.*;
+import game.object.entity.*;
 import game.ui.ImageCache;
 import game.ui.Message;
 import game.ui.Renderer;
@@ -110,7 +111,7 @@ public class Game extends JFrame {
 
         // Check for valid movement and update player position
         if (newX >= 0 && newX < Constants.GAME_TILE_NUM && newY >= 0 && newY < Constants.GAME_TILE_NUM &&
-                (this.state.getCurrentDungeon().getTile(newX, newY).getType() == GameObjectType.FLOOR || this.state.getCurrentDungeon().getTile(newX, newY).getType() == GameObjectType.EXIT || this.state.getCurrentDungeon().getTile(newX, newY).getType() == GameObjectType.DOOR)) {
+                (this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.FLOOR || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.EXIT || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.DOOR)) {
             movePlayer(dx, dy, newX, newY);
         }
 
@@ -138,11 +139,11 @@ public class Game extends JFrame {
         int gridY = (e.getY() - Constants.Y_OFFSET) / Constants.GAME_TILE_SIZE;
 
         // Check if the clicked tile is a wall or exit
-        if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == GameObjectType.WALL) {
+        if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == EntityType.WALL) {
             this.state.setMessage(new Message("Can't go through walls", this));
             this.state.getMessage().display(750);
             return;
-        } else if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == GameObjectType.EXIT || this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == GameObjectType.DOOR) {
+        } else if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == EntityType.EXIT || this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == EntityType.DOOR) {
             this.state.setMessage(new Message("It ain't that easy", this));
             this.state.getMessage().display(750);
             return;

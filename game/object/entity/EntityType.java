@@ -1,6 +1,6 @@
-package game.objects;
+package game.object.entity;
 
-public enum GameObjectType {
+public enum EntityType {
     WALL,
     FLOOR,
     DOOR,

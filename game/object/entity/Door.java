@@ -1,10 +1,10 @@
-package game.objects;
+package game.object.entity;
 
 import game.Constants;
 
-public class Door extends GameObject {
+public class Door extends Entity {
     public Door() {
-        this.type = GameObjectType.DOOR;
+        this.type = EntityType.DOOR;
         this.imagePath = Constants.OBJECT_IMAGE_MAP.get(this.type);
     }
 }

@@ -1,19 +1,15 @@
-package game;
+package game.object;
 
-import game.objects.*;
+import game.GameState;
+import game.object.entity.*;
 
 import java.awt.*;
 import java.util.List;
-import java.util.Queue;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class Dungeon {
     // Dungeon objects
-    private final GameObject[][] map; // 2D array to represent the dungeon map
+    private final Entity[][] map; // 2D array to represent the dungeon map
     private final Random random = new Random();
 
     // Dungeon properties
@@ -32,7 +28,7 @@ public class Dungeon {
         this.height = height;
         this.gridX = x;
         this.gridY = y;
-        this.map = new GameObject[height][width];
+        this.map = new Entity[height][width];
 
         // Select a tile where the exit might be placed
         int[] exit = getPossibleExitTile();
@@ -77,9 +73,9 @@ public class Dungeon {
     private void ensureAdjacentWalls() {
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
-                if (map[y][x].getType() == GameObjectType.WALL) { // If current tile is wall
+                if (map[y][x].getType() == EntityType.WALL) { // If current tile is wall
                     // Check surrounding tiles
-                    if (map[y - 1][x].getType() == GameObjectType.FLOOR && map[y][x - 1].getType() == GameObjectType.FLOOR && map[y + 1][x].getType() == GameObjectType.FLOOR && map[y][x + 1].getType() == GameObjectType.FLOOR) {
+                    if (map[y - 1][x].getType() == EntityType.FLOOR && map[y][x - 1].getType() == EntityType.FLOOR && map[y + 1][x].getType() == EntityType.FLOOR && map[y][x + 1].getType() == EntityType.FLOOR) {
                         // If no adjacent walls, make one adjacent wall
                         int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
                         switch (direction) {
@@ -110,7 +106,7 @@ public class Dungeon {
         // Fill any area that is not accessible with walls
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (!accessible[y][x] && map[y][x].getType() != GameObjectType.EXIT) { // Don't fill the exit with a wall
+                if (!accessible[y][x] && map[y][x].getType() != EntityType.EXIT) { // Don't fill the exit with a wall
                     setTile(x, y, new Wall()); // Fill with a wall
                 }
             }
@@ -122,7 +118,7 @@ public class Dungeon {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return; // Out of bounds
         }
-        if (map[y][x].getType() == GameObjectType.WALL || accessible[y][x]) {
+        if (map[y][x].getType() == EntityType.WALL || accessible[y][x]) {
             return; // Wall or already visited
         }
 
@@ -187,7 +183,7 @@ public class Dungeon {
 
     // Check if a tile is valid (within bounds and not a wall)
     private boolean isValidTile(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != GameObjectType.WALL;
+        return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != EntityType.WALL;
     }
 
     // Node class to hold information for A* algorithm
@@ -214,9 +210,9 @@ public class Dungeon {
 
     private boolean isValidTileForPathfinder(int x, int y) {
         if (GameState.isBulldozerMode()) {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != GameObjectType.EXIT && map[y][x].getType() != GameObjectType.DOOR;
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != EntityType.EXIT && map[y][x].getType() != EntityType.DOOR;
         } else {
-            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != GameObjectType.WALL && map[y][x].getType() != GameObjectType.EXIT && map[y][x].getType() != GameObjectType.DOOR;
+            return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != EntityType.WALL && map[y][x].getType() != EntityType.EXIT && map[y][x].getType() != EntityType.DOOR;
         }
     }
 
@@ -299,11 +295,11 @@ public class Dungeon {
         return gridY;
     }
 
-    public GameObject getTile(int x, int y) {
+    public Entity getTile(int x, int y) {
         return map[y][x];
     }
 
-    public void setTile(int x, int y, GameObject object) {
+    public void setTile(int x, int y, Entity object) {
         map[y][x] = object;
     }
 

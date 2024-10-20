@@ -1,6 +1,6 @@
-package game.objects;
+package game.object.entity;
 
-public abstract class Entity extends GameObject {
+public abstract class Actor extends Entity {
     protected int x;
     protected int y;
 

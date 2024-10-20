@@ -1,6 +1,6 @@
-package game;
+package game.object;
 
-import game.objects.Exit;
+import game.object.entity.Exit;
 
 import java.util.ArrayList;
 import java.util.List;
