@@ -24,14 +24,13 @@ public class Game extends JFrame {
     private final BufferStrategy bufferStrategy;
     private final Renderer renderer;
 
-    // Game state variables
-    private Dungeon currentDungeon;
-    private int level = 1;
+    private final GameState state;
+
     private boolean isTimerRunning = false;
-    private boolean isPaused = false;
-    private static boolean bulldozerMode = false;
 
     public Game(String characterImage) {
+        this.state = new GameState();
+        
         // Initialize game parameters
         long startTime = System.nanoTime(); // Start time for measuring initialization time
         this.characterImage = characterImage;
@@ -112,12 +111,12 @@ public class Game extends JFrame {
 
         // Check for valid movement and update player position
         if (newX >= 0 && newX < Constants.GAME_TILE_NUM && newY >= 0 && newY < Constants.GAME_TILE_NUM &&
-                (currentDungeon.getTile(newX, newY).getType() == GameObjectType.FLOOR || currentDungeon.getTile(newX, newY).getType() == GameObjectType.EXIT || currentDungeon.getTile(newX, newY).getType() == GameObjectType.DOOR)) {
+                (this.state.getCurrentDungeon().getTile(newX, newY).getType() == GameObjectType.FLOOR || this.state.getCurrentDungeon().getTile(newX, newY).getType() == GameObjectType.EXIT || this.state.getCurrentDungeon().getTile(newX, newY).getType() == GameObjectType.DOOR)) {
             movePlayer(dx, dy, newX, newY);
         }
 
         // Check for reaching the exit and advance to the next level
-        if (player.getX() == currentDungeon.getExitX() && player.getY() == currentDungeon.getExitY()) {
+        if (player.getX() == this.state.getCurrentDungeon().getExitX() && player.getY() == this.state.getCurrentDungeon().getExitY()) {
             advanceToNextLevel();
         }
     }
@@ -140,10 +139,10 @@ public class Game extends JFrame {
         int gridY = (e.getY() - Constants.Y_OFFSET) / Constants.GAME_TILE_SIZE;
 
         // Check if the clicked tile is a wall or exit
-        if (currentDungeon.getTile(gridX, gridY).getType() == GameObjectType.WALL) {
+        if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == GameObjectType.WALL) {
             showAnnouncement("Can't walk through walls", 500);
             return;
-        } else if (currentDungeon.getTile(gridX, gridY).getType() == GameObjectType.EXIT) {
+        } else if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() == GameObjectType.EXIT) {
             showAnnouncement("It ain't that easy", 500);
             return;
         }
@@ -157,7 +156,7 @@ public class Game extends JFrame {
     // Call the BFS algorithm to find the shortest path
     private List<Point> getAutoMovementPath(int gridX, int gridY) {
         List<Point> path;
-        path = currentDungeon.findPath(player.getX(), player.getY(), gridX, gridY);
+        path = this.state.getCurrentDungeon().findPath(player.getX(), player.getY(), gridX, gridY);
         return path;
     }
 
@@ -176,10 +175,10 @@ public class Game extends JFrame {
 
                     // Update the player's position
                     Point position = path.get(index);
-                    player.move(position.x - player.getX(), position.y - player.getY());
+                    Game.this.player.move(position.x - player.getX(), position.y - player.getY());
 
                     // Set the new player position
-                    currentDungeon.setTile(player.getX(), player.getY(), player);
+                    Game.this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), player);
 
                     Game.this.revalidate(); // Re-layout the components
                     Game.this.repaint(); // Refresh the screen
@@ -196,10 +195,10 @@ public class Game extends JFrame {
     }
 
     private void redrawPreviousTile() {
-        if (currentDungeon.isDoor(player.getX(), player.getY())) {
-            currentDungeon.setTile(player.getX(), player.getY(), new Door()); // If so, redraw the door
+        if (this.state.getCurrentDungeon().isDoor(player.getX(), player.getY())) {
+            this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Door()); // If so, redraw the door
         } else {
-            currentDungeon.setTile(player.getX(), player.getY(), new Floor()); // Otherwise, redraw the floor
+            this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor()); // Otherwise, redraw the floor
         }
     }
 
@@ -208,67 +207,63 @@ public class Game extends JFrame {
         redrawPreviousTile(); // Clear the previous player position and redraw either a door or floor
 
         player.move(dx, dy);
-        if (currentDungeon.isDoor(targetX, targetY)) {
+        if (this.state.getCurrentDungeon().isDoor(targetX, targetY)) {
             moveToAdjacentRoom(targetX, targetY);
         }
-        currentDungeon.setTile(player.getX(), player.getY(), this.player); // Draw the player at the new position
+        this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), this.player); // Draw the player at the new position
         repaint();
     }
 
     // Move to the corresponding adjacent dungeon
     private void moveToAdjacentRoom(int newX, int newY) {
         if (newX == 0) {
-            currentDungeon = map.getGrid()[currentDungeon.getGridX() - 1][currentDungeon.getGridY()]; // Left edge
+            this.state.setCurrentDungeon(map.getGrid()[this.state.getCurrentDungeon().getGridX() - 1][this.state.getCurrentDungeon().getGridY()]); // Left edge
             player.setX(Constants.GAME_TILE_NUM - 1);
         } else if (newX == Constants.GAME_TILE_NUM - 1) {
-            currentDungeon = map.getGrid()[currentDungeon.getGridX() + 1][currentDungeon.getGridY()]; // Right edge
+            this.state.setCurrentDungeon(map.getGrid()[this.state.getCurrentDungeon().getGridX() + 1][this.state.getCurrentDungeon().getGridY()]); // Right edge
             player.setX(0);
         } else if (newY == 0) {
-            currentDungeon = map.getGrid()[currentDungeon.getGridX()][currentDungeon.getGridY() - 1]; // Top edge
+            this.state.setCurrentDungeon(map.getGrid()[this.state.getCurrentDungeon().getGridX()][this.state.getCurrentDungeon().getGridY() - 1]); // Top edge
             player.setY(Constants.GAME_TILE_NUM - 1);
         } else if (newY == Constants.GAME_TILE_NUM - 1) {
-            currentDungeon = map.getGrid()[currentDungeon.getGridX()][currentDungeon.getGridY() + 1]; // Bottom edge
+            this.state.setCurrentDungeon(map.getGrid()[this.state.getCurrentDungeon().getGridX()][this.state.getCurrentDungeon().getGridY() + 1]); // Bottom edge
             player.setY(0);
         }
     }
 
     // Toggle bulldozer mode
     private void toggleBulldozerMode() {
-        if (isBulldozerMode()) {
+        if (GameState.isBulldozerMode()) {
             showAnnouncement("Bulldozer mode deactivated ⛏", 750);
-            bulldozerMode = false;
+            GameState.setBulldozerMode(false);
         } else {
             showAnnouncement("Bulldozer mode activated ⛏", 750);
-            bulldozerMode = true;
+            GameState.setBulldozerMode(true);
         }
-    }
-
-    public static boolean isBulldozerMode() {
-        return bulldozerMode;
     }
 
     // Advance to the next level
     private void advanceToNextLevel() {
-        level++;
+        this.state.incLevel();
         generateNewLevel();
-        showAnnouncement("Welcome to level " + level, 750);
+        showAnnouncement("Welcome to level " + this.state.getLevel(), 750);
         repaint();
     }
 
     // Prevent being able to exit the dungeon from an invalid position
     private void preventInvalidExit() {
-        if (!currentDungeon.doesHaveExit()) {
-            currentDungeon.setExitX(currentDungeon.getWidth() - 1);
-            currentDungeon.setExitY(currentDungeon.getHeight() - 1);
-            currentDungeon.setTile(currentDungeon.getWidth() - 1, currentDungeon.getHeight() - 1, new Wall()); // Set invalid exit tile to a wall to prevent an invalid exit
+        if (!this.state.getCurrentDungeon().doesHaveExit()) {
+            this.state.getCurrentDungeon().setExitX(this.state.getCurrentDungeon().getWidth() - 1);
+            this.state.getCurrentDungeon().setExitY(this.state.getCurrentDungeon().getHeight() - 1);
+            this.state.getCurrentDungeon().setTile(this.state.getCurrentDungeon().getWidth() - 1, this.state.getCurrentDungeon().getHeight() - 1, new Wall()); // Set invalid exit tile to a wall to prevent an invalid exit
         }
     }
 
     // Pause the game
     public void pause() {
-        isPaused = !isPaused; // Toggle the paused state
+        this.state.togglePause(); // Toggle the paused this.state
 
-        if (isPaused) {
+        if (this.state.isPaused()) {
             PauseMenu pauseMenu = new PauseMenu(this);
             pauseMenu.setVisible(true);
         }
@@ -276,25 +271,25 @@ public class Game extends JFrame {
 
     // Generate a new level
     private void generateNewLevel() {
-        currentDungeon.setTile(player.getX(), player.getY(), new Floor());// Clear the player's previous position
+        this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor());// Clear the player's previous position
 
         this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
-        this.currentDungeon = map.getStartingDungeon();
+        this.state.setCurrentDungeon(map.getStartingDungeon());
 
-        this.player = new Player(currentDungeon, 0, 0, characterImage);
+        this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage);
     }
 
     private void initializeGame() {
         // Generate map asynchronously
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
-            this.currentDungeon = map.getStartingDungeon();
+            this.state.setCurrentDungeon(map.getStartingDungeon());
         });
 
         // Preload images and initialize player after map generation
         future.thenRun(() -> {
             imageCache.cacheImages(characterImage);
-            this.player = new Player(currentDungeon, 0, 0, characterImage);
+            this.player = new Player(this.state.getCurrentDungeon(), 0, 0, characterImage);
         });
 
         showAnnouncement("Find Ciri to advance to next level", 1500);
@@ -306,7 +301,7 @@ public class Game extends JFrame {
         do {
             do {
                 Graphics bufferGraphics = bufferStrategy.getDrawGraphics();
-                renderer.render(bufferGraphics, this.level, this.currentDungeon, this.message);
+                renderer.render(bufferGraphics, this.state.getLevel(), this.state.getCurrentDungeon(), this.message);
                 bufferGraphics.dispose();
             } while (bufferStrategy.contentsRestored());
             bufferStrategy.show();
