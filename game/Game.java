@@ -139,7 +139,8 @@ public class Game extends JFrame {
             return;
         }
 
-        List<Point> path = this.state.getCurrentDungeon().findPath(player.getX(), player.getY(), gridX, gridY);
+        Pathfinder pathfinder = new Pathfinder(this.state.getCurrentDungeon());
+        List<Point> path = pathfinder.findPath(player.getX(), player.getY(), gridX, gridY);
         if (path == null) return;
         animateAutoMovement(path);
     }
