@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.*;
 
 public class Dungeon {
-    // Dungeon objects
     private final Entity[][] map; // 2D array to represent the dungeon map
     private final Random random = new Random();
 
-    // Dungeon properties
     private final int width;
     private final int height;
     private final int gridX;
@@ -27,7 +25,6 @@ public class Dungeon {
         this.gridY = y;
         this.map = new Entity[height][width];
 
-        // Select a tile where the exit might be placed
         int[] exit = getPossibleExitTile();
         this.exitX = exit[0];
         this.exitY = exit[1];
@@ -42,7 +39,6 @@ public class Dungeon {
         return new int[]{x, y};
     }
 
-    // Generate the dungeon layout
     private void generateDungeon() {
         boolean allEdgeMiddlesReachable = false;
         while (!allEdgeMiddlesReachable) { // Keep generating until the exit and all doors are reachable
@@ -66,13 +62,13 @@ public class Dungeon {
         }
     }
 
-    // Ensure each wall has at least one adjacent wall
     private void ensureAdjacentWalls() {
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
                 if (map[y][x].getType() == EntityType.WALL) { // If current tile is wall
                     // Check surrounding tiles
-                    if (map[y - 1][x].getType() == EntityType.FLOOR && map[y][x - 1].getType() == EntityType.FLOOR && map[y + 1][x].getType() == EntityType.FLOOR && map[y][x + 1].getType() == EntityType.FLOOR) {
+                    if (map[y - 1][x].getType() == EntityType.FLOOR && map[y][x - 1].getType() == EntityType.FLOOR &&
+                        map[y + 1][x].getType() == EntityType.FLOOR && map[y][x + 1].getType() == EntityType.FLOOR) {
                         // If no adjacent walls, make one adjacent wall
                         int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
                         switch (direction) {
@@ -110,18 +106,17 @@ public class Dungeon {
         }
     }
 
-    // Mark all accessible tiles from a given position using DFS
     private void floodFill(boolean[][] accessible, int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
-            return; // Out of bounds
+            return;
         }
+
         if (map[y][x].getType() == EntityType.WALL || accessible[y][x]) {
-            return; // Wall or already visited
+            return;
         }
 
-        accessible[y][x] = true; // Mark as accessible
+        accessible[y][x] = true;
 
-        // Recursively flood fill the neighboring tiles
         floodFill(accessible, x - 1, y); // Left
         floodFill(accessible, x + 1, y); // Right
         floodFill(accessible, x, y - 1); // Up
@@ -130,15 +125,14 @@ public class Dungeon {
 
     private boolean areExitsAndDoorsReachable() {
         boolean allEdgeMiddlesReachable;
-        // Check if there exists a path from player's starting position to the exit
         boolean exitReachable = isTileReachable(getExitX(), getExitY());
-        allEdgeMiddlesReachable = exitReachable; // Initially set allEdgeMiddlesReachable to the value of exitReachable
+        allEdgeMiddlesReachable = exitReachable;
 
-        if (exitReachable) { // If the exit is reachable, check the reachability of all edge middles
-            int[] edgeMiddles = {width / 2, 0, width - 1, height / 2, width / 2, height - 1, 0, height / 2}; // Middle points of each edge
+        if (exitReachable) {
+            int[] edgeMiddles = {width / 2, 0, width - 1, height / 2, width / 2, height - 1, 0, height / 2};
             for (int i = 0; i < edgeMiddles.length; i += 2) {
                 if (!isTileReachable(edgeMiddles[i], edgeMiddles[i + 1])) {
-                    allEdgeMiddlesReachable = false; // If any edge middle is not reachable, set allEdgeMiddlesReachable to false and break the loop
+                    allEdgeMiddlesReachable = false;
                     break;
                 }
             }
@@ -146,7 +140,6 @@ public class Dungeon {
         return allEdgeMiddlesReachable;
     }
 
-    // Check if a tile is reachable from the start position
     private boolean isTileReachable(int tileX, int tileY) {
         boolean[][] visited = new boolean[height][width];
         Stack<int[]> stack = new Stack<>();
@@ -160,7 +153,6 @@ public class Dungeon {
             if (x == tileX && y == tileY) {
                 return true;
             }
-            // Check adjacent tiles
             if (isValidTile(x - 1, y) && !visited[y][x - 1]) { // Left
                 stack.push(new int[]{x - 1, y});
             }
@@ -177,14 +169,13 @@ public class Dungeon {
         return false;
     }
 
-    // Check if a tile is valid (within bounds and not a wall)
     private boolean isValidTile(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != EntityType.WALL;
     }
 
     public void addDoor(int x, int y) {
-        setTile(x, y, new Door()); // 'D' represents a door
-        doorPositions.add(new Point(x, y)); // Add the door position to the list
+        setTile(x, y, new Door());
+        doorPositions.add(new Point(x, y));
     }
 
     public boolean isDoor(int x, int y) {
