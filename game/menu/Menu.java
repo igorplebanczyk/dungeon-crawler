@@ -1,8 +1,10 @@
 package game.menu;
 
+import game.ImageCache;
+import game.object.entity.Floor;
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.Objects;
 
 public abstract class Menu extends JFrame {
     public Menu() {
@@ -12,8 +14,7 @@ public abstract class Menu extends JFrame {
 
     // Add floor tiles to a panel
     protected void addFloorTiles(JPanel panel, int tileSize, int width, int height) {
-        ImageIcon floorIcon = createScaledIcon("/images/floor.png", tileSize);
-
+        ImageIcon floorIcon = createScaledIcon(new Floor().getImagePath(), tileSize);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 JLabel label = new JLabel(floorIcon);
@@ -38,7 +39,7 @@ public abstract class Menu extends JFrame {
     }
 
     protected ImageIcon createScaledIcon(String path, int size) {
-        return new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(path))).getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH));
+        return new ImageIcon(ImageCache.getImage(path).getScaledInstance(size, size, Image.SCALE_SMOOTH));
     }
 
     // Create GridBagConstraints with common settings
