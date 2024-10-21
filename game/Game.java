@@ -97,7 +97,9 @@ public class Game extends JFrame {
 
         // Check for valid movement and update player position
         if (newX >= 0 && newX < Constants.GAME_TILE_NUM && newY >= 0 && newY < Constants.GAME_TILE_NUM &&
-                (this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.FLOOR || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.EXIT || this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.DOOR)) {
+                (this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.FLOOR ||
+                this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.EXIT ||
+                this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.DOOR)) {
             player.move(dx, dy);
         }
 
