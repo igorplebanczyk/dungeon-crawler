@@ -171,28 +171,6 @@ public class Game extends JFrame {
         timer.start();
     }
 
-    // Toggle bulldozer mode
-    private void bulldozerMode() {
-        GameState.toggleBulldozerMode();
-
-        if (GameState.isBulldozerMode()) {
-            this.state.setMessage(new Message("Bulldozer mode activated ⛏", this));
-        } else {
-            this.state.setMessage(new Message("Bulldozer mode deactivated ⛏", this));
-        }
-
-        this.state.getMessage().display(750);
-    }
-
-    public void pause() {
-        this.state.togglePause();
-
-        if (this.state.isPaused()) {
-            PauseMenu pauseMenu = new PauseMenu(this);
-            pauseMenu.setVisible(true);
-        }
-    }
-
     private void startLevel(boolean initial) {
         if (!initial) this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor()); // Clear the player's previous position
 
@@ -219,6 +197,28 @@ public class Game extends JFrame {
         this.state.incLevel();
         startLevel(false);
         repaint();
+    }
+
+    // Toggle bulldozer mode
+    private void bulldozerMode() {
+        GameState.toggleBulldozerMode();
+
+        if (GameState.isBulldozerMode()) {
+            this.state.setMessage(new Message("Bulldozer mode activated ⛏", this));
+        } else {
+            this.state.setMessage(new Message("Bulldozer mode deactivated ⛏", this));
+        }
+
+        this.state.getMessage().display(750);
+    }
+
+    public void pause() {
+        this.state.togglePause();
+
+        if (this.state.isPaused()) {
+            PauseMenu pauseMenu = new PauseMenu(this);
+            pauseMenu.setVisible(true);
+        }
     }
 
     // Override the paint method to render directly to the buffer strategy
