@@ -12,16 +12,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ImageCache {
-    private final Map<String, Image> cache;
+    private static final Map<String, Image> cache = new HashMap<>();
     private static final Logger LOGGER = Logger.getLogger(ImageCache.class.getName());
 
-    public ImageCache() {
-        this.cache = new HashMap<>();
-    }
+    public ImageCache() {}
 
-    public void cacheImages(String characterImage) {
+    public void cacheImages() {
         ArrayList<String> imagePaths = new ArrayList<>();
-        imagePaths.add(characterImage);
+        imagePaths.addAll(Constants.PLAYER_IMAGE_MAP.values());
         imagePaths.addAll(Constants.OBJECT_IMAGE_MAP.values());
 
         try (ExecutorService executor = Executors.newFixedThreadPool(Constants.IMAGE_CACHE_THREAD_NUM)) {
@@ -38,14 +36,14 @@ public class ImageCache {
     private void cacheImage(String path) {
         try {
             Image image = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
-            this.cache.put(path, image);
+            cache.put(path, image);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "An exception occurred", e);
         }
     }
 
-    public Image getImage(String path) {
-        return this.cache.get(path);
+    public static Image getImage(String path) {
+        return cache.get(path);
     }
 
 }

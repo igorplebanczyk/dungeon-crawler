@@ -20,7 +20,6 @@ public class Game extends JFrame {
     // Game objects
     private GameMap map;
     private Player player;
-    private final ImageCache imageCache = new ImageCache();
     private final BufferStrategy bufferStrategy;
     private final Renderer renderer;
     private final GameState state;
@@ -31,7 +30,7 @@ public class Game extends JFrame {
         // Initialize game parameters
         long startTime = System.nanoTime(); // Start time for measuring initialization time
         this.character = character;
-        this.renderer = new Renderer(this, this.character, this.imageCache);
+        this.renderer = new Renderer(this, this.character);
 
         // Set up JFrame properties
         setTitle("Dungeon Crawler");
@@ -174,13 +173,10 @@ public class Game extends JFrame {
     private void startLevel(boolean initial) {
         if (!initial) this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor()); // Clear the player's previous position
 
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE);
-            this.state.setCurrentDungeon(map.getStartingDungeon());
-            if (initial) imageCache.cacheImages(Constants.PLAYER_IMAGE_MAP.get(this.character));
-        });
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE));
 
         future.thenRun(() -> {
+            this.state.setCurrentDungeon(map.getStartingDungeon());
             this.player = new Player(this.state.getCurrentDungeon(), 0, 0, Constants.PLAYER_IMAGE_MAP.get(this.character), this);
 
             if (initial) {

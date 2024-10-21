@@ -7,12 +7,10 @@ import java.awt.*;
 public class Renderer {
     private final Game game;
     private final PlayerCharacter character;
-    private final ImageCache imageCache;
 
-    public Renderer(Game game, PlayerCharacter character, ImageCache imageCache) {
+    public Renderer(Game game, PlayerCharacter character) {
         this.game = game;
         this.character = character;
-        this.imageCache = imageCache;
     }
 
     public void render(Graphics g) {
@@ -49,7 +47,7 @@ public class Renderer {
         for (int y = 0; y < Constants.GAME_TILE_NUM; y++) {
             for (int x = 0; x < Constants.GAME_TILE_NUM; x++) {
                 Entity tile = this.game.getGameState().getCurrentDungeon().getTile(x, y);
-                Image imageToDraw = imageCache.getImage(tile.getImagePath());
+                Image imageToDraw = ImageCache.getImage(tile.getImagePath());
                 if (imageToDraw != null) {
                     g.drawImage(imageToDraw, x * Constants.GAME_TILE_SIZE, Constants.Y_OFFSET - 8 + y * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, game);
                 }
