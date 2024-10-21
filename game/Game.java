@@ -26,13 +26,9 @@ public class Game extends JFrame {
 
     public Game(PlayerCharacter character) {
         this.state = new GameState();
-        
-        // Initialize game parameters
-        long startTime = System.nanoTime(); // Start time for measuring initialization time
         this.character = character;
         this.renderer = new Renderer(this, this.character);
 
-        // Set up JFrame properties
         setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIgnoreRepaint(true);
@@ -40,25 +36,21 @@ public class Game extends JFrame {
 
         startLevel(true);
 
-        handleKeyboardInput(); // Add keylistener to handle keyboard input
-        handleMouseInput(); // Add mouselistener to handle mouse input
+        handleKeyboardInput();
+        handleMouseInput();
 
-        pack(); // Pack the frame first to calculate its preferred size
+        pack();
         setSize(Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE + Constants.Y_OFFSET); // Set the frame size
 
         // Center the frame on the screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 
-        // Create a buffer strategy for rendering
         createBufferStrategy(2);
         bufferStrategy = getBufferStrategy();
 
         repaint();
         setVisible(true);
-
-        long endTime = System.nanoTime(); // End time for measuring initialization time
-        System.out.println("Game initialized in " + (endTime - startTime) / 1e6 + "ms");
     }
 
     // Add a keyListener to handle player movement
