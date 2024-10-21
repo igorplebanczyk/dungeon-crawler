@@ -2,8 +2,8 @@ package game.menu;
 
 public enum Tile {
     BACKGROUND,
-    GERALT_IMG,
-    GERALT_TEXT,
-    YENNEFER_IMG,
-    YENNEFER_TEXT
+    CHARACTER_1_IMG,
+    CHARACTER_1_TEXT,
+    CHARACTER_2_IMG,
+    CHARACTER_2_TEXT
 }

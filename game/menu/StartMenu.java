@@ -4,6 +4,8 @@ import game.Game;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,8 +71,8 @@ public class StartMenu extends Menu {
         JPanel panel = getBackgroundPanel();
         Tile[][] layout = {
                 {Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND},
-                {Tile.BACKGROUND, Tile.GERALT_IMG, Tile.YENNEFER_IMG, Tile.BACKGROUND},
-                {Tile.BACKGROUND, Tile.GERALT_TEXT, Tile.YENNEFER_TEXT, Tile.BACKGROUND},
+                {Tile.BACKGROUND, Tile.CHARACTER_1_IMG, Tile.CHARACTER_2_IMG, Tile.BACKGROUND},
+                {Tile.BACKGROUND, Tile.CHARACTER_1_TEXT, Tile.CHARACTER_2_TEXT, Tile.BACKGROUND},
                 {Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND, Tile.BACKGROUND}
         };
         fillSelectionPanel(panel, layout);
@@ -122,11 +124,13 @@ public class StartMenu extends Menu {
 
     // Create character image tiles and selection buttons
     private JLabel createSelectionTiles(Tile tile) {
+        List<PlayerCharacter> characters = Arrays.asList(PlayerCharacter.values());
+
         return switch (tile) {
-            case Tile.GERALT_IMG -> getCharacterLabel(Constants.PLAYER_IMAGE_MAP.get(PlayerCharacter.GERALT));
-            case Tile.YENNEFER_IMG -> getCharacterLabel(Constants.PLAYER_IMAGE_MAP.get(PlayerCharacter.YENNEFER));
-            case Tile.GERALT_TEXT -> getSelectionButton("Select Geralt", PlayerCharacter.GERALT, 4, 2);
-            case Tile.YENNEFER_TEXT -> getSelectionButton("Select Yennefer", PlayerCharacter.YENNEFER, 2, 4);
+            case Tile.CHARACTER_1_IMG -> getCharacterLabel(Constants.PLAYER_IMAGE_MAP.get(characters.get(0)));
+            case Tile.CHARACTER_2_IMG -> getCharacterLabel(Constants.PLAYER_IMAGE_MAP.get(characters.get(1)));
+            case Tile.CHARACTER_1_TEXT -> getSelectionButton(characters.get(0).getName(), characters.get(0), 4, 2);
+            case Tile.CHARACTER_2_TEXT -> getSelectionButton(characters.get(1).getName(), characters.get(1), 2, 4);
             default -> new JLabel();
         };
     }
