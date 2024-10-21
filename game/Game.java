@@ -12,16 +12,14 @@ import java.awt.image.BufferStrategy;
 import java.util.concurrent.*;
 
 public class Game extends JFrame {
-    // Game parameters
     private final PlayerCharacter character;
-
-    // Game objects
-    private GameMap map;
     private Player player;
+    private GameMap map;
+
     private final BufferStrategy bufferStrategy;
     private final Renderer renderer;
-    private final Mover mover;
     private final GameState state;
+    private final Mover mover;
 
     public Game(PlayerCharacter character) {
         this.state = new GameState();
