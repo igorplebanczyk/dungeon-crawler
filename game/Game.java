@@ -5,12 +5,10 @@ import game.object.*;
 import game.object.entity.*;
 import game.ui.Message;
 
-import javax.swing.Timer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
-import java.util.List;
 import java.util.concurrent.*;
 
 public class Game extends JFrame {
@@ -22,12 +20,14 @@ public class Game extends JFrame {
     private Player player;
     private final BufferStrategy bufferStrategy;
     private final Renderer renderer;
+    private final Mover mover;
     private final GameState state;
 
     public Game(PlayerCharacter character) {
         this.state = new GameState();
         this.character = character;
         this.renderer = new Renderer(this, this.character);
+        this.mover = new Mover(this);
 
         setTitle("Dungeon Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -84,29 +84,9 @@ public class Game extends JFrame {
                         break;
                 }
 
-                handleManualMovement(dx, dy);
+                Game.this.mover.handleManualMovement(dx, dy, Game.this.player);
             }
         });
-    }
-
-    // Handle movement with keyboard input
-    private void handleManualMovement(int dx, int dy) {
-        // Calculate the new player position
-        int newX = player.getX() + dx;
-        int newY = player.getY() + dy;
-
-        // Check for valid movement and update player position
-        if (newX >= 0 && newX < Constants.GAME_TILE_NUM && newY >= 0 && newY < Constants.GAME_TILE_NUM &&
-                (this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.FLOOR ||
-                this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.EXIT ||
-                this.state.getCurrentDungeon().getTile(newX, newY).getType() == EntityType.DOOR)) {
-            player.move(dx, dy);
-        }
-
-        // Check for reaching the exit and advance to the next level
-        if (player.getX() == this.state.getCurrentDungeon().getExitX() && player.getY() == this.state.getCurrentDungeon().getExitY()) {
-            advanceToNextLevel();
-        }
     }
 
     // Add a mouseListener and handle player movement with pathfinding
@@ -115,53 +95,9 @@ public class Game extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (Game.this.state.isMovementInProgress()) return; // If the timer is running, ignore the mouse event
-                handleAutoMovement(e);
+                Game.this.mover.handleAutoMovement(e, Game.this.player);
             }
         });
-    }
-
-    // Handle movement with pathfinder
-    private void handleAutoMovement(MouseEvent e) {
-        // Convert mouse coordinates to grid coordinates
-        int gridX = e.getX() / Constants.GAME_TILE_SIZE;
-        int gridY = (e.getY() - Constants.Y_OFFSET) / Constants.GAME_TILE_SIZE;
-
-        if (this.state.getCurrentDungeon().getTile(gridX, gridY).getType() != EntityType.FLOOR) { // Cannot move to non-floor tiles
-            this.state.setMessage(new Message("It ain't that easy", this));
-            this.state.getMessage().display(750);
-            return;
-        }
-
-        Pathfinder pathfinder = new Pathfinder(this.state.getCurrentDungeon());
-        List<Point> path = pathfinder.findPath(player.getX(), player.getY(), gridX, gridY);
-        if (path == null) return;
-        animateAutoMovement(path);
-    }
-
-    private void animateAutoMovement(List<Point> path) {
-        Timer timer = new Timer(Constants.GAME_AUTO_MOVEMENT_DELAY, null);
-        this.state.setMovementInProgress(true);
-
-        timer.addActionListener(new ActionListener() {
-            int index = 1; // Start at 1 to skip the player's current position
-
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                if (index < path.size()) {
-                    Point position = path.get(index);
-
-                    player.move(position.x - player.getX(), position.y - player.getY());
-
-                    index++;
-                } else {
-                    // Stop the timer when the player has reached the destination
-                    timer.stop();
-                    Game.this.state.setMovementInProgress(false);
-                }
-            }
-
-        });
-        timer.start();
     }
 
     private void startLevel(boolean initial) {
@@ -183,7 +119,7 @@ public class Game extends JFrame {
         });
     }
 
-    private void advanceToNextLevel() {
+    public void advanceToNextLevel() {
         this.state.incLevel();
         startLevel(false);
         repaint();
