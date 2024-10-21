@@ -16,7 +16,8 @@ public class PauseMenu extends Menu {
         this.game = (Game) parent;
 
         setUndecorated(true);
-        setSize(Constants.PAUSE_WINDOW_WIDTH * Constants.PAUSE_TILE_SIZE, Constants.PAUSE_WINDOW_HEIGHT * Constants.PAUSE_TILE_SIZE);
+        setSize(Constants.PAUSE_WINDOW_WIDTH * Constants.PAUSE_TILE_SIZE,
+                Constants.PAUSE_WINDOW_HEIGHT * Constants.PAUSE_TILE_SIZE);
         getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 6));
 
         this.addKeyListener(new KeyAdapter() {
@@ -51,7 +52,8 @@ public class PauseMenu extends Menu {
         GridBagConstraints gbc = createGridBagConstraints(0, 0,
                 Constants.PAUSE_WINDOW_WIDTH, Constants.PAUSE_WINDOW_HEIGHT, offsetTop, offsetBottom);
 
-        configureButton(button, Constants.PAUSE_TILE_SIZE, Constants.PAUSE_TILE_SIZE / 2, 24, 4, 4);
+        configureButton(button, Constants.PAUSE_TILE_SIZE, Constants.PAUSE_TILE_SIZE / 2,
+                24, 4, 4);
         panel.add(button, gbc);
     }
 
