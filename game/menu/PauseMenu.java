@@ -1,12 +1,12 @@
 package game.menu;
 
+import game.Constants;
 import game.Game;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import game.Constants;
 
 public class PauseMenu extends Menu {
     private final Game game;

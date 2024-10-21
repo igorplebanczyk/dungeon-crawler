@@ -4,36 +4,14 @@ import game.GameState;
 import game.object.entity.EntityType;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class Pathfinder {
     private final Dungeon dungeon;
 
     public Pathfinder(Dungeon dungeon) {
         this.dungeon = dungeon;
-    }
-
-    // Node class to hold information for A* algorithm
-    private static class Node implements Comparable<Node> {
-        public Point point;
-        public Node parent;
-        public double g; // Cost from start to current node
-        public double h; // Heuristic cost to goal
-        public double f; // Total cost (g + h)
-
-        public Node(Point point, Node parent, double g, double h) {
-            this.point = point;
-            this.parent = parent;
-            this.g = g;
-            this.h = h;
-            this.f = g + h;
-        }
-
-        @Override
-        public int compareTo(Node other) {
-            return Double.compare(this.f, other.f);
-        }
     }
 
     private boolean isValidTileForPathfinder(int x, int y) {
@@ -104,5 +82,27 @@ public class Pathfinder {
         }
 
         return null; // No path found
+    }
+
+    // Node class to hold information for A* algorithm
+    private static class Node implements Comparable<Node> {
+        public Point point;
+        public Node parent;
+        public double g; // Cost from start to current node
+        public double h; // Heuristic cost to goal
+        public double f; // Total cost (g + h)
+
+        public Node(Point point, Node parent, double g, double h) {
+            this.point = point;
+            this.parent = parent;
+            this.g = g;
+            this.h = h;
+            this.f = g + h;
+        }
+
+        @Override
+        public int compareTo(Node other) {
+            return Double.compare(this.f, other.f);
+        }
     }
 }

@@ -34,7 +34,7 @@ public class Mover {
 
         // Check for reaching the exit and advance to the next level
         if (actor.getX() == this.game.getGameState().getCurrentDungeon().getExitX()
-            && actor.getY() == this.game.getGameState().getCurrentDungeon().getExitY()) {
+                && actor.getY() == this.game.getGameState().getCurrentDungeon().getExitY()) {
             game.advanceToNextLevel();
         }
     }

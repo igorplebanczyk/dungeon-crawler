@@ -1,15 +1,15 @@
 package game.menu;
 
-import game.Game;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
-import java.util.Arrays;
 import game.Constants;
+import game.Game;
 import game.ImageCache;
 import game.object.entity.Floor;
 import game.object.entity.PlayerCharacter;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class StartMenu extends Menu {
     public StartMenu() {

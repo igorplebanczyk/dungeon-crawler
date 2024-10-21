@@ -2,7 +2,8 @@ package game.object.entity;
 
 public enum PlayerCharacter {
     GERALT("Geralt"),
-    YENNEFER("Yennefer"),;
+    YENNEFER("Yennefer"),
+    ;
 
     private final String name;
 

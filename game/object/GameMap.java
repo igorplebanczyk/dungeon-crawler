@@ -48,7 +48,7 @@ public class GameMap {
         // Determine the total number of dungeons to create (between 40% and 80% of the grid)
         int totalDungeons = GRID_SIZE * GRID_SIZE;
         int targetDungeonCount = random.nextInt((int) (totalDungeons * Constants.DUNGEON_TARGET_COUNT_LOW),
-                                                (int) (totalDungeons * Constants.DUNGEON_TARGET_COUNT_HIGH));
+                (int) (totalDungeons * Constants.DUNGEON_TARGET_COUNT_HIGH));
 
         try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
             for (int i = 0; i < GRID_SIZE; i += GRID_SIZE / 2) { // Divide the grid into chunks and submit tasks to the executor

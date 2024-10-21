@@ -5,9 +5,9 @@ import game.Game;
 import javax.swing.*;
 
 public class Message {
+    private final Game game;
     private String text;
     private Timer timer;
-    private final Game game;
 
     public Message(String text, Game game) {
         this.text = text;

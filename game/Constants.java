@@ -26,7 +26,14 @@ public abstract class Constants {
     public static final int START_WINDOW_WIDTH = 4;
     public static final int START_WINDOW_HEIGHT = 4;
 
+    public static final int IMAGE_CACHE_THREAD_NUM = 5;
+
+    public static final Font MESSAGE_FONT = new Font("Times", Font.BOLD, 36);
+    public static final Color MESSAGE_COLOR = Color.WHITE;
+
     public static final Map<EntityType, String> OBJECT_IMAGE_MAP;
+    public static final Map<PlayerCharacter, String> PLAYER_IMAGE_MAP;
+
     static {
         OBJECT_IMAGE_MAP = new HashMap<>();
         OBJECT_IMAGE_MAP.put(EntityType.DOOR, "/images/door.png");
@@ -35,15 +42,9 @@ public abstract class Constants {
         OBJECT_IMAGE_MAP.put(EntityType.WALL, "/images/wall.png");
     }
 
-    public static final Map<PlayerCharacter, String> PLAYER_IMAGE_MAP;
     static {
         PLAYER_IMAGE_MAP = new HashMap<>();
         PLAYER_IMAGE_MAP.put(PlayerCharacter.GERALT, "/images/geralt.png");
         PLAYER_IMAGE_MAP.put(PlayerCharacter.YENNEFER, "/images/yen.png");
     }
-
-    public static final int IMAGE_CACHE_THREAD_NUM = 5;
-
-    public static final Font MESSAGE_FONT = new Font("Times", Font.BOLD, 36);
-    public static final Color MESSAGE_COLOR = Color.WHITE;
 }

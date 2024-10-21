@@ -4,15 +4,23 @@ import game.object.Dungeon;
 import game.ui.Message;
 
 public class GameState {
+    private static boolean bulldozerMode = false;
     private int level;
     private boolean paused = false;
     private boolean movementInProgress = false;
-    private static boolean bulldozerMode = false;
     private Dungeon currentDungeon;
     private Message message;
 
     public GameState() {
         this.level = 1;
+    }
+
+    public static boolean isBulldozerMode() {
+        return bulldozerMode;
+    }
+
+    public static void toggleBulldozerMode() {
+        bulldozerMode = !bulldozerMode;
     }
 
     public int getLevel() {
@@ -37,14 +45,6 @@ public class GameState {
 
     public void setMovementInProgress(boolean movementInProgress) {
         this.movementInProgress = movementInProgress;
-    }
-
-    public static boolean isBulldozerMode() {
-        return bulldozerMode;
-    }
-
-    public static void toggleBulldozerMode() {
-        bulldozerMode = !bulldozerMode;
     }
 
     public Dungeon getCurrentDungeon() {

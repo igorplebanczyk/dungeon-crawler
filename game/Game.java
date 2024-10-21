@@ -1,25 +1,29 @@
 package game;
 
 import game.menu.PauseMenu;
-import game.object.*;
-import game.object.entity.*;
+import game.object.GameMap;
+import game.object.entity.Floor;
+import game.object.entity.Player;
+import game.object.entity.PlayerCharacter;
 import game.ui.Message;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferStrategy;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
 
 public class Game extends JFrame {
     private final PlayerCharacter character;
-    private Player player;
-    private GameMap map;
-
     private final BufferStrategy bufferStrategy;
     private final Renderer renderer;
     private final GameState state;
     private final Mover mover;
+    private Player player;
+    private GameMap map;
 
     public Game(PlayerCharacter character) {
         this.state = new GameState();
@@ -99,7 +103,8 @@ public class Game extends JFrame {
     }
 
     private void startLevel(boolean initial) {
-        if (!initial) this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor()); // Clear the player's previous position
+        if (!initial)
+            this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor()); // Clear the player's previous position
 
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE));
 

@@ -3,8 +3,10 @@ package game.object;
 import game.object.entity.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
+import java.util.Random;
+import java.util.Stack;
 
 public class Dungeon {
     private final Entity[][] map; // 2D array to represent the dungeon map
@@ -68,7 +70,7 @@ public class Dungeon {
                 if (map[y][x].getType() == EntityType.WALL) { // If current tile is wall
                     // Check surrounding tiles
                     if (map[y - 1][x].getType() == EntityType.FLOOR && map[y][x - 1].getType() == EntityType.FLOOR &&
-                        map[y + 1][x].getType() == EntityType.FLOOR && map[y][x + 1].getType() == EntityType.FLOOR) {
+                            map[y + 1][x].getType() == EntityType.FLOOR && map[y][x + 1].getType() == EntityType.FLOOR) {
                         // If no adjacent walls, make one adjacent wall
                         int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
                         switch (direction) {

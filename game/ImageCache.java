@@ -3,8 +3,8 @@ package game;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,7 +15,12 @@ public class ImageCache {
     private static final Map<String, Image> cache = new HashMap<>();
     private static final Logger LOGGER = Logger.getLogger(ImageCache.class.getName());
 
-    public ImageCache() {}
+    public ImageCache() {
+    }
+
+    public static Image getImage(String path) {
+        return cache.get(path);
+    }
 
     public void cacheImages() {
         ArrayList<String> imagePaths = new ArrayList<>();
@@ -40,10 +45,6 @@ public class ImageCache {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "An exception occurred", e);
         }
-    }
-
-    public static Image getImage(String path) {
-        return cache.get(path);
     }
 
 }
