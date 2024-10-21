@@ -40,7 +40,7 @@ public class PauseMenu extends Menu {
     private JPanel getPausePanel() {
         JPanel mainPanel = new JPanel(new GridBagLayout());
         addButton(getResumeButton(), mainPanel, 0, 200);
-        addButton(getRefreshButton(), mainPanel, 0, 0);
+        addButton(getRestartButton(), mainPanel, 0, 0);
         addButton(getQuitButton(), mainPanel, 200, 0);
         addFloorTiles(mainPanel, Constants.PAUSE_TILE_SIZE, Constants.PAUSE_WINDOW_WIDTH, Constants.PAUSE_WINDOW_HEIGHT);
         return mainPanel;
@@ -48,7 +48,9 @@ public class PauseMenu extends Menu {
 
     // Add a button to the panel
     private void addButton(JButton button, JPanel panel, int offsetTop, int offsetBottom) {
-        GridBagConstraints gbc = createGridBagConstraints(0, 0, Constants.PAUSE_WINDOW_WIDTH, Constants.PAUSE_WINDOW_HEIGHT, offsetTop, offsetBottom);
+        GridBagConstraints gbc = createGridBagConstraints(0, 0,
+                Constants.PAUSE_WINDOW_WIDTH, Constants.PAUSE_WINDOW_HEIGHT, offsetTop, offsetBottom);
+
         configureButton(button, Constants.PAUSE_TILE_SIZE, Constants.PAUSE_TILE_SIZE / 2, 24, 4, 4);
         panel.add(button, gbc);
     }
@@ -62,15 +64,15 @@ public class PauseMenu extends Menu {
         return resumeButton;
     }
 
-    private JButton getRefreshButton() {
-        JButton refreshButton = new JButton("Restart");
-        refreshButton.addActionListener(_ -> {
+    private JButton getRestartButton() {
+        JButton restartButton = new JButton("Restart");
+        restartButton.addActionListener(_ -> {
             StartMenu startMenu = new StartMenu();
-
+            this.dispose();
             game.dispose();
             startMenu.setVisible(true);
         });
-        return refreshButton;
+        return restartButton;
     }
 
     private JButton getQuitButton() {
