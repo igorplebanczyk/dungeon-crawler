@@ -14,7 +14,9 @@ public abstract class Constants {
     public static final int GAME_TILE_NUM = 15; // Amount of tiles in the x and y directions
     public static final int GAME_AUTO_MOVEMENT_DELAY = 150; // in milliseconds
 
-    public static final int MAP_GRID_SIZE = 2; // Size of the grid which stores individual dungeon rooms
+    public static final int MAP_GRID_SIZE = 3; // Size of the grid which stores individual dungeon rooms
+    public static final double DUNGEON_TARGET_COUNT_LOW = 0.4;
+    public static final double DUNGEON_TARGET_COUNT_HIGH = 0.8;
 
     public static final int PAUSE_TILE_SIZE = 150;
     public static final int PAUSE_WINDOW_WIDTH = 3;

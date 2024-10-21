@@ -1,5 +1,6 @@
 package game.object;
 
+import game.Constants;
 import game.object.entity.Exit;
 
 import java.util.ArrayList;
@@ -7,19 +8,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 public class GameMap {
     private final int DUNGEON_WIDTH, DUNGEON_HEIGHT, GRID_SIZE;
     private final Dungeon[][] grid;
     private Dungeon startingDungeon;
-
-    private static final Logger LOGGER = Logger.getLogger(GameMap.class.getName());
 
     public GameMap(int width, int height, int gridSize) {
         this.DUNGEON_WIDTH = width;
@@ -33,27 +28,11 @@ public class GameMap {
     private void generateMap() {
         Random random = new Random();
 
-        createDungeons(random);
+        createInitialDungeon(random);
+        createMoreDungeons(random);
         addDoors();
         selectStartingDungeon();
         selectExitDungeon(random);
-    }
-
-    // Create dungeons on the grid
-    private void createDungeons(Random random) {
-        createInitialDungeon(random);
-
-        // Create the rest of the dungeons ensuring adjacency, using multithreading
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        createMoreDungeons(random);
-        executor.shutdown();
-
-        try {
-            boolean tasksEnded = executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            if (!tasksEnded) throw new TimeoutException();
-        } catch (InterruptedException | TimeoutException e) {
-            LOGGER.log(Level.SEVERE, "An exception occurred", e);
-        }
     }
 
     // Create the initial dungeon, from which all other dungeons branch out
@@ -63,20 +42,39 @@ public class GameMap {
         grid[firstDungeonX][firstDungeonY] = new Dungeon(DUNGEON_WIDTH, DUNGEON_HEIGHT, firstDungeonX, firstDungeonY);
     }
 
-    // Populate the grid with more dungeons
     private void createMoreDungeons(Random random) {
-        AtomicInteger dungeonCount = new AtomicInteger(1); // Starting dungeon already placed, use atomic because it allows the variable to mutated inside a lambda
-        int targetDungeonCount = (int) (GRID_SIZE * GRID_SIZE * 0.5); // 50% of the grid
-        while (dungeonCount.get() < targetDungeonCount) {
-            IntStream.range(0, GRID_SIZE).forEach(i -> IntStream.range(0, GRID_SIZE).forEach(j -> {
-                if (grid[i][j] == null && hasAdjacentDungeon(i, j)) {
-                    boolean shouldCreateDungeon = random.nextDouble() < 0.67; // 2/3 chance
-                    if (shouldCreateDungeon) {
-                        grid[i][j] = new Dungeon(DUNGEON_WIDTH, DUNGEON_HEIGHT, i, j);
-                        dungeonCount.incrementAndGet(); // Increment the count safely
-                    }
+        AtomicInteger dungeonCount = new AtomicInteger(1); // Starting dungeon already placed
+
+        // Determine the total number of dungeons to create (between 40% and 80% of the grid)
+        int totalDungeons = GRID_SIZE * GRID_SIZE;
+        int targetDungeonCount = random.nextInt((int) (totalDungeons * Constants.DUNGEON_TARGET_COUNT_LOW),
+                                                (int) (totalDungeons * Constants.DUNGEON_TARGET_COUNT_HIGH));
+
+        try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
+            for (int i = 0; i < GRID_SIZE; i += GRID_SIZE / 2) { // Divide the grid into chunks and submit tasks to the executor
+                for (int j = 0; j < GRID_SIZE; j += GRID_SIZE / 2) {
+                    final int chunkStartX = i;
+                    final int chunkStartY = j;
+
+                    // Submit a task to process each chunk
+                    executor.submit(() -> IntStream.range(chunkStartX, Math.min(chunkStartX + GRID_SIZE / 2, GRID_SIZE)).forEach(x ->
+                            IntStream.range(chunkStartY, Math.min(chunkStartY + GRID_SIZE / 2, GRID_SIZE)).forEach(y -> {
+                                if (dungeonCount.get() >= targetDungeonCount) {
+                                    return; // Stop creating dungeons if the target is reached
+                                }
+                                synchronized (grid) {
+                                    if (grid[x][y] == null && hasAdjacentDungeon(x, y)) {
+                                        boolean shouldCreateDungeon = random.nextDouble() < 0.67; // 2/3 chance
+                                        if (shouldCreateDungeon && dungeonCount.get() < targetDungeonCount) {
+                                            grid[x][y] = new Dungeon(DUNGEON_WIDTH, DUNGEON_HEIGHT, x, y);
+                                            dungeonCount.incrementAndGet(); // Increment count safely
+                                        }
+                                    }
+                                }
+                            })
+                    ));
                 }
-            }));
+            }
         }
     }
 

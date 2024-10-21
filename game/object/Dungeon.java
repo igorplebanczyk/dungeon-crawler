@@ -1,6 +1,5 @@
 package game.object;
 
-import game.GameState;
 import game.object.entity.*;
 
 import java.awt.*;
