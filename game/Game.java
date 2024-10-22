@@ -35,6 +35,7 @@ public class Game extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIgnoreRepaint(true);
         setResizable(false);
+        setUndecorated(true);
 
         startLevel(true);
 
@@ -42,7 +43,7 @@ public class Game extends JFrame {
         handleMouseInput();
 
         pack();
-        setSize(Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE + Constants.Y_OFFSET); // Set the frame size
+        setSize(Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE); // Set the frame size
 
         // Center the frame on the screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -55,7 +56,6 @@ public class Game extends JFrame {
         setVisible(true);
     }
 
-    // Add a keyListener to handle player movement
     private void handleKeyboardInput() {
         addKeyListener(new KeyAdapter() {
             @Override
@@ -86,18 +86,20 @@ public class Game extends JFrame {
                         break;
                 }
 
-                Game.this.mover.handleManualMovement(dx, dy, Game.this.player);
+                Game.this.mover.moveBy(Game.this.player, dx, dy);
             }
         });
     }
 
-    // Add a mouseListener and handle player movement with pathfinding
     private void handleMouseInput() {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (Game.this.state.isMovementInProgress()) return; // If the timer is running, ignore the mouse event
-                Game.this.mover.handleAutoMovement(e, Game.this.player);
+                if (Game.this.state.isMovementInProgress()) return;
+
+                int x = e.getX() / Constants.GAME_TILE_SIZE;
+                int y = (e.getY() - Constants.Y_OFFSET) / Constants.GAME_TILE_SIZE;
+                Game.this.mover.moveTo(Game.this.player, x, y);
             }
         });
     }
