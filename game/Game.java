@@ -43,14 +43,13 @@ public class Game extends JFrame {
         handleMouseInput();
 
         pack();
-        setSize(Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE); // Set the frame size
+        setSize(Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_NUM * Constants.GAME_TILE_SIZE);
 
-        // Center the frame on the screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 
         createBufferStrategy(2);
-        bufferStrategy = getBufferStrategy();
+        this.bufferStrategy = getBufferStrategy();
 
         repaint();
         setVisible(true);
@@ -62,8 +61,8 @@ public class Game extends JFrame {
             public void keyPressed(KeyEvent e) {
                 if (Game.this.state.isMovementInProgress()) return;
 
-                int key = e.getKeyCode(); // Get the pressed key code
-                int dx = 0, dy = 0; // Initialize the change in x and y
+                int key = e.getKeyCode();
+                int dx = 0, dy = 0;
 
                 switch (key) {
                     case KeyEvent.VK_W, KeyEvent.VK_UP:
