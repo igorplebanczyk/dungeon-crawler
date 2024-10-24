@@ -16,8 +16,8 @@ public class Dungeon {
     private final int height;
     private final int gridX;
     private final int gridY;
-    private final int exitX;
-    private final int exitY;
+    private int exitX;
+    private int exitY;
     private final List<Point> doorPositions = new ArrayList<>();
 
     public Dungeon(int width, int height, int x, int y) {
@@ -206,6 +206,14 @@ public class Dungeon {
 
     public int getExitY() {
         return exitY;
+    }
+
+    public void setExitX(int x) {
+        this.exitX = x;
+    }
+
+    public void setExitY(int y) {
+        this.exitY = y;
     }
 
     public int getWidth() {

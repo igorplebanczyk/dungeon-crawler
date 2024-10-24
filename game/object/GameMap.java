@@ -124,7 +124,15 @@ public class GameMap {
 
         // Randomly select a dungeon from the list to be the exit dungeon
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
-        exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), new Exit()); // Set the exit in the selected dungeon
+        exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), new Exit());
+
+        // Remove the exit from all other dungeons
+        for (Dungeon i: dungeons) {
+            if (i != exitDungeon) {
+                i.setExitX(-1);
+                i.setExitY(-1);
+            }
+        }
     }
 
     private boolean hasAdjacentDungeon(int x, int y) {
