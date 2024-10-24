@@ -28,11 +28,6 @@ public class Mover {
                         this.game.getGameState().getCurrentDungeon().getTile(newX, newY).getType() == EntityType.DOOR)) {
             actor.move(dx, dy);
         }
-
-        if (actor.getX() == this.game.getGameState().getCurrentDungeon().getExitX()
-                && actor.getY() == this.game.getGameState().getCurrentDungeon().getExitY()) {
-            game.advanceToNextLevel();
-        }
     }
 
     public void moveTo(Actor actor, int targetX, int targetY) {

@@ -26,6 +26,11 @@ public abstract class Actor extends Entity {
             moveToAdjacentRoom(this.x, this.y);
         }
 
+        if (this.x == this.game.getGameState().getCurrentDungeon().getExitX()
+                && this.y == this.game.getGameState().getCurrentDungeon().getExitY()) {
+            game.advanceToNextLevel();
+        }
+
         this.game.getGameState().getCurrentDungeon().setTile(this.x, this.y, this); // Draw the player at the new position
 
         this.game.repaint();
