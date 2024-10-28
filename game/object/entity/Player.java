@@ -3,8 +3,7 @@ package game.object.entity;
 import game.Game;
 import game.object.Dungeon;
 
-public class Player extends Actor {
-
+public class Player extends DynamicEntity {
     public Player(Dungeon dungeon, int x, int y, String imagePath, Game game) {
         this.x = x;
         this.y = y;

@@ -1,7 +1,7 @@
 package game;
 
 import game.object.Pathfinder;
-import game.object.entity.Actor;
+import game.object.entity.DynamicEntity;
 import game.object.entity.EntityType;
 import game.ui.Message;
 
@@ -18,7 +18,7 @@ public class Mover {
         this.game = game;
     }
 
-    public void moveBy(Actor actor, int dx, int dy) {
+    public void moveBy(DynamicEntity actor, int dx, int dy) {
         int newX = actor.getX() + dx;
         int newY = actor.getY() + dy;
 
@@ -30,7 +30,7 @@ public class Mover {
         }
     }
 
-    public void moveTo(Actor actor, int targetX, int targetY) {
+    public void moveTo(DynamicEntity actor, int targetX, int targetY) {
         if (this.game.getGameState().getCurrentDungeon().getTile(targetX, targetY).getType() != EntityType.FLOOR) { // Cannot move to non-floor tiles
             this.game.getGameState().setMessage(new Message("It ain't that easy", this.game));
             this.game.getGameState().getMessage().display(750);
@@ -43,7 +43,7 @@ public class Mover {
         animateAutoMovement(actor, path);
     }
 
-    private void animateAutoMovement(Actor actor, List<Point> path) {
+    private void animateAutoMovement(DynamicEntity actor, List<Point> path) {
         Timer timer = new Timer(Constants.GAME_AUTO_MOVEMENT_DELAY, null);
         this.game.getGameState().setMovementInProgress(true);
 

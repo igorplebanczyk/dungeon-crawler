@@ -3,8 +3,9 @@ package game.menu;
 import game.Constants;
 import game.Game;
 import game.ImageCache;
-import game.object.entity.Floor;
+import game.object.entity.EntityType;
 import game.object.entity.PlayerCharacter;
+import game.object.entity.StaticEntity;
 
 import javax.swing.*;
 import java.awt.*;
@@ -93,7 +94,7 @@ public class StartMenu extends Menu {
     private void drawSelectionPanelFloorTiles(Graphics g) {
         for (int y = 0; y < Constants.START_WINDOW_HEIGHT; y++) {
             for (int x = 0; x < Constants.START_WINDOW_WIDTH; x++) {
-                g.drawImage(ImageCache.getImage(new Floor().getImagePath()), x * Constants.START_TILE_SIZE, y * Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, this);
+                g.drawImage(ImageCache.getImage(new StaticEntity(EntityType.FLOOR).getImagePath()), x * Constants.START_TILE_SIZE, y * Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, this);
             }
         }
     }

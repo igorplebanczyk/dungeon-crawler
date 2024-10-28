@@ -1,7 +1,8 @@
 package game.object;
 
 import game.Constants;
-import game.object.entity.Exit;
+import game.object.entity.EntityType;
+import game.object.entity.StaticEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +125,7 @@ public class GameMap {
 
         // Randomly select a dungeon from the list to be the exit dungeon
         Dungeon exitDungeon = dungeons.get(random.nextInt(dungeons.size()));
-        exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), new Exit());
+        exitDungeon.setTile(exitDungeon.getExitX(), exitDungeon.getExitY(), new StaticEntity(EntityType.EXIT));
 
         // Remove the exit from all other dungeons
         for (Dungeon i: dungeons) {

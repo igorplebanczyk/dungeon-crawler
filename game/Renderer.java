@@ -55,11 +55,11 @@ public class Renderer {
         }
     }
 
-    public void replacePreviousTile(Actor actor) {
+    public void replacePreviousTile(DynamicEntity actor) {
         if (this.game.getGameState().getCurrentDungeon().isDoor(actor.getX(), actor.getY())) {
-            this.game.getGameState().getCurrentDungeon().setTile(actor.getX(), actor.getY(), new Door());
+            this.game.getGameState().getCurrentDungeon().setTile(actor.getX(), actor.getY(), new StaticEntity(EntityType.DOOR)); // If the tile is a door, redraw the door
         } else {
-            this.game.getGameState().getCurrentDungeon().setTile(actor.getX(), actor.getY(), new Floor()); // Otherwise, redraw the floor
+            this.game.getGameState().getCurrentDungeon().setTile(actor.getX(), actor.getY(), new StaticEntity(EntityType.FLOOR)); // Otherwise, redraw the floor
         }
     }
 }

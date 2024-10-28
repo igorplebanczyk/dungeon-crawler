@@ -2,9 +2,10 @@ package game;
 
 import game.menu.PauseMenu;
 import game.object.GameMap;
-import game.object.entity.Floor;
+import game.object.entity.EntityType;
 import game.object.entity.Player;
 import game.object.entity.PlayerCharacter;
+import game.object.entity.StaticEntity;
 import game.ui.Message;
 
 import javax.swing.*;
@@ -105,7 +106,7 @@ public class Game extends JFrame {
 
     private void startLevel(boolean initial) {
         if (!initial)
-            this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new Floor()); // Clear the player's previous position
+            this.state.getCurrentDungeon().setTile(player.getX(), player.getY(), new StaticEntity(EntityType.FLOOR)); // Clear the player's previous position
 
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> this.map = new GameMap(Constants.GAME_TILE_NUM, Constants.GAME_TILE_NUM, Constants.MAP_GRID_SIZE));
 

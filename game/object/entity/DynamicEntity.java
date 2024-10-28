@@ -3,7 +3,7 @@ package game.object.entity;
 import game.Constants;
 import game.Game;
 
-public abstract class Actor implements Entity {
+public abstract class DynamicEntity implements Entity {
     protected int x;
     protected int y;
     protected EntityType type;

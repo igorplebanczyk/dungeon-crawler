@@ -56,9 +56,9 @@ public class Dungeon {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (random.nextDouble() < 0.4) { // Increased chance for walls
-                    map[y][x] = new Wall(); // Wall
+                    map[y][x] = new StaticEntity(EntityType.WALL); // Wall
                 } else {
-                    map[y][x] = new Floor(); // Floor
+                    map[y][x] = new StaticEntity(EntityType.FLOOR); // Floor
                 }
             }
         }
@@ -75,16 +75,16 @@ public class Dungeon {
                         int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
                         switch (direction) {
                             case 0:
-                                setTile(x, y - 1, new Wall());
+                                setTile(x, y - 1, new StaticEntity(EntityType.WALL));
                                 break;
                             case 1:
-                                setTile(x - 1, y, new Wall());
+                                setTile(x - 1, y, new StaticEntity(EntityType.WALL));
                                 break;
                             case 2:
-                                setTile(x, y + 1, new Wall());
+                                setTile(x, y + 1, new StaticEntity(EntityType.WALL));
                                 break;
                             case 3:
-                                setTile(x + 1, y, new Wall());
+                                setTile(x + 1, y, new StaticEntity(EntityType.WALL));
                                 break;
                         }
                     }
@@ -102,7 +102,7 @@ public class Dungeon {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (!accessible[y][x] && map[y][x].getType() != EntityType.EXIT) { // Don't fill the exit with a wall
-                    setTile(x, y, new Wall()); // Fill with a wall
+                    setTile(x, y, new StaticEntity(EntityType.WALL)); // Fill with a wall
                 }
             }
         }
@@ -176,7 +176,7 @@ public class Dungeon {
     }
 
     public void addDoor(int x, int y) {
-        setTile(x, y, new Door());
+        setTile(x, y, new StaticEntity(EntityType.DOOR));
         doorPositions.add(new Point(x, y));
     }
 

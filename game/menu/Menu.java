@@ -1,7 +1,8 @@
 package game.menu;
 
 import game.ImageCache;
-import game.object.entity.Floor;
+import game.object.entity.EntityType;
+import game.object.entity.StaticEntity;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +15,7 @@ public abstract class Menu extends JFrame {
 
     // Add floor tiles to a panel
     protected void addFloorTiles(JPanel panel, int tileSize, int width, int height) {
-        ImageIcon floorIcon = createScaledIcon(new Floor().getImagePath(), tileSize);
+        ImageIcon floorIcon = createScaledIcon(new StaticEntity(EntityType.FLOOR).getImagePath(), tileSize);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 JLabel label = new JLabel(floorIcon);
