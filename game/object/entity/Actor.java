@@ -3,9 +3,11 @@ package game.object.entity;
 import game.Constants;
 import game.Game;
 
-public abstract class Actor extends Entity {
+public abstract class Actor implements Entity {
     protected int x;
     protected int y;
+    protected EntityType type;
+    protected String imagePath;
     protected Game game;
 
     public int getX() {
@@ -14,6 +16,14 @@ public abstract class Actor extends Entity {
 
     public int getY() {
         return y;
+    }
+
+    public EntityType getType() {
+        return type;
+    }
+
+    public String getImagePath() {
+        return imagePath;
     }
 
     public void move(int dx, int dy) {

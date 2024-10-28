@@ -2,9 +2,15 @@ package game.object.entity;
 
 import game.Constants;
 
-public class Exit extends Entity {
-    public Exit() {
-        this.type = EntityType.EXIT;
-        this.imagePath = Constants.OBJECT_IMAGE_MAP.get(this.type);
+public record Exit() implements Entity {
+    private static final EntityType TYPE = EntityType.EXIT;
+    private static final String IMAGE_PATH = Constants.OBJECT_IMAGE_MAP.get(TYPE);
+
+    public EntityType getType() {
+        return TYPE;
+    }
+
+    public String getImagePath() {
+        return IMAGE_PATH;
     }
 }
