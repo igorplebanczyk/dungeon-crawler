@@ -29,7 +29,7 @@ public class Game extends JFrame {
     public Game(PlayerCharacter character) {
         this.state = new GameState();
         this.character = character;
-        this.renderer = new Renderer(this, this.character);
+        this.renderer = new Renderer(this);
         this.mover = new Mover(this);
 
         setTitle("Dungeon Crawler");
