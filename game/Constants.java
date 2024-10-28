@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Constants {
-    public static final int Y_OFFSET = 8;
-
     public static final int GAME_TILE_SIZE = 30; // Safe to modify; must always be a multiple of 15
     public static final int GAME_TILE_NUM = 29; // Amount of tiles in the x and y directions
     public static final int GAME_AUTO_MOVEMENT_DELAY = 150; // in milliseconds

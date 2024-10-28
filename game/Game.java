@@ -98,7 +98,7 @@ public class Game extends JFrame {
                 if (Game.this.state.isMovementInProgress()) return;
 
                 int x = e.getX() / Constants.GAME_TILE_SIZE;
-                int y = (e.getY() - Constants.Y_OFFSET) / Constants.GAME_TILE_SIZE;
+                int y = e.getY() / Constants.GAME_TILE_SIZE;
                 Game.this.mover.moveTo(Game.this.player, x, y);
             }
         });
