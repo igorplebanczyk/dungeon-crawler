@@ -18,11 +18,11 @@ public abstract class DynamicEntity implements Entity {
         return y;
     }
 
-    public EntityType getType() {
+    public EntityType type() {
         return type;
     }
 
-    public String getImagePath() {
+    public String imagePath() {
         return imagePath;
     }
 

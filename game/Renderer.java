@@ -20,7 +20,7 @@ public class Renderer {
         for (int y = 0; y < Constants.GAME_TILE_NUM; y++) {
             for (int x = 0; x < Constants.GAME_TILE_NUM; x++) {
                 Entity tile = this.game.getGameState().getCurrentDungeon().getTile(x, y);
-                Image imageToDraw = ImageCache.getImage(tile.getImagePath());
+                Image imageToDraw = ImageCache.getImage(tile.imagePath());
                 if (imageToDraw != null) {
                     g.drawImage(imageToDraw, x * Constants.GAME_TILE_SIZE, y * Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, Constants.GAME_TILE_SIZE, game);
                 }

@@ -67,10 +67,10 @@ public class Dungeon {
     private void ensureAdjacentWalls() {
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
-                if (map[y][x].getType() == EntityType.WALL) { // If current tile is wall
+                if (map[y][x].type() == EntityType.WALL) { // If current tile is wall
                     // Check surrounding tiles
-                    if (map[y - 1][x].getType() == EntityType.FLOOR && map[y][x - 1].getType() == EntityType.FLOOR &&
-                            map[y + 1][x].getType() == EntityType.FLOOR && map[y][x + 1].getType() == EntityType.FLOOR) {
+                    if (map[y - 1][x].type() == EntityType.FLOOR && map[y][x - 1].type() == EntityType.FLOOR &&
+                            map[y + 1][x].type() == EntityType.FLOOR && map[y][x + 1].type() == EntityType.FLOOR) {
                         // If no adjacent walls, make one adjacent wall
                         int direction = random.nextInt(4); // 0: Up, 1: Left, 2: Down, 3: Right
                         switch (direction) {
@@ -101,7 +101,7 @@ public class Dungeon {
         // Fill any area that is not accessible with walls
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (!accessible[y][x] && map[y][x].getType() != EntityType.EXIT) { // Don't fill the exit with a wall
+                if (!accessible[y][x] && map[y][x].type() != EntityType.EXIT) { // Don't fill the exit with a wall
                     setTile(x, y, new StaticEntity(EntityType.WALL)); // Fill with a wall
                 }
             }
@@ -113,7 +113,7 @@ public class Dungeon {
             return;
         }
 
-        if (map[y][x].getType() == EntityType.WALL || accessible[y][x]) {
+        if (map[y][x].type() == EntityType.WALL || accessible[y][x]) {
             return;
         }
 
@@ -172,7 +172,7 @@ public class Dungeon {
     }
 
     private boolean isValidTile(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height && map[y][x].getType() != EntityType.WALL;
+        return x >= 0 && x < width && y >= 0 && y < height && map[y][x].type() != EntityType.WALL;
     }
 
     public void addDoor(int x, int y) {

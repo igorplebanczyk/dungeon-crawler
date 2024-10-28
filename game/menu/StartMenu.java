@@ -94,7 +94,7 @@ public class StartMenu extends Menu {
     private void drawSelectionPanelFloorTiles(Graphics g) {
         for (int y = 0; y < Constants.START_WINDOW_HEIGHT; y++) {
             for (int x = 0; x < Constants.START_WINDOW_WIDTH; x++) {
-                g.drawImage(ImageCache.getImage(new StaticEntity(EntityType.FLOOR).getImagePath()), x * Constants.START_TILE_SIZE, y * Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, this);
+                g.drawImage(ImageCache.getImage(new StaticEntity(EntityType.FLOOR).imagePath()), x * Constants.START_TILE_SIZE, y * Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, Constants.START_TILE_SIZE, this);
             }
         }
     }

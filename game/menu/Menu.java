@@ -15,7 +15,7 @@ public abstract class Menu extends JFrame {
 
     // Add floor tiles to a panel
     protected void addFloorTiles(JPanel panel, int tileSize, int width, int height) {
-        ImageIcon floorIcon = createScaledIcon(new StaticEntity(EntityType.FLOOR).getImagePath(), tileSize);
+        ImageIcon floorIcon = createScaledIcon(new StaticEntity(EntityType.FLOOR).imagePath(), tileSize);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 JLabel label = new JLabel(floorIcon);

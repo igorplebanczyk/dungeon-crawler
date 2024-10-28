@@ -23,15 +23,15 @@ public class Mover {
         int newY = actor.getY() + dy;
 
         if (newX >= 0 && newX < Constants.GAME_TILE_NUM && newY >= 0 && newY < Constants.GAME_TILE_NUM &&
-                (this.game.getGameState().getCurrentDungeon().getTile(newX, newY).getType() == EntityType.FLOOR ||
-                        this.game.getGameState().getCurrentDungeon().getTile(newX, newY).getType() == EntityType.EXIT ||
-                        this.game.getGameState().getCurrentDungeon().getTile(newX, newY).getType() == EntityType.DOOR)) {
+                (this.game.getGameState().getCurrentDungeon().getTile(newX, newY).type() == EntityType.FLOOR ||
+                        this.game.getGameState().getCurrentDungeon().getTile(newX, newY).type() == EntityType.EXIT ||
+                        this.game.getGameState().getCurrentDungeon().getTile(newX, newY).type() == EntityType.DOOR)) {
             actor.move(dx, dy);
         }
     }
 
     public void moveTo(DynamicEntity actor, int targetX, int targetY) {
-        if (this.game.getGameState().getCurrentDungeon().getTile(targetX, targetY).getType() != EntityType.FLOOR) { // Cannot move to non-floor tiles
+        if (this.game.getGameState().getCurrentDungeon().getTile(targetX, targetY).type() != EntityType.FLOOR) { // Cannot move to non-floor tiles
             this.game.getGameState().setMessage(new Message("It ain't that easy", this.game));
             this.game.getGameState().getMessage().display(750);
             return;

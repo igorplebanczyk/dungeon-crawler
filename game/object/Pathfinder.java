@@ -16,9 +16,9 @@ public class Pathfinder {
 
     private boolean isValidTileForPathfinder(int x, int y) {
         if (GameState.isBulldozerMode()) {
-            return x >= 0 && x < dungeon.getWidth() && y >= 0 && y < dungeon.getHeight() && (dungeon.getMap()[y][x].getType() == EntityType.FLOOR || dungeon.getMap()[y][x].getType() == EntityType.WALL);
+            return x >= 0 && x < dungeon.getWidth() && y >= 0 && y < dungeon.getHeight() && (dungeon.getMap()[y][x].type() == EntityType.FLOOR || dungeon.getMap()[y][x].type() == EntityType.WALL);
         } else {
-            return x >= 0 && x < dungeon.getWidth() && y >= 0 && y < dungeon.getHeight() && dungeon.getMap()[y][x].getType() == EntityType.FLOOR;
+            return x >= 0 && x < dungeon.getWidth() && y >= 0 && y < dungeon.getHeight() && dungeon.getMap()[y][x].type() == EntityType.FLOOR;
         }
     }
 
